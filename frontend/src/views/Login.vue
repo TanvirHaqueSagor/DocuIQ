@@ -1,23 +1,50 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-100">
-    <form class="bg-white p-6 rounded shadow-md" @submit.prevent="login">
-      <h2 class="text-2xl font-bold mb-4">Login</h2>
-      <input v-model="username" type="text" placeholder="Username" class="input mb-2 w-full" />
-      <input v-model="password" type="password" placeholder="Password" class="input mb-4 w-full" />
-      <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Login</button>
+  <div class="login-container">
+    <h2>Login</h2>
+    <form @submit.prevent="login">
+      <input v-model="username" placeholder="Username" required />
+      <input type="password" v-model="password" placeholder="Password" required />
+      <button type="submit">Login</button>
     </form>
+    <p v-if="error" class="error">{{ error }}</p>
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
+<script>
 import axios from 'axios'
-const username = ref('')
-const password = ref('')
-const login = async () => {
-  const { data } = await axios.post('/api/token/', { username: username.value, password: password.value })
-  localStorage.setItem('access', data.access)
-  localStorage.setItem('refresh', data.refresh)
-  location.href = '/'
+
+export default {
+  data() {
+    return {
+      username: '',
+      password: '',
+      error: ''
+    }
+  },
+  methods: {
+    async login() {
+      try {
+        const res = await axios.post(import.meta.env.VITE_API_URL + '/api/login/', {
+          username: this.username,
+          password: this.password
+        })
+        const token = res.data.access
+        localStorage.setItem('access_token', token)
+        this.$router.push('/dashboard') // বা যেখানেই redirect করতে চাও
+      } catch (err) {
+        this.error = "Login failed"
+      }
+    }
+  }
 }
 </script>
+
+<style scoped>
+.login-container {
+  max-width: 300px;
+  margin: auto;
+}
+.error {
+  color: red;
+}
+</style>

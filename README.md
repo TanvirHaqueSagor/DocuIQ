@@ -1,105 +1,90 @@
-# 📘 DocuIQ Setup Guide (Docker-based)
+# =============================
+# 📄 File: README.md
+# =============================
 
-Welcome to **DocuIQ** — an intelligent RAG-powered document assistant powered by Django, FastAPI, Vue 3, and Docker.
+# 🚀 DocuIQ - RAG-Powered Document Intelligence Platform
 
----
+DocuIQ is an end-to-end intelligent document processing platform powered by AI + RAG (Retrieval-Augmented Generation).
 
-## 🚀 Project Structure
+## 🧱 Project Structure
 
-```
-.
-├── .env.example           # Environment template
-├── docker-compose.yml     # Orchestration for all services
-├── backend/               # Django + DRF + JWT
-├── ai_engine/             # FastAPI service for AI search & indexing
-└── frontend/              # Vue 3 + Vite + Tailwind
-```
+- `frontend/` – Vue 3 + Vite + Tailwind
+- `backend/` – Django (API, JWT, Upload handling)
+- `ai_engine/` – FastAPI app for RAG-based search/QA
+- `docker-compose.yml` – Full stack orchestration
 
 ---
 
-## ⚙️ Prerequisites
+## ✅ Prerequisites
 
-- Docker & Docker Compose (v2+)
-- Git (optional)
+- Docker & Docker Compose
+- GitHub SSH setup (optional)
 
 ---
 
 ## 🛠️ Setup Instructions
 
-### 1. Clone the repository
+### 1. Clone the Repository
+
 ```bash
-git clone https://github.com/your-username/docuiq.git
-cd docuiq
+git clone git@github.com-personal:TanvirHaqueSagor/DocuIQ.git
+cd DocuIQ
 ```
 
-### 2. Create `.env` file
+### 2. Create `.env` File
+
+Copy the example and fill in secrets:
+
 ```bash
 cp .env.example .env
 ```
-You can adjust PostgreSQL credentials, Django secret key, and service URLs inside this file.
 
-### 3. Build and Start the Services
+### 3. Start All Services
+
 ```bash
 docker compose up --build
 ```
 
-⏳ First time may take a few minutes to download and install everything.
+### 4. Access Your App
 
-### 4. Create Django Superuser (Optional)
-```bash
-docker compose exec backend python manage.py createsuperuser
-```
-Use this to access Django admin at: [http://localhost:8888/admin](http://localhost:8888/admin)
-
----
-
-## 🔗 URLs to Access
-
-| Service        | URL                          |
-|----------------|-------------------------------|
-| Frontend (Vue) | http://localhost:3000        |
-| Backend (Django) | http://localhost:8888      |
-| AI Engine (FastAPI) | http://localhost:9000   |
+| Service   | URL                     |
+|-----------|--------------------------|
+| Frontend  | http://localhost:3000    |
+| Backend   | http://localhost:8890    |
+| AI Engine | http://localhost:9000    |
 
 ---
 
-## 🔐 JWT Auth (Sample Flow)
-- Login: `POST /api/token/` with `{ username, password }`
-- Refresh: `POST /api/token/refresh/`
-- Use access token in `Authorization: Bearer <token>`
+## 🔐 Authentication
+
+JWT-based login/logout is built-in.
 
 ---
 
-## 📤 AI Document Upload
-```
-POST /upload (FastAPI)
-File Upload -> Stored in memory and indexed (demo only)
-```
+## 📄 Features (Roadmap)
 
-## 🔍 Ask a Question
-```
-POST /ask
-{
-  "question": "What is revenue?",
-  "document_id": "sample.txt"
-}
-```
+- ✅ Upload PDF/Doc
+- ✅ Extract & Embed content
+- ✅ Ask AI / search inside documents
+- ⏳ Email/document sync
+- ⏳ PDF viewer with highlights
+- ⏳ SaaS: Org-wise document segmentation
 
 ---
 
-## 🧹 Clean Up
-```bash
-docker compose down -v
-```
+## 🤝 Contributing
+
+1. Fork the repo
+2. Create a feature branch
+3. Make changes and commit
+4. Push and create a PR
 
 ---
 
-## ✅ Next Steps
-- Add PDF reader to AI service (PyMuPDF)
-- Connect AI response to frontend
-- Multi-user support & workspace
-- SaaS billing module (Stripe)
+## 📝 License
+MIT
 
 ---
 
-Made with ❤️ for intelligent document operations.
+## 👨‍💻 Author
+Built with ❤️ by [Tanvir Haque](https://github.com/TanvirHaqueSagor)
