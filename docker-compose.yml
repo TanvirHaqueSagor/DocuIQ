@@ -1,0 +1,51 @@
+# ============================
+# 📁 Root: docker-compose.yml
+# ============================
+
+version: '3.9'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: always
+    environment:
+      - VITE_API_URL=http://localhost:8888
+
+  backend:
+    build:
+      context: ./backend
+    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8890"
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8890:8888"
+    depends_on:
+      - db
+    env_file:
+      - .env
+    restart: always
+
+  ai:
+    build:
+      context: ./ai_engine
+    ports:
+      - "9000:9000"
+    restart: always
+
+  db:
+    image: postgres:14
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    restart: always
+    environment:
+      - POSTGRES_DB=docuiq
+      - POSTGRES_USER=docuadmin
+      - POSTGRES_PASSWORD=securepassword
+
+volumes:
+  postgres_data:

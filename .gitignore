@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.sqlite3
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+/media
+/static
+
+# Vue
+node_modules
+dist
+.env
+.vite
+.DS_Store
+
+# Docker
+*.pid
+*.sock
+*.tar
+
+# VSCode
+.vscode/
+
+# System
+Thumbs.db
