@@ -14,7 +14,7 @@ services:
       - backend
     restart: always
     environment:
-      - VITE_API_URL=http://localhost:8888
+      - VITE_API_URL=http://localhost:8890
 
   backend:
     build:
@@ -23,7 +23,7 @@ services:
     volumes:
       - ./backend:/app
     ports:
-      - "8890:8888"
+      - "8890:8890"
     depends_on:
       - db
     env_file:
