@@ -65,7 +65,7 @@ STATIC_URL = '/static/'
 
 CORS_ALLOW_ALL_ORIGINS = True
 
-INSTALLED_APPS += ['rest_framework']
+
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
