@@ -1,24 +1,18 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import Register from './views/Register.vue'
 import Login from './views/Login.vue'
 import Logout from './views/Logout.vue'
-import App from './App.vue'
+import Home from './views/Home.vue' 
 
 const routes = [
-  { path: '/', component: App },
+  { path: '/', component: Home },
+  { path: '/register', component: Register },
   { path: '/login', component: Login },
-  { path: '/logout', component: Logout }
+  { path: '/logout', component: Logout },
+   { path: '/home', component: Home }
 ]
 
 export default createRouter({
   history: createWebHistory(),
   routes
-})
-
-router.beforeEach((to, from, next) => {
-  const isAuthenticated = !!localStorage.getItem('access_token')
-  if (to.meta.requiresAuth && !isAuthenticated) {
-    next('/login')
-  } else {
-    next()
-  }
 })

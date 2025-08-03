@@ -15,6 +15,10 @@ services:
     restart: always
     environment:
       - VITE_API_URL=http://localhost:8890
+      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      - ./frontend:/app         
+      - /app/node_modules     
 
   backend:
     build:
@@ -25,7 +29,7 @@ services:
     ports:
       - "8890:8890"
     depends_on:
-      - db
+      - docuiqdb
     env_file:
       - .env
     restart: always
@@ -37,8 +41,10 @@ services:
       - "9000:9000"
     restart: always
 
-  db:
+  docuiqdb:
     image: postgres:14
+    ports:
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     restart: always

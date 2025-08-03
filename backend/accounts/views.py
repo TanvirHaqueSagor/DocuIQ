@@ -1,11 +1,36 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
+from rest_framework_simplejwt.tokens import RefreshToken
 
+from .serializers import RegisterSerializer
+
+# --------- User Registration ---------
 class RegisterView(APIView):
     def post(self, request):
-        return Response({"message": "User registered successfully."}, status=status.HTTP_201_CREATED)
+        serializer = RegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'success': True, 'msg': 'Registration successful!'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# --------- JWT Login (email/password only) ---------
 class LoginView(APIView):
     def post(self, request):
-        return Response({"token": "dummy-jwt-token"}, status=status.HTTP_200_OK)
+        email = request.data.get('email')
+        password = request.data.get('password')
+
+        user = authenticate(username=email, password=password)
+        if user is not None:
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+                'user': {
+                    'id': user.id,
+                    'email': user.email,
+                }
+            })
+        return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
