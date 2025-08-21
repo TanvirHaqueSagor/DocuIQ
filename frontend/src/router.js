@@ -1,18 +1,22 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Register from './views/Register.vue'
+import Home from './views/Home.vue'
 import Login from './views/Login.vue'
-import Logout from './views/Logout.vue'
-import Home from './views/Home.vue' 
+import Register from './views/Register.vue'
 
 const routes = [
-  { path: '/', component: Home },
-  { path: '/register', component: Register },
-  { path: '/login', component: Login },
-  { path: '/logout', component: Logout },
-   { path: '/home', component: Home }
+  // অ্যাপের মূল হোম
+  { path: '/', component: Home, meta: { requiresAuth: true } },
+  { path: '/home', component: Home, meta: { requiresAuth: true } },
+
+  // অথ পেজগুলোতে সাইডবার লুকাতে hideSidebar:true
+  { path: '/login', component: Login, meta: { hideSidebar: true, public: true } },
+  { path: '/register', component: Register, meta: { hideSidebar: true, public: true } },
+
+  // ফ্যালব্যাক
+  { path: '/:pathMatch(.*)*', redirect: '/' },
 ]
 
 export default createRouter({
   history: createWebHistory(),
-  routes
+  routes,
 })
