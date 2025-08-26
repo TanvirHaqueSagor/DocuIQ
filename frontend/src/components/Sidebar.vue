@@ -2,13 +2,11 @@
   <aside :class="['sidebar', { closed: !isOpen }]">
     <div class="sidebar-top">
       <div class="logo-section">
-        <!-- Full logo (open state) -->
         <span class="brand" v-show="isOpen">
           <span class="brand-main">Docu</span><span class="highlight">IQ</span>
         </span>
 
-        <!-- Mini logo (closed state) with hover chevron to open -->
-        <span class="brand-mini" v-show="!isOpen" @click="toggleSidebar" :title="$t('openSidebar')">
+        <span class="brand-mini" v-show="!isOpen" @click="toggleSidebar" :title="$t ? $t('openSidebar') : 'Open sidebar'">
           <span class="brand-mini-text">Docu<span class="highlight">IQ</span></span>
           <button class="open-hint" aria-label="Open sidebar" @click.stop="toggleSidebar">
             <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
@@ -17,53 +15,56 @@
           </button>
         </span>
 
-        <!-- Close/Open buttons (ChatGPT-style chevrons) -->
         <button
           class="sidebar-toggle"
           @click="toggleSidebar"
-          :title="isOpen ? $t('closeSidebar') : $t('openSidebar')"
+          :title="isOpen ? ($t ? $t('closeSidebar') : 'Close sidebar') : ($t ? $t('openSidebar') : 'Open sidebar')"
           aria-label="Toggle sidebar"
         >
           <svg v-if="isOpen" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
-            <!-- chevron-left to close -->
             <path d="M14.5 5 L8.5 12 L14.5 19" fill="none" stroke="#4a5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           <svg v-else width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
-            <!-- chevron-right to open (kept for accessibility, hidden via CSS when closed) -->
             <path d="M9.5 5 L15.5 12 L9.5 19" fill="none" stroke="#4a5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
       </div>
 
       <nav class="sidebar-menu">
-        <router-link
-          to="/new-analysis"
-          class="menu-item"
-          active-class="active"
-          :title="$t('newAnalysis')"
-        >
-          <span class="menu-icon" aria-hidden="true">📝</span>
-          <span class="menu-label">{{ $t('newAnalysis') }}</span>
+        <router-link to="/dashboard" class="menu-item" active-class="active" :title="$t ? $t('dashboard') : 'Dashboard'">
+          <span class="menu-icon" aria-hidden="true">📊</span>
+          <span class="menu-label">{{ $t ? $t('dashboard') : 'Dashboard' }}</span>
         </router-link>
 
-        <div class="menu-group-title" :title="$t('history')" tabindex="0">
+        <router-link to="/documents" class="menu-item" active-class="active" :title="$t ? $t('documents') : 'Documents'">
+          <span class="menu-icon" aria-hidden="true">🗂️</span>
+          <span class="menu-label">{{ $t ? $t('documents') : 'Documents' }}</span>
+        </router-link>
+
+        <router-link to="/search" class="menu-item" active-class="active" :title="$t ? $t('search') : 'Search'">
+          <span class="menu-icon" aria-hidden="true">🔎</span>
+          <span class="menu-label">{{ $t ? $t('search') : 'Search' }}</span>
+        </router-link>
+
+        <div class="menu-group-title" :title="$t ? $t('history') : 'History'" tabindex="0">
           <span class="menu-icon" aria-hidden="true">🕑</span>
-          <span class="menu-label">{{ $t('history') }}</span>
+          <span class="menu-label">{{ $t ? $t('history') : 'History' }}</span>
         </div>
         <ul class="menu-sublist">
           <li v-for="h in historyList" :key="h.id">
-            <router-link
-              :to="`/analysis/${h.id}`"
-              class="menu-child"
-              :title="h.title"
-            >
+            <router-link :to="`/analysis/${h.id}`" class="menu-child" :title="h.title">
               <span class="menu-label">{{ h.title }}</span>
             </router-link>
           </li>
           <li v-if="!historyList.length" class="menu-child-empty">
-            <span class="menu-label">{{ $t('noHistory') }}</span>
+            <span class="menu-label">{{ $t ? $t('noHistory') : 'No history yet' }}</span>
           </li>
         </ul>
+
+        <router-link to="/new-analysis" class="menu-item" active-class="active" :title="$t ? $t('newAnalysis') : 'New Analysis'">
+          <span class="menu-icon" aria-hidden="true">📝</span>
+          <span class="menu-label">{{ $t ? $t('newAnalysis') : 'New Analysis' }}</span>
+        </router-link>
       </nav>
     </div>
 
@@ -74,10 +75,10 @@
       </div>
 
       <div v-if="showMenu" class="profile-menu" @click.stop>
-        <button class="profile-item">{{ $t('settings') }}</button>
-        <button class="profile-item">{{ $t('upgradePlan') }}</button>
-        <button class="profile-item">{{ $t('help') }}</button>
-        <button class="profile-item danger">{{ $t('logout') }}</button>
+        <button class="profile-item">{{ $t ? $t('settings') : 'Settings' }}</button>
+        <button class="profile-item">{{ $t ? $t('upgradePlan') : 'Upgrade plan' }}</button>
+        <button class="profile-item">{{ $t ? $t('help') : 'Help' }}</button>
+        <button class="profile-item danger">{{ $t ? $t('logout') : 'Logout' }}</button>
       </div>
     </div>
 
@@ -97,7 +98,7 @@ const historyList = ref([
 
 const isOpen = ref(true)
 const showMenu = ref(false)
-const { t } = useI18n()
+const { t } = useI18n ? useI18n() : { t: (s)=>s }
 
 const isMobile = computed(() => {
   if (typeof window === 'undefined' || !window.matchMedia) return false
@@ -115,7 +116,9 @@ const toggleMenu = (e) => {
 }
 
 const updateBodyAttr = () => {
-  document.body.setAttribute('data-sidebar', isOpen.value ? 'open' : 'closed')
+  if (typeof document !== 'undefined') {
+    document.body.setAttribute('data-sidebar', isOpen.value ? 'open' : 'closed')
+  }
 }
 watch(isOpen, updateBodyAttr)
 
@@ -123,10 +126,14 @@ const onDocClick = () => { showMenu.value = false }
 
 onMounted(() => {
   updateBodyAttr()
-  document.addEventListener('click', onDocClick)
+  if (typeof document !== 'undefined') {
+    document.addEventListener('click', onDocClick)
+  }
 })
 onBeforeUnmount(() => {
-  document.removeEventListener('click', onDocClick)
+  if (typeof document !== 'undefined') {
+    document.removeEventListener('click', onDocClick)
+  }
 })
 </script>
 
