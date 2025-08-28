@@ -45,11 +45,12 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import StatsCard from '@/components/dashboard/StatsCard.vue'
-import UsageSparkline from '@/components/dashboard/UsageSparkline.vue'
-import RecentDocumentsTable from '@/components/dashboard/RecentDocumentsTable.vue'
-import QuickActions from '@/components/dashboard/QuickActions.vue'
-import { fetchDashboardSummary, fetchUsage, fetchRecentDocuments, deleteDocument } from '@/services/dashboard'
+
+import StatsCard from '../components/dashboard/StatsCard.vue'
+import UsageSparkline from '../components/dashboard/UsageSparkline.vue'
+import RecentDocumentsTable from '../components/dashboard/RecentDocumentsTable.vue'
+import QuickActions from '../components/dashboard/QuickActions.vue'
+import { fetchDashboardSummary, fetchUsage, fetchRecentDocuments, deleteDocument } from '../services/dashboard'
 
 const router = useRouter()
 

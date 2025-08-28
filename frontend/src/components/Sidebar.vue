@@ -78,7 +78,7 @@
         <button class="profile-item">{{ $t ? $t('settings') : 'Settings' }}</button>
         <button class="profile-item">{{ $t ? $t('upgradePlan') : 'Upgrade plan' }}</button>
         <button class="profile-item">{{ $t ? $t('help') : 'Help' }}</button>
-        <button class="profile-item danger">{{ $t ? $t('logout') : 'Logout' }}</button>
+        <button class="profile-item danger" @click="goLogout">{{ $t ? $t('logout') : 'Logout' }}</button>
       </div>
     </div>
 
@@ -88,6 +88,7 @@
 
 <script setup>
 import { ref, onMounted, watch, computed, onBeforeUnmount } from 'vue'
+import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
 const username = 'tanvir.haque'
@@ -98,6 +99,7 @@ const historyList = ref([
 
 const isOpen = ref(true)
 const showMenu = ref(false)
+const router = useRouter()
 const { t } = useI18n ? useI18n() : { t: (s)=>s }
 
 const isMobile = computed(() => {
@@ -113,6 +115,11 @@ const toggleSidebar = () => {
 const toggleMenu = (e) => {
   e.stopPropagation()
   showMenu.value = !showMenu.value
+}
+
+const goLogout = () => {
+  showMenu.value = false
+  router.push('/logout')
 }
 
 const updateBodyAttr = () => {

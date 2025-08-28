@@ -23,10 +23,8 @@
             id="name"
             type="text"
             :placeholder="$t('namePlaceholder')"
-            required
-            @input="clientValidate"
           />
-          <div class="error" v-if="clientErrors.name">{{ clientErrors.name }}</div>
+          <div class="error"  v-if="submitted && clientErrors.name">{{ clientErrors.name }}</div>
         </div>
         <div class="form-group" v-if="accountType === 'organization'">
           <label for="orgName">{{ $t('orgName') }}</label>
@@ -35,10 +33,8 @@
             id="orgName"
             type="text"
             :placeholder="$t('orgNamePlaceholder')"
-            required
-            @input="clientValidate"
           />
-          <div class="error" v-if="clientErrors.orgName">{{ clientErrors.orgName }}</div>
+          <div class="error"  v-if="submitted && clientErrors.orgName">{{ clientErrors.orgName }}</div>
         </div>
         <div class="form-group">
           <label for="email">{{ $t('email') }}</label>
@@ -46,12 +42,10 @@
             v-model="email"
             id="email"
             type="email"
-            required
             :placeholder="$t('emailPlaceholder')"
-            @input="clientValidate"
             autocomplete="email"
           />
-          <div class="error" v-if="clientErrors.email">{{ clientErrors.email }}</div>
+          <div class="error"  v-if="submitted && clientErrors.email">{{ clientErrors.email }}</div>
         </div>
         <div class="form-group">
           <label for="password">{{ $t('password') }}</label>
@@ -59,15 +53,13 @@
             v-model="password"
             id="password"
             type="password"
-            required
             minlength="8"
             :placeholder="$t('passwordPlaceholder')"
-            @input="clientValidate"
             autocomplete="new-password"
           />
-          <div class="error" v-if="clientErrors.password">{{ clientErrors.password }}</div>
+          <div class="error" v-if="submitted && clientErrors.password">{{ clientErrors.password }}</div>
         </div>
-        <button type="submit" class="register-btn" :disabled="loading || hasClientErrors">
+        <button type="submit" class="register-btn" :disabled="loading">
           <span v-if="loading">{{ $t('signingIn') }}</span>
           <span v-else>{{ $t('signUp') }}</span>
         </button>
@@ -101,6 +93,7 @@ const error = ref('')
 const success = ref(false)
 const loading = ref(false)
 const clientErrors = ref({})
+const submitted = ref(false)
 
 const clientValidate = () => {
   clientErrors.value = {}
@@ -124,6 +117,7 @@ const hasClientErrors = computed(() => Object.keys(clientErrors.value).length > 
 const router = useRouter()
 
 const onRegister = async () => {
+  submitted.value = true
   clientValidate()
   if (hasClientErrors.value) return
 

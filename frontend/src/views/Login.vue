@@ -49,9 +49,8 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import LanguageSwitcher from '../components/LanguageSwitcher.vue'
 import { API_BASE_URL } from '../config'
 
 const email = ref('')
@@ -60,33 +59,55 @@ const loading = ref(false)
 const error = ref('')
 
 const router = useRouter()
+const route = useRoute()
 const { t } = useI18n()
 
 const onSubmit = async () => {
   loading.value = true
   error.value = ''
   try {
-    const response = await fetch(`${API_BASE_URL}/api/accounts/login/`, {
+    const res = await fetch(`${API_BASE_URL}/api/accounts/login/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: email.value,
-        password: password.value,
-      }),
-      credentials: 'include'
+      // JWT flow-এ credentials লাগবে না
+      body: JSON.stringify({ email: email.value, password: password.value }),
     })
-    const data = await response.json()
-    if (response.ok && data && !data.error) {
-      router.push('/home')
-    } else {
+
+    // কিছু সময়ে backend থেকে HTML/empty আসলে json() ক্র্যাশ করে — তাই safe parse
+    let data = null
+    try {
+      data = await res.json()
+    } catch (_) {
+      data = null
+    }
+
+    if (res.ok && data && data.access) {
+      // টোকেন সেভ → router guard OK → axios Authorization OK
+      localStorage.setItem('token', data.access)
+      if (data.refresh) localStorage.setItem('refresh', data.refresh)
+      if (data.user) localStorage.setItem('user', JSON.stringify(data.user))
+
+      // redirect param থাকলে ওখানেই, নাহলে dashboard
+      const target = (route.query.redirect ? String(route.query.redirect) : '/dashboard')
+      await router.replace(target)
+      return
+    }
+
+    // 401/ভুল ক্রেডেনশিয়াল কেস
+    if (data && (data.error || data.detail)) {
       error.value = t('invalidAuth')
+    } else {
+      // non-JSON বা অপ্রত্যাশিত রেসপন্স
+      error.value = t('somethingWrong')
     }
   } catch (e) {
     error.value = t('somethingWrong')
+  } finally {
+    loading.value = false
   }
-  loading.value = false
 }
 </script>
+
 
 <style scoped>
 .login-bg {

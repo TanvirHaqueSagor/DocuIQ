@@ -1,4 +1,4 @@
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -12,6 +12,7 @@ User = get_user_model()
 
 # --------- User Registration ---------
 class RegisterView(APIView):
+    permission_classes = [AllowAny]  
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
@@ -21,6 +22,7 @@ class RegisterView(APIView):
 
 # --------- JWT Login (email/password only) ---------
 class LoginView(APIView):
+    permission_classes = [AllowAny] 
     def post(self, request):
         email = (request.data.get('email') or '').strip()
         password = request.data.get('password')
