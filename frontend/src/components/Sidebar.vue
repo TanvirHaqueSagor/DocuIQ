@@ -3,15 +3,15 @@
     <div class="sidebar-top">
       <div class="logo-section">
         <transition name="logo-large">
-          <span class="brand" v-if="isOpen">
+          <router-link v-if="isOpen" to="/" class="brand" :title="$t ? $t('home') : 'Home'">
             <span class="brand-main">Docu</span><span class="highlight">IQ</span>
-          </span>
+          </router-link>
         </transition>
 
         <transition name="logo-mini">
-          <span class="brand-mini" v-if="!isOpen" @click="toggleSidebar" :title="$t ? $t('openSidebar') : 'Open sidebar'">
-            <span class="brand-mini-text">Docu<span class="highlight">IQ</span></span>
-            <button class="open-hint" aria-label="Open sidebar" @click.stop="toggleSidebar">
+          <span class="brand-mini" v-if="!isOpen">
+            <router-link to="/" class="brand-mini-text" :title="$t ? $t('home') : 'Home'">Docu<span class="highlight">IQ</span></router-link>
+            <button class="open-hint" aria-label="Open sidebar" @click.stop="toggleSidebar" :title="$t ? $t('openSidebar') : 'Open sidebar'">
               <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M9.5 5 L15.5 12 L9.5 19" fill="none" stroke="#4a5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
@@ -37,6 +37,11 @@
       </div>
 
       <nav class="sidebar-menu">
+        <router-link to="/" class="menu-item" active-class="active" :title="$t ? $t('newAnalysis') : 'New Analysis'">
+          <span class="menu-icon" aria-hidden="true">📝</span>
+          <span class="menu-label">{{ $t ? $t('newAnalysis') : 'New Analysis' }}</span>
+        </router-link>
+
         <router-link to="/dashboard" class="menu-item" active-class="active" :title="$t ? $t('dashboard') : 'Dashboard'">
           <span class="menu-icon" aria-hidden="true">📊</span>
           <span class="menu-label">{{ $t ? $t('dashboard') : 'Dashboard' }}</span>
@@ -47,10 +52,7 @@
           <span class="menu-label">{{ $t ? $t('documents') : 'Documents' }}</span>
         </router-link>
 
-        <router-link to="/search" class="menu-item" active-class="active" :title="$t ? $t('search') : 'Search'">
-          <span class="menu-icon" aria-hidden="true">🔎</span>
-          <span class="menu-label">{{ $t ? $t('search') : 'Search' }}</span>
-        </router-link>
+        
 
         <div class="menu-group-title" :title="$t ? $t('history') : 'History'" tabindex="0">
           <span class="menu-icon" aria-hidden="true">🕑</span>
@@ -67,10 +69,7 @@
           </li>
         </ul>
 
-        <router-link to="/new-analysis" class="menu-item" active-class="active" :title="$t ? $t('newAnalysis') : 'New Analysis'">
-          <span class="menu-icon" aria-hidden="true">📝</span>
-          <span class="menu-label">{{ $t ? $t('newAnalysis') : 'New Analysis' }}</span>
-        </router-link>
+        
       </nav>
     </div>
 
@@ -213,13 +212,13 @@ onMounted(async () => {
 }
 
 /* Brand (open) */
-.brand { font-size: 1.34rem; font-weight: 700; color: #2788df; letter-spacing: -.7px; white-space: nowrap; }
+.brand { font-size: 1.34rem; font-weight: 700; color: #2788df; letter-spacing: -.7px; white-space: nowrap; text-decoration: none; }
 .brand-main { letter-spacing: -.7px; }
 .highlight { color: #2196f3; }
 
 /* Mini brand (closed) */
 .brand-mini { display: none; align-items: center; gap: 6px; cursor: pointer; }
-.brand-mini-text { font-size: .98rem; font-weight: 700; color: #2788df; letter-spacing: -.3px; white-space: nowrap; }
+.brand-mini-text { font-size: .98rem; font-weight: 700; color: #2788df; letter-spacing: -.3px; white-space: nowrap; text-decoration: none; }
 .open-hint { 
   display: inline-flex; align-items: center; justify-content: center;
   width: 22px; height: 22px; border-radius: 6px; border: 1px solid #dbe3f3;

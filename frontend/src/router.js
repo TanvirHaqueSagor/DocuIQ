@@ -58,7 +58,7 @@ router.beforeEach((to, from, next) => {
   }
   // লগইন থাকা অবস্থায়: login/register এ এলে dashboard এ পাঠান
   if (token && isPublic) {
-    return next('/dashboard')
+    return next('/')
   }
   // Enforce org subdomain for protected routes
   if (token && !isPublic && acctType === 'organization' && orgSub && ROOT_DOMAIN) {

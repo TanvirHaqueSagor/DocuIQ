@@ -12,9 +12,11 @@ services:
       - "3000:3000"
     depends_on:
       - backend
+      - ai
     restart: always
     environment:
       - VITE_API_URL=http://localhost:8890
+      - VITE_AI_URL=http://localhost:9000
       - VITE_ROOT_DOMAIN=localhost
       - CHOKIDAR_USEPOLLING=true
     volumes:
@@ -41,6 +43,12 @@ services:
     ports:
       - "9000:9000"
     restart: always
+    env_file:
+      - .env
+    environment:
+      - VECTOR_DB_PATH=/data/vector_store.sqlite3
+    volumes:
+      - ai_data:/data
 
   docuiqdb:
     image: postgres:14
@@ -56,3 +64,4 @@ services:
 
 volumes:
   postgres_data:
+  ai_data:

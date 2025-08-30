@@ -49,10 +49,11 @@
               <span>{{ $t ? $t('autoRefresh') : 'Auto refresh' }}</span>
             </label>
           </div>
+          <div class="info-line">Data from uploads and connected sources is indexed into your vector database. Use Re-run Import to refresh vectors.</div>
           <table class="tbl" role="table">
             <thead>
               <tr>
-                <th>Type</th><th>Title</th><th>Status</th><th>Created</th><th>Actions</th>
+                <th>Type</th><th>Title</th><th>Status</th><th>Imported</th><th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -70,12 +71,14 @@
                   <template v-if="row.type==='doc'">
                     <div class="row-actions">
                       <RouterLink class="link" :to="`/documents/${row._raw.id}`">View</RouterLink>
+                      <button class="link" @click="rerunImport(row)">Re-run Import</button>
                       <button class="link danger" @click="deleteDoc(row)">Delete</button>
                     </div>
                   </template>
                   <template v-else>
                     <div class="row-actions">
                       <button class="link" @click="openJob(row)">View</button>
+                      <button class="link" @click="rerunImport(row)">Re-run Import</button>
                       <button class="link danger" @click="deleteJob(row)">Delete</button>
                     </div>
                   </template>
@@ -287,20 +290,20 @@ const rowType = (row) => {
 }
 
 // Map job statuses to friendly labels
-const mapJobStatus = (s) => {
-  const v = String(s || '').toLowerCase()
-  const M = { queued: 'Queued', running: 'Running', success: 'Completed', failed: 'Failed' }
-  return M[v] || (s || '—')
+const mapUnifiedStatus = (row) => {
+  // Desired: Uploaded, Processing, Imported
+  if (row?.type === 'job') {
+    const v = String(row._raw?.status || '').toLowerCase()
+    if (v === 'queued' || v === 'running') return 'Processing'
+    if (v === 'success') return 'Imported'
+    // fallback
+    return 'Uploaded'
+  }
+  // Documents (files) default to Uploaded
+  return 'Uploaded'
 }
-const displayStatus = (row) => {
-  if (row?.type === 'job') return mapJobStatus(row._raw?.status)
-  // Documents are available/complete by nature
-  return 'Completed'
-}
-const statusClass = (row) => {
-  if (row?.type === 'job') return String(row.status || '').toLowerCase()
-  return 'success'
-}
+const displayStatus = (row) => mapUnifiedStatus(row)
+const statusClass = (row) => String(mapUnifiedStatus(row)).toLowerCase()
 const fileEmoji = (name='')=>{
   const n=(name||'').toLowerCase()
   if(n.endsWith('.pdf')) return '📕'
@@ -396,7 +399,7 @@ const combinedRows = computed(() => {
     id: `doc-${d.id}`,
     type: 'doc',
     title: d.title || d.filename,
-    status: '',
+    status: 'Uploaded',
     progress: null,
     created_at: d.created_at,
     _raw: d,
@@ -438,7 +441,7 @@ const applySearch = ()=>{}
 const fetchJobs = async ()=>{
   const r = await authFetch(`${API}/api/ingest/jobs/`, { headers: { ...authHeaders() } })
   if(r.ok) jobs.value = await r.json()
-  kpi.running = jobs.value.filter(j=>['queued','running'].includes(j.status)).length
+  kpi.running = jobs.value.filter(j=>['queued','running'].includes(String(j.status||'').toLowerCase())).length
 }
 const fetchDocs = async ()=>{
   const r = await authFetch(`${API}/api/documents?limit=20&sort=-created_at`, { headers: authHeaders() })
@@ -453,6 +456,25 @@ const checkHealth = async ()=>{
   try{ const r=await fetch(`${API}/health/`); kpi.health=r.ok }catch{ kpi.health=false }
 }
 const refreshAll = async ()=>{ await Promise.all([fetchJobs(), fetchDocs(), fetchSources(), checkHealth()]) }
+
+// Re-run import: for docs -> create upload job with file_ids; for jobs -> clone job
+const rerunImport = async (row)=>{
+  try{
+    if (row?.type === 'doc'){
+      const d = row._raw
+      const payload = { file_ids: [d.id] }
+      const r = await authFetch(`${API}/api/ingest/jobs/`, { method:'POST', headers:{ 'Content-Type':'application/json', ...authHeaders() }, body: JSON.stringify({ mode:'upload', payload }) })
+      if (r.ok) await fetchJobs()
+      return
+    }
+    if (row?.type === 'job'){
+      const j = row._raw
+      const body = { mode: j.mode, payload: j.payload || {}, source: j.source || undefined }
+      const r = await authFetch(`${API}/api/ingest/jobs/`, { method:'POST', headers:{ 'Content-Type':'application/json', ...authHeaders() }, body: JSON.stringify(body) })
+      if (r.ok) await fetchJobs()
+    }
+  }catch(_){ /* ignore */ }
+}
 
 /* ----- DnD / File pick ----- */
 const onDragOver = (e)=>{ e.dataTransfer.dropEffect='copy'; isOver.value=true }
@@ -624,10 +646,9 @@ const deleteUploadFiles = async (row)=>{
 .type-cell{ display:flex; align-items:center; gap:8px; }
 .type-ico { display:inline-flex; font-size: 18px; line-height: 1; }
 .badge{ padding:3px 8px; border-radius:999px; font-size:12px; font-weight:800; border:1px solid transparent; }
-.badge.queued{ background:#fff0da; color:#9a6700; border-color:#ffd89a; }
-.badge.running{ background:#eaf2ff; color:#1d4ed8; border-color:#c7dafb; }
-.badge.success{ background:#e8f7ee; color:#047857; border-color:#b7e5c9; }
-.badge.failed{ background:#ffe8e6; color:#b42318; border-color:#f6b2ad; }
+.badge.uploaded{ background:#fff0da; color:#9a6700; border-color:#ffd89a; }
+.badge.processing{ background:#eaf2ff; color:#1d4ed8; border-color:#c7dafb; }
+.badge.imported{ background:#e8f7ee; color:#047857; border-color:#b7e5c9; }
 .prog-cell{ width:190px; }
 .prog{ width:100%; height:8px; background:#edf2ff; border:1px solid #dfe8fb; border-radius:999px; overflow:hidden; }
 .prog .bar{ height:100%; width:0%; background:#4f7cff; transition:width .25s; }
@@ -661,6 +682,7 @@ const deleteUploadFiles = async (row)=>{
 .src-ico{ font-size:20px; } .src-name{ margin-top:6px; font-size:12.5px; font-weight:800; color:#2a3342; }
 .src-ico-comp{ display:inline-flex; font-size: 20px; line-height: 1; }
 .src-ico-img{ width:1em; height:1em; display:inline-block; object-fit:contain; }
+.info-line{ font-size:12.5px; color:#5b6b86; padding:8px 10px; border:1px dashed #dbe3f3; border-radius:10px; background:#fafcff; margin-bottom:8px; }
 
 .connected{ margin-top:12px; }
 .conn-title{ font-weight:900; color:#2a3342; margin-bottom:6px; }
