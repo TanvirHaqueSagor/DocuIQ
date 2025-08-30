@@ -45,4 +45,30 @@
   "logout": "ログアウト",
   "closeSidebar": "サイドバーを閉じる",
   "openSidebar": "サイドバーを開く"
+  ,
+  "dashboard": "ダッシュボード",
+  "search": "検索",
+  "refresh": "更新",
+  "addData": "データを追加",
+  "dropFiles": "ここにファイルをドラッグ＆ドロップ、またはクリックしてアップロード",
+  "dropHint": "PDF、DOCX、PPTX、XLSX、HTML、画像、メディア",
+  "imports": "インポート",
+  "noDocs": "ドキュメントがまだありません。上の「データを追加」をご利用ください。",
+  "autoRefresh": "自動更新",
+
+  "runningJobs": "実行中のジョブ",
+  "server": "サーバー",
+  "ok": "OK",
+  "down": "ダウン",
+  "sources": "ソース",
+  "connect": "接続",
+  "connected": "接続済み",
+  "open": "開く",
+  "delete": "削除",
+
+  "subdomain": "サブドメイン",
+  "subdomainPlaceholder": "例: acme",
+  "preview": "プレビュー",
+  "subdomainRequired": "サブドメインは必須です",
+  "subdomainInvalid": "英数字とハイフンのみ、2～63文字。「www」「api」「admin」は使用できません。"
 }

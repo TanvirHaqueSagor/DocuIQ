@@ -51,4 +51,30 @@
   "logout": "Cerrar sesión",
   "closeSidebar": "Cerrar barra lateral",
   "openSidebar": "Abrir barra lateral"
+  ,
+  "dashboard": "Panel",
+  "search": "Buscar",
+  "refresh": "Actualizar",
+  "addData": "Agregar datos",
+  "dropFiles": "Arrastra y suelta archivos aquí o haz clic para subir",
+  "dropHint": "PDF, DOCX, PPTX, XLSX, HTML, imágenes, multimedia",
+  "imports": "Importaciones",
+  "noDocs": "Aún no hay documentos. Usa \"Agregar datos\" arriba.",
+  "autoRefresh": "Actualización automática",
+
+  "runningJobs": "Trabajos en ejecución",
+  "server": "Servidor",
+  "ok": "OK",
+  "down": "Caído",
+  "sources": "Fuentes",
+  "connect": "Conectar",
+  "connected": "Conectado",
+  "open": "Abrir",
+  "delete": "Eliminar",
+
+  "subdomain": "Subdominio",
+  "subdomainPlaceholder": "p. ej., acme",
+  "preview": "Vista previa",
+  "subdomainRequired": "El subdominio es obligatorio",
+  "subdomainInvalid": "Solo letras, números y guiones; 2–63 caracteres; no reservado (www, api, admin)."
 }

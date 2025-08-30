@@ -48,10 +48,21 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { API_BASE_URL } from '../config'
+import LanguageSwitcher from '../components/LanguageSwitcher.vue'
+
+// Root domain derive: VITE_ROOT_DOMAIN থাকলে সেটা, না থাকলে current host থেকে প্রথম লেবেল ড্রপ
+const deriveRootDomain = (hn) => {
+  if (!hn) return 'localhost'
+  if (hn === 'localhost') return 'localhost'
+  const parts = hn.split('.')
+  if (parts.length >= 2) return parts.slice(1).join('.')  // toyota.localhost -> localhost, acme.127.0.0.1.nip.io -> 127.0.0.1.nip.io
+  return hn
+}
+const ROOT_DOMAIN = import.meta.env.VITE_ROOT_DOMAIN || deriveRootDomain(window.location.hostname)
 
 const email = ref('')
 const password = ref('')
@@ -61,6 +72,28 @@ const error = ref('')
 const router = useRouter()
 const route = useRoute()
 const { t } = useI18n()
+
+// 🚀 Auth-bridge: সাবডোমেইনে এলে URL hash থেকে টোকেন তুলে লোকালস্টোরেজে বসিয়ে দিন
+const readHashTokens = () => {
+  const h = window.location.hash || ''
+  if (!h.startsWith('#')) return null
+  const p = new URLSearchParams(h.slice(1))
+  const at = p.get('at'); const rt = p.get('rt')
+  if (!at) return null
+  return { at, rt }
+}
+onMounted(() => {
+  const tok = readHashTokens()
+  if (tok && tok.at) {
+    localStorage.setItem('token', tok.at)
+    if (tok.rt) localStorage.setItem('refresh', tok.rt)
+    // hash মুছে দিন যেন রিলোডে আবার প্রসেস না হয়
+    history.replaceState(null, '', window.location.pathname + window.location.search)
+    const target = (route.query.redirect ? String(route.query.redirect) : '/dashboard')
+    router.replace(target)
+  }
+})
+
 
 const onSubmit = async () => {
   loading.value = true
@@ -84,11 +117,28 @@ const onSubmit = async () => {
     if (res.ok && data && data.access) {
       // টোকেন সেভ → router guard OK → axios Authorization OK
       localStorage.setItem('token', data.access)
+      localStorage.setItem('access', data.access)   // fallback
       if (data.refresh) localStorage.setItem('refresh', data.refresh)
       if (data.user) localStorage.setItem('user', JSON.stringify(data.user))
 
-      // redirect param থাকলে ওখানেই, নাহলে dashboard
+      // ✅ Redirect target (query থাকলে সেটা, না থাকলে /dashboard)
       const target = (route.query.redirect ? String(route.query.redirect) : '/dashboard')
+
+      // ✅ Org হলে: যদি অন্য হোস্টে থাকি তবে ক্রস-ডোমেইন রিডাইরেক্ট; নইলে SPA ভেতরে নেভিগেট
+      if (data.account_type === 'organization' && data.org_subdomain && ROOT_DOMAIN) {
+        const expectedHost = `${data.org_subdomain}.${ROOT_DOMAIN}`
+        const currentHost  = window.location.hostname
+        if (currentHost !== expectedHost) {
+          const proto = window.location.protocol
+          const port  = window.location.port ? (':' + window.location.port) : ''
+          // 🔁 টোকেন hash দিয়ে সাবডোমেইনে পাঠাই; Login.vue mounted হয়ে hash পড়ে সেট করবে
+          const r = encodeURIComponent(target)
+          const at = encodeURIComponent(data.access)
+          const rt = data.refresh ? `&rt=${encodeURIComponent(data.refresh)}` : ''
+          window.location.href = `${proto}//${expectedHost}${port}/login?redirect=${r}#at=${at}${rt}`
+          return
+        }
+      }
       await router.replace(target)
       return
     }

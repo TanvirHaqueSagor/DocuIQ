@@ -51,4 +51,30 @@
   "logout": "로그아웃",
   "closeSidebar": "사이드바 닫기",
   "openSidebar": "사이드바 열기"
+  ,
+  "dashboard": "대시보드",
+  "search": "검색",
+  "refresh": "새로고침",
+  "addData": "데이터 추가",
+  "dropFiles": "여기로 파일을 드래그 앤 드롭하거나 클릭하여 업로드",
+  "dropHint": "PDF, DOCX, PPTX, XLSX, HTML, 이미지, 미디어",
+  "imports": "가져오기",
+  "noDocs": "아직 문서가 없습니다. 위의 데이터 추가를 사용하세요.",
+  "autoRefresh": "자동 새로고침",
+
+  "runningJobs": "실행 중 작업",
+  "server": "서버",
+  "ok": "정상",
+  "down": "중단",
+  "sources": "소스",
+  "connect": "연결",
+  "connected": "연결됨",
+  "open": "열기",
+  "delete": "삭제",
+
+  "subdomain": "서브도메인",
+  "subdomainPlaceholder": "예: acme",
+  "preview": "미리보기",
+  "subdomainRequired": "서브도메인은 필수입니다",
+  "subdomainInvalid": "영문자, 숫자, 하이픈만; 2–63자; 예약어(www, api, admin) 불가."
 }

@@ -69,9 +69,9 @@
     </div>
 
     <div class="sidebar-bottom">
-      <div class="sidebar-profile" @click="toggleMenu" :title="username">
+      <div class="sidebar-profile" @click="toggleMenu" :title="displayName">
         <span class="sidebar-avatar" aria-hidden="true">👤</span>
-        <span class="sidebar-username">{{ username }}</span>
+        <span class="sidebar-username">{{ displayName }}</span>
       </div>
 
       <div v-if="showMenu" class="profile-menu" @click.stop>
@@ -90,8 +90,8 @@
 import { ref, onMounted, watch, computed, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { API_BASE_URL } from '../config'
 
-const username = 'tanvir.haque'
 const historyList = ref([
   { id: 1, title: 'Annual Report Summary' },
   { id: 2, title: 'ESG Risk Analysis' },
@@ -137,10 +137,46 @@ onMounted(() => {
     document.addEventListener('click', onDocClick)
   }
 })
+
 onBeforeUnmount(() => {
   if (typeof document !== 'undefined') {
     document.removeEventListener('click', onDocClick)
   }
+})
+
+/* ---------- Name display logic ---------- */
+const me = ref(null)
+const user = ref(JSON.parse(localStorage.getItem('user') || 'null'))
+
+const displayName = computed(() => {
+  const m = me.value
+  if (m) {
+    if (m.name && m.name.trim()) return m.name.trim()
+    const fl = [m.first_name, m.last_name].filter(Boolean).join(' ').trim()
+    if (fl) return fl
+    if (m.email) return String(m.email).split('@')[0]
+    if (m.username) return m.username
+  }
+  if (user.value) {
+    const fl2 = [user.value.first_name, user.value.last_name].filter(Boolean).join(' ').trim()
+    if (fl2) return fl2
+    if (user.value.email) return String(user.value.email).split('@')[0]
+    if (user.value.username) return user.value.username
+  }
+  return 'User'
+})
+
+onMounted(async () => {
+  try {
+    const access = localStorage.getItem('token') || localStorage.getItem('access')
+    if (!access) return
+    const res = await fetch(`${API_BASE_URL}/api/accounts/me/`, {
+      headers: { Authorization: `Bearer ${access}` }
+    })
+    if (res.ok) {
+      me.value = await res.json()
+    }
+  } catch (_) {}
 })
 </script>
 

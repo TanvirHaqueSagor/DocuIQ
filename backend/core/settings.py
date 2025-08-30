@@ -6,7 +6,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'changeme')
 
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost').split(' ')
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",")
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -17,11 +17,15 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
+    'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'accounts',
+    'documents',
+    'ingest',
 ]
 
 MIDDLEWARE = [
+    'core.middleware.SubdomainTenantMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -31,6 +35,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# লোকালের জন্য দারুণ: 127.0.0.1.nip.io (যে কোনো সাবডোমেইন লোকালেই রেজল্ভ হবে)
+ROOT_DOMAIN = os.environ.get('ROOT_DOMAIN', '127.0.0.1.nip.io')
 
 ROOT_URLCONF = 'core.urls'
 
@@ -49,14 +56,15 @@ TEMPLATES = [{
 WSGI_APPLICATION = 'core.wsgi.application'
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('POSTGRES_DB'),
-        'USER': os.environ.get('POSTGRES_USER'),
-        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-        'HOST': os.environ.get('POSTGRES_HOST', 'docuiqdb'),
-        'PORT': os.environ.get('POSTGRES_PORT', 5432),
-    }
+  "default": {
+    "ENGINE": "django.db.backends.postgresql",
+    "NAME": os.environ.get("POSTGRES_DB", "docuiq"),
+    "USER": os.environ.get("POSTGRES_USER", "docuadmin"),
+    "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "securepassword"),
+    "HOST": os.environ.get("DB_HOST", "docuiqdb"),
+    "PORT": os.environ.get("DB_PORT", "5432"),
+    "CONN_MAX_AGE": 60,
+  }
 }
 
 LANGUAGE_CODE = 'en-us'

@@ -1,50 +1,53 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
+from django.utils.text import slugify
 from rest_framework import serializers
-from .models import UserProfile
+from .models import UserProfile, Organization
 
 User = get_user_model()
 
 ACCOUNT_TYPES = (('individual', 'Individual'), ('organization', 'Organization'))
 
 class RegisterSerializer(serializers.ModelSerializer):
-    # extra fields for profile
     account_type = serializers.ChoiceField(choices=ACCOUNT_TYPES)
     name = serializers.CharField(required=False, allow_blank=True)
     org_name = serializers.CharField(required=False, allow_blank=True)
+    # new for org:
+    subdomain = serializers.SlugField(required=False, allow_blank=True, max_length=63)
 
-    # core fields
     email = serializers.EmailField(required=True)
     password = serializers.CharField(write_only=True, min_length=8, required=True)
 
     class Meta:
         model = User
-        # আমরা username ইউজ করছি না—email কে username বানাবো
-        fields = ('email', 'password', 'account_type', 'name', 'org_name')
+        fields = ('email', 'password', 'account_type', 'name', 'org_name', 'subdomain')
 
     def validate(self, attrs):
-        # 1) normalize email
         email = (attrs.get('email') or '').strip().lower()
         attrs['email'] = email
 
-        # 2) email unique? (Django default User এ email unique নয়)
         if User.objects.filter(email__iexact=email).exists():
             raise serializers.ValidationError({'email': 'This email is already registered.'})
 
-        # 3) account_type ভিত্তিক আবশ্যক ফিল্ড
         acct = attrs.get('account_type')
         if acct == 'individual' and not attrs.get('name'):
             raise serializers.ValidationError({'name': 'Name is required for individual accounts.'})
-        if acct == 'organization' and not attrs.get('org_name'):
-            raise serializers.ValidationError({'org_name': 'Organization name is required for organization accounts.'})
+        if acct == 'organization':
+            if not attrs.get('org_name'):
+                raise serializers.ValidationError({'org_name': 'Organization name is required.'})
+            if not attrs.get('subdomain'):
+                raise serializers.ValidationError({'subdomain': 'Subdomain is required for organization.'})
+            sd = slugify(attrs['subdomain'])
+            if Organization.objects.filter(subdomain=sd).exists():
+                raise serializers.ValidationError({'subdomain': 'This subdomain is already taken.'})
+            attrs['subdomain'] = sd
 
-        # 4) password validators (numeric only, common passwords, length, ইত্যাদি)
         try:
             validate_password(attrs.get('password'))
-        except Exception as e:
-            # e লিস্ট/এররসমূহ হতে পারে—DRF friendly বানাই
-            raise serializers.ValidationError({'password': list(e)})
+        except DjangoValidationError as e:
+            raise serializers.ValidationError({'password': e.messages})
 
         return attrs
 
@@ -53,28 +56,27 @@ class RegisterSerializer(serializers.ModelSerializer):
         email = validated_data['email']
         password = validated_data['password']
         account_type = validated_data['account_type']
-        name = validated_data.get('name', '').strip()
-        org_name = validated_data.get('org_name', '').strip()
+        name = (validated_data.get('name') or '').strip()
+        org_name = (validated_data.get('org_name') or '').strip()
+        subdomain = validated_data.get('subdomain')
 
-        # username = email (লগইন সহজ করার জন্য)
-        user = User.objects.create_user(
-            username=email,
-            email=email,
-            password=password
-        )
-
-        # চাইলে first_name এ name সেট করতে পারেন (individual হলে)
+        user = User.objects.create_user(username=email, email=email, password=password)
         if account_type == 'individual' and name:
-            # split করে first/last করতে পারেন—এখানে simple first_name
             user.first_name = name
             user.save(update_fields=['first_name'])
 
-        # Profile create
+        org = None
+        role = 'individual'
+        if account_type == 'organization':
+            org = Organization.objects.create(name=org_name, subdomain=subdomain, owner=user)
+            role = 'org_owner'
+
         UserProfile.objects.create(
             user=user,
             account_type=account_type,
             name=name if account_type == 'individual' else '',
-            org_name=org_name if account_type == 'organization' else ''
+            org_name=org_name if account_type == 'organization' else '',
+            organization=org,
+            role=role,
         )
-
         return user

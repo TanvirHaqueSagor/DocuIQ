@@ -16,6 +16,7 @@
             </label>
           </div>
         </div>
+
         <div class="form-group" v-if="accountType === 'individual'">
           <label for="name">{{ $t('yourName') }}</label>
           <input
@@ -24,8 +25,9 @@
             type="text"
             :placeholder="$t('namePlaceholder')"
           />
-          <div class="error"  v-if="submitted && clientErrors.name">{{ clientErrors.name }}</div>
+          <div class="error" v-if="submitted && clientErrors.name">{{ clientErrors.name }}</div>
         </div>
+
         <div class="form-group" v-if="accountType === 'organization'">
           <label for="orgName">{{ $t('orgName') }}</label>
           <input
@@ -34,8 +36,25 @@
             type="text"
             :placeholder="$t('orgNamePlaceholder')"
           />
-          <div class="error"  v-if="submitted && clientErrors.orgName">{{ clientErrors.orgName }}</div>
+          <div class="error" v-if="submitted && clientErrors.orgName">{{ clientErrors.orgName }}</div>
         </div>
+
+        <!-- NEW: Subdomain (org only) -->
+        <div class="form-group" v-if="accountType === 'organization'">
+          <label for="subdomain">{{ $t('subdomain') || 'Subdomain' }}</label>
+          <input
+            v-model="subdomain"
+            id="subdomain"
+            type="text"
+            :placeholder="$t('subdomainPlaceholder') || 'e.g. acme'"
+          />
+          <small class="hint">
+            {{ $t('preview') || 'Preview' }}:
+            <strong>{{ subdomainPreview }}</strong>
+          </small>
+          <div class="error" v-if="submitted && clientErrors.subdomain">{{ clientErrors.subdomain }}</div>
+        </div>
+
         <div class="form-group">
           <label for="email">{{ $t('email') }}</label>
           <input
@@ -45,8 +64,9 @@
             :placeholder="$t('emailPlaceholder')"
             autocomplete="email"
           />
-          <div class="error"  v-if="submitted && clientErrors.email">{{ clientErrors.email }}</div>
+          <div class="error" v-if="submitted && clientErrors.email">{{ clientErrors.email }}</div>
         </div>
+
         <div class="form-group">
           <label for="password">{{ $t('password') }}</label>
           <input
@@ -59,13 +79,16 @@
           />
           <div class="error" v-if="submitted && clientErrors.password">{{ clientErrors.password }}</div>
         </div>
+
         <button type="submit" class="register-btn" :disabled="loading">
           <span v-if="loading">{{ $t('signingIn') }}</span>
           <span v-else>{{ $t('signUp') }}</span>
         </button>
       </form>
+
       <div v-if="error" class="register-error">{{ error }}</div>
       <div v-if="success" class="register-success">{{ $t('registrationSuccess') }}</div>
+
       <div class="register-footer">
         <router-link to="/login">{{ $t('login') }}</router-link>
       </div>
@@ -77,44 +100,86 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import LanguageSwitcher from '../components/LanguageSwitcher.vue'
 import { API_BASE_URL } from '../config'
 
 const { t } = useI18n()
+const router = useRouter()
+
 const accountType = ref('individual')
 const name = ref('')
 const orgName = ref('')
+const subdomain = ref('') // NEW
 const email = ref('')
 const password = ref('')
+
 const error = ref('')
 const success = ref(false)
 const loading = ref(false)
 const clientErrors = ref({})
 const submitted = ref(false)
 
+const ROOT_DOMAIN = import.meta.env.VITE_ROOT_DOMAIN || window.location.hostname
+
+const normalizedSubdomain = computed(() =>
+  (subdomain.value || '').trim().toLowerCase()
+)
+
+const subdomainPreview = computed(() => {
+  const sub = normalizedSubdomain.value
+  return sub ? `${sub}.${ROOT_DOMAIN}` : ROOT_DOMAIN
+})
+
+// basic subdomain rule: 2-63 chars, a-z0-9 and hyphen, must start/end alnum, no reserved
+const isValidSubdomain = (s) => {
+  const v = (s || '').trim().toLowerCase()
+  if (v.length < 2 || v.length > 63) return false
+  if (!/^[a-z0-9]([a-z0-9-]*[a-z0-9])$/.test(v)) return false
+  const reserved = new Set(['www', 'api', 'admin'])
+  return !reserved.has(v)
+}
+
+watch(accountType, () => {
+  // reset org-only fields on switch
+  if (accountType.value === 'individual') {
+    orgName.value = ''
+    subdomain.value = ''
+  }
+})
+
 const clientValidate = () => {
   clientErrors.value = {}
+
   if (accountType.value === 'individual') {
     if (!name.value.trim()) {
       clientErrors.value.name = t('nameRequired')
     }
   }
+
   if (accountType.value === 'organization') {
     if (!orgName.value.trim()) {
       clientErrors.value.orgName = t('orgNameRequired')
     }
+    const sd = normalizedSubdomain.value
+    if (!sd) {
+      clientErrors.value.subdomain = t('subdomainRequired') || 'Subdomain is required'
+    } else if (!isValidSubdomain(sd)) {
+      clientErrors.value.subdomain =
+        t('subdomainInvalid') || 'Only letters, numbers, hyphens; 2–63 chars; cannot be reserved (www, api, admin).'
+    }
   }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value))
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((email.value || '').trim()))
     clientErrors.value.email = t('invalidEmail')
-  if (password.value.length < 8)
+
+  if ((password.value || '').length < 8)
     clientErrors.value.password = t('shortPassword')
 }
 
 const hasClientErrors = computed(() => Object.keys(clientErrors.value).length > 0)
-const router = useRouter()
 
 const onRegister = async () => {
   submitted.value = true
@@ -124,29 +189,57 @@ const onRegister = async () => {
   error.value = ''
   success.value = false
   loading.value = true
+
   try {
+    const body = {
+      account_type: accountType.value,
+      name: name.value,
+      org_name: orgName.value,
+      email: (email.value || '').trim().toLowerCase(),
+      password: password.value,
+    }
+    if (accountType.value === 'organization') {
+      body.subdomain = normalizedSubdomain.value
+    }
+
     const res = await fetch(`${API_BASE_URL}/api/accounts/register/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        account_type: accountType.value,
-        name: name.value,
-        org_name: orgName.value,
-        email: email.value,
-        password: password.value,
-      }),
+      body: JSON.stringify(body),
     })
-    const data = await res.json()
+
+    const data = await res.json().catch(() => ({}))
+
     if (res.ok) {
       success.value = true
       setTimeout(() => router.push('/login'), 1200)
     } else {
-      error.value = (typeof data === 'object' && Object.values(data)[0]) || t('registrationFailed')
+      // Try to map server-side field errors nicely
+      if (data && typeof data === 'object') {
+        // prefer field-level mapping when possible
+        const fields = ['email', 'password', 'name', 'org_name', 'subdomain', 'account_type', 'detail']
+        let shown = false
+        for (const f of fields) {
+          if (data[f]) {
+            const msg = Array.isArray(data[f]) ? data[f][0] : data[f]
+            clientErrors.value[f === 'org_name' ? 'orgName' : f] = msg
+            shown = true
+          }
+        }
+        if (!shown) {
+          const firstKey = Object.keys(data)[0]
+          const firstVal = data[firstKey]
+          error.value = Array.isArray(firstVal) ? firstVal[0] : (firstVal || t('registrationFailed'))
+        }
+      } else {
+        error.value = t('registrationFailed')
+      }
     }
   } catch (e) {
     error.value = t('networkError')
+  } finally {
+    loading.value = false
   }
-  loading.value = false
 }
 </script>
 
@@ -207,6 +300,11 @@ h2 {
 .form-group input:focus {
   border: 1.7px solid #2196f3;
   background: #fff;
+}
+.hint {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: #607d8b;
 }
 .register-btn {
   background: linear-gradient(90deg, #3f51b5 60%, #2196f3 100%);

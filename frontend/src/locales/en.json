@@ -45,4 +45,30 @@
   "logout": "Logout",
   "closeSidebar": "Close Sidebar",
   "openSidebar": "Open Sidebar"
+  ,
+  "dashboard": "Dashboard",
+  "search": "Search",
+  "refresh": "Refresh",
+  "addData": "Add Data",
+  "dropFiles": "Drag & drop files here or click to upload",
+  "dropHint": "PDF, DOCX, PPTX, XLSX, HTML, images, media",
+  "imports": "Imports",
+  "noDocs": "No documents yet. Use Add Data above.",
+  "autoRefresh": "Auto refresh",
+
+  "runningJobs": "Running jobs",
+  "server": "Server",
+  "ok": "OK",
+  "down": "Down",
+  "sources": "Sources",
+  "connect": "Connect",
+  "connected": "Connected",
+  "open": "Open",
+  "delete": "Delete",
+
+  "subdomain": "Subdomain",
+  "subdomainPlaceholder": "e.g. acme",
+  "preview": "Preview",
+  "subdomainRequired": "Subdomain is required",
+  "subdomainInvalid": "Only letters, numbers, hyphens; 2–63 chars; cannot be reserved (www, api, admin)."
 }

@@ -1,9 +1,11 @@
-# backend/core/urls.py
-
 from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/accounts/', include('accounts.urls')),  # accounts app route
+    # Mount accounts under /api/accounts/
+    path('api/accounts/', include('accounts.urls')),
+    # Metrics endpoints under /api/
+    path('api/', include('metrics.urls')),
+    path('', include('ingest.urls')),    # health + ingest + documents
 ]

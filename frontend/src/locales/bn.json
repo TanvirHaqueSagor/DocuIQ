@@ -51,4 +51,30 @@
   "logout": "লগআউট",
   "closeSidebar": "সাইডবার বন্ধ করুন",
   "openSidebar": "সাইডবার খুলুন"
+  ,
+  "dashboard": "ড্যাশবোর্ড",
+  "search": "সার্চ",
+  "refresh": "রিফ্রেশ",
+  "addData": "ডাটা যোগ করুন",
+  "dropFiles": "এখানে ফাইল ড্র্যাগ ও ড্রপ করুন অথবা ক্লিক করে আপলোড করুন",
+  "dropHint": "PDF, DOCX, PPTX, XLSX, HTML, ছবি, মিডিয়া",
+  "imports": "ইমপোর্টস",
+  "noDocs": "এখনও কোনো ডকুমেন্ট নেই। উপরের Add Data ব্যবহার করুন।",
+  "autoRefresh": "অটো রিফ্রেশ",
+
+  "runningJobs": "চলমান জব",
+  "server": "সার্ভার",
+  "ok": "OK",
+  "down": "ডাউন",
+  "sources": "সোর্সেস",
+  "connect": "কনেক্ট",
+  "connected": "কনেক্টেড",
+  "open": "ওপেন",
+  "delete": "ডিলিট",
+
+  "subdomain": "সাবডোমেইন",
+  "subdomainPlaceholder": "যেমন: acme",
+  "preview": "প্রিভিউ",
+  "subdomainRequired": "সাবডোমেইন আবশ্যক",
+  "subdomainInvalid": "শুধু অক্ষর, সংখ্যা ও হাইফেন; ২–৬৩ অক্ষর; সংরক্ষিত (www, api, admin) নয়।"
 }

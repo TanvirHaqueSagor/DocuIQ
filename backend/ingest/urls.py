@@ -1,0 +1,18 @@
+from django.urls import path, re_path
+from .views import (
+    HealthView, SourceListCreate, SourceDetail,
+    JobListCreate, UploadView, DocumentList, DocumentDetail
+)
+
+urlpatterns = [
+    re_path(r'^health/?$', HealthView.as_view()),
+
+    re_path(r'^api/ingest/sources/?$', SourceListCreate.as_view()),
+    re_path(r'^api/ingest/sources/(?P<pk>\d+)/?$', SourceDetail.as_view()),
+
+    re_path(r'^api/ingest/jobs/?$', JobListCreate.as_view()),
+    re_path(r'^api/ingest/upload/?$', UploadView.as_view()),
+
+    re_path(r'^api/documents/?$', DocumentList.as_view()),
+    re_path(r'^api/documents/(?P<pk>\d+)/?$', DocumentDetail.as_view()),
+]

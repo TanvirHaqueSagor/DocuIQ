@@ -51,4 +51,30 @@
   "logout": "退出登录",
   "closeSidebar": "关闭侧边栏",
   "openSidebar": "打开侧边栏"
+  ,
+  "dashboard": "仪表盘",
+  "search": "搜索",
+  "refresh": "刷新",
+  "addData": "添加数据",
+  "dropFiles": "将文件拖放到此处或点击上传",
+  "dropHint": "PDF、DOCX、PPTX、XLSX、HTML、图片、媒体",
+  "imports": "导入",
+  "noDocs": "还没有文档。请使用上方“添加数据”。",
+  "autoRefresh": "自动刷新",
+
+  "runningJobs": "运行中的作业",
+  "server": "服务器",
+  "ok": "正常",
+  "down": "宕机",
+  "sources": "来源",
+  "connect": "连接",
+  "connected": "已连接",
+  "open": "打开",
+  "delete": "删除",
+
+  "subdomain": "子域名",
+  "subdomainPlaceholder": "例如：acme",
+  "preview": "预览",
+  "subdomainRequired": "子域名为必填项",
+  "subdomainInvalid": "仅限字母、数字和连字符；2–63 个字符；不能是保留（www、api、admin）。"
 }
