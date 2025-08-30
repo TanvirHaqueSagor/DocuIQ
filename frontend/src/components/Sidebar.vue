@@ -2,18 +2,22 @@
   <aside :class="['sidebar', { closed: !isOpen }]">
     <div class="sidebar-top">
       <div class="logo-section">
-        <span class="brand" v-show="isOpen">
-          <span class="brand-main">Docu</span><span class="highlight">IQ</span>
-        </span>
+        <transition name="logo-large">
+          <span class="brand" v-if="isOpen">
+            <span class="brand-main">Docu</span><span class="highlight">IQ</span>
+          </span>
+        </transition>
 
-        <span class="brand-mini" v-show="!isOpen" @click="toggleSidebar" :title="$t ? $t('openSidebar') : 'Open sidebar'">
-          <span class="brand-mini-text">Docu<span class="highlight">IQ</span></span>
-          <button class="open-hint" aria-label="Open sidebar" @click.stop="toggleSidebar">
-            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M9.5 5 L15.5 12 L9.5 19" fill="none" stroke="#4a5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-        </span>
+        <transition name="logo-mini">
+          <span class="brand-mini" v-if="!isOpen" @click="toggleSidebar" :title="$t ? $t('openSidebar') : 'Open sidebar'">
+            <span class="brand-mini-text">Docu<span class="highlight">IQ</span></span>
+            <button class="open-hint" aria-label="Open sidebar" @click.stop="toggleSidebar">
+              <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M9.5 5 L15.5 12 L9.5 19" fill="none" stroke="#4a5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </span>
+        </transition>
 
         <button
           class="sidebar-toggle"
@@ -21,12 +25,14 @@
           :title="isOpen ? ($t ? $t('closeSidebar') : 'Close sidebar') : ($t ? $t('openSidebar') : 'Open sidebar')"
           aria-label="Toggle sidebar"
         >
-          <svg v-if="isOpen" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M14.5 5 L8.5 12 L14.5 19" fill="none" stroke="#4a5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <svg v-else width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M9.5 5 L15.5 12 L9.5 19" fill="none" stroke="#4a5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <transition name="chev">
+            <svg v-if="isOpen" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M14.5 5 L8.5 12 L14.5 19" fill="none" stroke="#4a5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <svg v-else width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M9.5 5 L15.5 12 L9.5 19" fill="none" stroke="#4a5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </transition>
         </button>
       </div>
 
@@ -169,7 +175,7 @@ const displayName = computed(() => {
 onMounted(async () => {
   try {
     const access = localStorage.getItem('token') || localStorage.getItem('access')
-    if (!access) return
+    if (!access || access.indexOf('.') === -1) return
     const res = await fetch(`${API_BASE_URL}/api/accounts/me/`, {
       headers: { Authorization: `Bearer ${access}` }
     })
@@ -218,6 +224,7 @@ onMounted(async () => {
   display: inline-flex; align-items: center; justify-content: center;
   width: 22px; height: 22px; border-radius: 6px; border: 1px solid #dbe3f3;
   background: #fff; cursor: pointer; opacity: 0; transform: translateX(-2px);
+  pointer-events: none;
   transition: opacity .18s ease, transform .18s ease, background .12s ease;
 }
 .open-hint:hover { background: #eef3ff; }
@@ -226,12 +233,16 @@ onMounted(async () => {
 .sidebar.closed .brand { display: none; }
 .sidebar.closed .brand-mini { display: inline-flex; }
 /* Reveal the chevron only on hover of the logo row */
-.sidebar.closed .logo-section:hover .open-hint { opacity: 1; transform: translateX(0); }
+.sidebar.closed .logo-section:hover .open-hint { opacity: 1; transform: translateX(0); pointer-events: auto; }
 
-.sidebar-toggle { background: transparent; border: none; cursor: pointer; margin-left: 5px; padding: 4px; outline: none; border-radius: 7px; transition: background .13s, transform .24s ease; }
+.sidebar-toggle { background: transparent; border: none; cursor: pointer; margin-left: 5px; padding: 4px; outline: none; border-radius: 7px; transition: background .13s, transform .24s ease; width: 32px; height: 32px; display:inline-flex; align-items:center; justify-content:center; }
 .sidebar-toggle:hover { background: #e2e8f0; transform: translateX(0); }
-/* Hide the generic toggle button in closed mode to encourage using mini logo hover */
+/* Keep toggle visible in rail mode (consistent chevron size) */
 .sidebar.closed .sidebar-toggle { display: none; }
+.sidebar.closed .logo-section { padding: 0 8px 8px 8px; flex-direction: row; align-items: center; gap: 6px; }
+.sidebar.closed .brand-mini { display: inline-flex; align-items: center; justify-content: center; }
+.sidebar.closed .open-hint { display: inline-flex; }
+.sidebar.closed .brand-mini-text { font-size: .78rem; letter-spacing: -.2px; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .sidebar-menu { display: flex; flex-direction: column; gap: 5px; padding: 0 6px; }
 .menu-item {
@@ -275,10 +286,11 @@ onMounted(async () => {
 .sidebar-username { font-size: 0.97rem; margin-left: 2px; white-space: nowrap; transition: opacity .2s ease, width .2s ease, margin .2s ease; }
 
 .profile-menu {
-  position: absolute; left: 16px; right: 16px; bottom: 60px;
+  position: fixed; left: 16px; bottom: 96px; width: 260px;
   background: #fff; border: 1px solid #e6ecf7; border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0,0,0,.06);
+  box-shadow: 0 8px 24px rgba(0,0,0,.12);
   padding: 8px; display: flex; flex-direction: column; gap: 4px;
+  z-index: 22;
 }
 .profile-item {
   text-align: left; padding: 10px 12px; border: none; background: #fff; border-radius: 8px;
@@ -291,7 +303,7 @@ onMounted(async () => {
 .sidebar.closed .menu-label { display: none; }
 .sidebar.closed .menu-sublist { display: none; }
 .sidebar.closed .sidebar-username { width: 0; opacity: 0; margin: 0; }
-.sidebar.closed .profile-menu { left: 8px; right: 8px; }
+.sidebar.closed .profile-menu { left: calc(var(--sb-rail) + 8px); width: 260px; bottom: 96px; }
 
 .scrim { position: fixed; inset: 0; background: rgba(0,0,0,.25); z-index: 20; }
 
@@ -299,4 +311,13 @@ onMounted(async () => {
   .sidebar { width: min(88vw, var(--sb-open)); }
   .sidebar.closed { width: var(--sb-rail); }
 }
+
+/* --- Smooth transitions --- */
+.logo-large-enter-active, .logo-large-leave-active,
+.logo-mini-enter-active, .logo-mini-leave-active { transition: opacity .18s ease, transform .18s ease; }
+.logo-large-enter-from, .logo-large-leave-to { opacity: 0; transform: translateY(-4px) scale(.98); }
+.logo-mini-enter-from, .logo-mini-leave-to { opacity: 0; transform: translateY(4px) scale(.9); }
+
+.chev-enter-active, .chev-leave-active { transition: opacity .16s ease, transform .16s ease; }
+.chev-enter-from, .chev-leave-to { opacity: 0; transform: scale(.8); }
 </style>

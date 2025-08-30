@@ -53,7 +53,7 @@
   "dropFiles": "Drag & drop files here or click to upload",
   "dropHint": "PDF, DOCX, PPTX, XLSX, HTML, images, media",
   "imports": "Imports",
-  "noDocs": "No documents yet. Use Add Data above.",
+  "noDocs": "No documents yet. Connect a source on the right.",
   "autoRefresh": "Auto refresh",
 
   "runningJobs": "Running jobs",

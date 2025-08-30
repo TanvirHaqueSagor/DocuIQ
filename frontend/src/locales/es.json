@@ -59,7 +59,7 @@
   "dropFiles": "Arrastra y suelta archivos aquí o haz clic para subir",
   "dropHint": "PDF, DOCX, PPTX, XLSX, HTML, imágenes, multimedia",
   "imports": "Importaciones",
-  "noDocs": "Aún no hay documentos. Usa \"Agregar datos\" arriba.",
+  "noDocs": "Aún no hay documentos. Conecta una fuente a la derecha.",
   "autoRefresh": "Actualización automática",
 
   "runningJobs": "Trabajos en ejecución",

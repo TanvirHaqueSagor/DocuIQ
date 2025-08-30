@@ -10,9 +10,13 @@ const http = axios.create({
 
 // Request Interceptor
 http.interceptors.request.use(config => {
-  // যদি token/localStorage থাকে, add
+  // যদি token/localStorage থাকে এবং JWT শেইপ হয়, add
   const token = localStorage.getItem('token')
-  if (token) config.headers['Authorization'] = `Bearer ${token}`
+  if (token && typeof token === 'string' && token.indexOf('.') !== -1) {
+    config.headers['Authorization'] = `Bearer ${token}`
+  } else if (config.headers && config.headers['Authorization']) {
+    delete config.headers['Authorization']
+  }
 
   // language add করুন
   config.headers['Accept-Language'] = i18n.global.locale || 'en'

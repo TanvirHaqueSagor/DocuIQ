@@ -17,7 +17,6 @@
       </div>
       <div class="right">
         <button class="ghost" @click="refreshAll" :title="$t ? $t('refresh') : 'Refresh'">⟳</button>
-        <button class="primary" @click="openWizard('files')">＋ {{ $t ? $t('addData') : 'Add Data' }}</button>
       </div>
     </header>
 
@@ -28,9 +27,9 @@
       @dragover.prevent="onDragOver"
       @dragleave.prevent="onDragLeave"
       @drop.prevent="onDrop"
-      @click="fileInput?.click()"
+      @click="goFiles"
     >
-      <input ref="fileInput" type="file" multiple class="hidden" @change="onPickFiles" />
+      
       <div class="dz-inner">
         <div class="cloud" aria-hidden="true">☁️</div>
         <div class="dz-title">{{ $t ? $t('dropFiles') : 'Drag & drop files here or click to upload' }}</div>
@@ -42,17 +41,8 @@
     <div class="grid">
       <!-- Left: Imports / Documents -->
       <section class="panel">
-        <nav class="tabs">
-          <button :class="['tab', {active: tab==='imports'}]" @click="tab='imports'">
-            {{ $t ? $t('imports') : 'Imports' }}
-          </button>
-          <button :class="['tab', {active: tab==='docs'}]" @click="tab='docs'">
-            {{ $t ? $t('documents') : 'Documents' }}
-          </button>
-        </nav>
-
-        <!-- Imports table -->
-        <div v-if="tab==='imports'" class="table-wrap">
+        <!-- Unified list: Imports + Documents -->
+        <div class="table-wrap">
           <div class="table-tools">
             <label class="chk">
               <input type="checkbox" v-model="autoRefresh" />
@@ -62,40 +52,40 @@
           <table class="tbl" role="table">
             <thead>
               <tr>
-                <th>ID</th><th>Title</th><th>Status</th><th>Progress</th><th>Created</th>
+                <th>Type</th><th>Title</th><th>Status</th><th>Created</th><th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="j in filteredJobs" :key="j.id">
-                <td>{{ j.id }}</td>
-                <td class="truncate">{{ jobTitle(j) }}</td>
-                <td><span class="badge" :class="j.status">{{ prettyStatus(j.status) }}</span></td>
-                <td class="prog-cell">
-                  <div class="prog"><div class="bar" :style="{ width: (j.progress||0) + '%' }"></div></div>
+              <tr v-for="row in filteredCombined" :key="row.id">
+                <td class="type-cell">
+                  <span class="type-ico"><img class="src-ico-img" :src="rowIconComp(row)" :alt="rowType(row)" /></span>
+                  <span>{{ rowType(row) }}</span>
                 </td>
-                <td>{{ fmtDate(j.created_at) }}</td>
+                <td class="truncate">{{ row.title }}</td>
+                <td>
+                  <span class="badge" :class="statusClass(row)">{{ displayStatus(row) }}</span>
+                </td>
+                <td>{{ fmtDate(row.created_at) }}</td>
+                <td>
+                  <template v-if="row.type==='doc'">
+                    <div class="row-actions">
+                      <RouterLink class="link" :to="`/documents/${row._raw.id}`">View</RouterLink>
+                      <button class="link danger" @click="deleteDoc(row)">Delete</button>
+                    </div>
+                  </template>
+                  <template v-else>
+                    <div class="row-actions">
+                      <button class="link" @click="openJob(row)">View</button>
+                      <button class="link danger" @click="deleteJob(row)">Delete</button>
+                    </div>
+                  </template>
+                </td>
               </tr>
-              <tr v-if="!filteredJobs.length">
-                <td colspan="5" class="empty">No imports yet</td>
+              <tr v-if="!filteredCombined.length">
+                <td colspan="5" class="empty">No items yet</td>
               </tr>
             </tbody>
           </table>
-        </div>
-
-        <!-- Documents list -->
-        <div v-else class="docs-grid">
-          <div v-for="d in filteredDocs" :key="d.id" class="doc-card">
-            <div class="doc-ico">{{ fileEmoji(d.filename || d.title) }}</div>
-            <div class="doc-title" :title="d.title || d.filename">{{ d.title || d.filename }}</div>
-            <div class="doc-meta">{{ fmtDate(d.created_at) }}</div>
-            <div class="doc-actions">
-              <RouterLink class="link" :to="`/documents/${d.id}`">Open</RouterLink>
-              <button class="link danger" @click="deleteDoc(d)">Delete</button>
-            </div>
-          </div>
-          <div v-if="!filteredDocs.length" class="empty-card">
-            {{ $t ? $t('noDocs') : 'No documents yet. Use Add Data above.' }}
-          </div>
         </div>
       </section>
 
@@ -119,12 +109,11 @@
         <div class="sources">
           <div class="sources-head">
             <h3>Sources</h3>
-            <button class="ghost" @click="openWizard('gdrive')">＋ Connect</button>
           </div>
 
           <div class="src-grid">
             <button v-for="s in srcPalette" :key="s.key" class="src-btn" @click="openWizard(s.key)">
-              <div class="src-ico">{{ s.emoji }}</div>
+              <span class="src-ico-comp"><img class="src-ico-img" :src="iconForKind(s.key)" :alt="s.name" /></span>
               <div class="src-name">{{ s.name }}</div>
             </button>
           </div>
@@ -135,6 +124,7 @@
               <div v-for="s in filteredSources" :key="s.id" class="conn-item">
                 <div class="ci-left">
                   <span class="dot"></span>
+                  <span class="src-ico-comp"><img class="src-ico-img" :src="iconForKind((s.kind||'').toLowerCase())" :alt="prettyKind(s.kind)" /></span>
                   <span class="nm">{{ s.name }}</span>
                   <span class="kind">· {{ prettyKind(s.kind) }}</span>
                 </div>
@@ -149,95 +139,59 @@
       </aside>
     </div>
 
-    <!-- Add Data Modal -->
-    <div v-if="wizard.open" class="modal" @click.self="wizard.open=false">
-      <div class="modal-box">
-        <header class="modal-head">
-          <h3>Add Data</h3>
-          <button class="close" @click="wizard.open=false" aria-label="Close">✕</button>
-        </header>
-
-        <nav class="wizard-tabs">
-          <button v-for="t in wizardTabs" :key="t.key"
-                  :class="['wtab', {active: wizard.tab===t.key}]"
-                  @click="wizard.tab=t.key">{{ t.label }}</button>
-        </nav>
-
-        <section class="wizard-body">
-          <!-- Files -->
-          <div v-if="wizard.tab==='files'" class="pane">
-            <h4>Upload files</h4>
-            <input type="file" multiple @change="onPickFiles" />
-            <ul class="picked" v-if="pickedFiles.length">
-              <li v-for="f in pickedFiles" :key="f.name">{{ f.name }} ({{ f.size }}B)</li>
-            </ul>
-            <div class="row">
-              <label>Collection</label>
-              <input v-model="meta.collection" placeholder="e.g. Annual Reports" />
-            </div>
-            <div class="row">
-              <label>Tags</label>
-              <input v-model="meta.tags" placeholder="comma,separated" />
-            </div>
-            <div class="actions">
-              <button class="primary" :disabled="!pickedFiles.length" @click="startUpload">
-                {{ uploading ? 'Uploading…' : 'Start import' }}
-              </button>
-            </div>
-            <div class="status" v-if="statusMsg">{{ statusMsg }}</div>
-          </div>
-
-          <!-- Web -->
-          <div v-else-if="wizard.tab==='web'" class="pane">
-            <h4>Website</h4>
-            <div class="row"><label>URL</label><input v-model="web.url" placeholder="https://example.com/page" /></div>
-            <div class="row"><label><input type="checkbox" v-model="web.crawl" /> Crawl sub-urls</label></div>
-            <div class="row" v-if="web.crawl"><label>Depth</label><input type="number" min="1" max="3" v-model.number="web.depth" /></div>
-            <div class="actions"><button class="primary" :disabled="!validWeb" @click="createWebJob">Start import</button></div>
-            <div class="status" v-if="statusMsg">{{ statusMsg }}</div>
-          </div>
-
-          <!-- S3 -->
-          <div v-else-if="wizard.tab==='s3'" class="pane">
-            <h4>AWS S3</h4>
-            <div class="row"><label>Name</label><input v-model="s3.name" placeholder="My S3" /></div>
-            <div class="row"><label>Bucket</label><input v-model="s3.bucket" placeholder="my-bucket" /></div>
-            <div class="row"><label>Prefix</label><input v-model="s3.prefix" placeholder="folder/path/" /></div>
-            <div class="row"><label><input type="checkbox" v-model="s3.sync" /> Keep in sync</label></div>
-            <div class="actions"><button class="primary" :disabled="!validS3" @click="createS3Job">Connect & import</button></div>
-            <div class="status" v-if="statusMsg">{{ statusMsg }}</div>
-          </div>
-
-          <!-- Google Drive (placeholder create source) -->
-          <div v-else-if="wizard.tab==='gdrive'" class="pane">
-            <h4>Google Drive</h4>
-            <p>OAuth will open when connector is implemented.</p>
-            <div class="row"><label>Name</label><input v-model="gdrive.name" placeholder="My Drive" /></div>
-            <div class="actions"><button class="primary" :disabled="!gdrive.name" @click="createGenericSource('gdrive')">Connect</button></div>
-            <div class="status" v-if="statusMsg">{{ statusMsg }}</div>
-          </div>
-
-          <!-- Future connectors -->
-          <div v-else class="pane">
-            <h4>{{ currentTabLabel }}</h4>
-            <p>Create a Source entry now (connector coming soon).</p>
-            <div class="row"><label>Name</label><input v-model="generic.name" :placeholder="`My ${currentTabLabel}`" /></div>
-            <div class="actions"><button class="primary" :disabled="!generic.name" @click="createGenericSource(wizard.tab)">Create source</button></div>
-            <div class="status" v-if="statusMsg">{{ statusMsg }}</div>
-          </div>
-        </section>
-      </div>
-    </div>
+    
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue'
 import { API_BASE_URL as API } from '../config'
+// Icon components (via unplugin-icons)
+import { authFetch } from '../lib/authFetch'
 
+import icFile from '../assets/icons/file.svg'
+import icWeb from '../assets/icons/web.svg'
+import icS3 from '../assets/icons/S3.svg'
+import icGdrive from '../assets/icons/gdrive.svg'
+import icGmail from '../assets/icons/gmail.svg'
+import icDropbox from '../assets/icons/dropbox.svg'
+import icOnedrive from '../assets/icons/onedrive.svg'
+import icBox from '../assets/icons/box.svg'
+// Enterprise / productivity
+import icSharepoint from '../assets/icons/sharePoint.svg'
+import icConfluence from '../assets/icons/confluence.svg'
+import icNotion from '../assets/icons/Notion.svg'
+import icAirtable from '../assets/icons/airtable.svg'
+// Comms
+import icOutlook from '../assets/icons/outlook.svg'
+import icSlack from '../assets/icons/slack.svg'
+import icTeams from '../assets/icons/teams.svg'
+import icZoom from '../assets/icons/zoom.svg'
+// Dev/Project
+import icGithub from '../assets/icons/github.svg'
+import icGitlab from '../assets/icons/gitlab.svg'
+import icJira from '../assets/icons/jira.svg'
+import icTrello from '../assets/icons/trello.svg'
+// Databases/BI/Search
+import icPostgres from '../assets/icons/postgresql.svg'
+import icMysql from '../assets/icons/mysql.svg'
+import icMongodb from '../assets/icons/mongodb.svg'
+import icSnowflake from '../assets/icons/snowflake.svg'
+import icBigQuery from '../assets/icons/bigquery.svg'
+import icElasticsearch from '../assets/icons/elasticsearch.svg'
+// Feeds/APIs
+import icRss from '../assets/icons/rss.svg'
+import icApi from '../assets/icons/api.svg'
+import icBloomberg from '../assets/icons/blloomberg.svg'
+import icRefinitiv from '../assets/icons/Refintiv.svg'
+import icEsg from '../assets/icons/esg.svg'
+// Social/Calendar/Design
+import icLinkedIn from '../assets/icons/linkedin.svg'
+import icTwitterX from '../assets/icons/x.svg'
+import icGCal from '../assets/icons/google-calendar.svg'
+import icFigma from '../assets/icons/figma.svg'
 /* ----- state ----- */
 const q = ref('')
-const tab = ref('imports')
 const isOver = ref(false); let overTimer=null
 const autoRefresh = ref(true)
 const jobs = ref([]); const docs = ref([]); const sources = ref([])
@@ -245,12 +199,9 @@ const kpi = reactive({ documents: 0, running: 0, health: true })
 const fileInput = ref(null)
 
 /* ----- wizard ----- */
-const wizard = reactive({ open:false, tab:'files' })
-const wizardTabs = [
-  { key:'files', label:'Files' }, { key:'web', label:'Web' },
-  { key:'s3', label:'S3' }, { key:'gdrive', label:'Google Drive' }
-]
-const openWizard = (t='files') => { wizard.tab=t; wizard.open=true }
+const wizard = reactive({ open:false, tab:'' })
+// Replace modal with dedicated per-source setup pages
+const openWizard = (t='gdrive') => { router.push(`/connect/${t}`) }
 
 onMounted(async () => {
   try {
@@ -266,6 +217,7 @@ onMounted(async () => {
 import { useRouter, useRoute } from 'vue-router'
 const router = useRouter()
 const route  = useRoute()
+const goFiles = () => router.push('/connect/files')
 
 const getAccessToken = () =>
   localStorage.getItem('token') || localStorage.getItem('access') || ''
@@ -285,15 +237,69 @@ const ensureAuthOrRedirect = () => {
     throw new Error('Auth required')
   }
 }
-const fmtDate = (iso) => { try { return new Date(iso).toLocaleString() } catch { return iso||'' } }
+const fmtDate = (iso) => {
+  try {
+    return new Date(iso).toLocaleDateString()
+  } catch {
+    return iso ? String(iso).split('T')[0] : ''
+  }
+}
 const prettyStatus = (s)=> s ? s[0].toUpperCase()+s.slice(1) : s
-const prettyKind = (k)=> ({ s3:'S3', gdrive:'Google Drive', web:'Web', email:'Email', slack:'Slack', github:'GitHub', db:'Database', api:'API', media:'Media' }[k] || k)
+const prettyKind = (k)=> ({
+  // Storage
+  files:'File', upload:'File', file:'File', web:'Web', s3:'S3', gdrive:'Google Drive', dropbox:'Dropbox', onedrive:'OneDrive', box:'Box',
+  // Enterprise
+  sharepoint:'SharePoint', confluence:'Confluence', notion:'Notion', airtable:'Airtable',
+  // Comms
+  email:'Email', gmail:'Gmail', outlook:'Outlook', slack:'Slack', teams:'Teams', zoom:'Zoom',
+  // Dev/Project
+  github:'GitHub', gitlab:'GitLab', jira:'Jira', trello:'Trello',
+  // Databases/BI/Search
+  postgres:'PostgreSQL', mysql:'MySQL', mongodb:'MongoDB', snowflake:'Snowflake', bigquery:'BigQuery', elasticsearch:'Elasticsearch', db:'Database',
+  // Feeds/APIs
+  rss:'RSS', api:'API', bloomberg:'Bloomberg', refinitiv:'Refinitiv', esg:'ESG API',
+  // Social/Calendar/Design
+  linkedin:'LinkedIn', twitter:'Twitter (X)', gcal:'Google Calendar', figma:'Figma',
+  media:'Media', video:'Video', audio:'Audio'
+}[k] || (k ? k[0].toUpperCase()+k.slice(1) : ''))
 const jobTitle = (j) => {
   const m=(j.mode||'').toUpperCase()
-  if(j.mode==='web') return `${m} · ${j.payload?.url||''}`
-  if(j.mode==='s3')  return `${m} · ${j.payload?.bucket||''}/${j.payload?.prefix||''}`
-  if(j.mode==='upload') return `${m} · ${(j.payload?.file_ids?.length||0)} files`
+  if (j.mode==='upload') {
+    const names = j.payload?.filenames || j.payload?.files
+    if (Array.isArray(names) && names.length) {
+      return names.length === 1 ? names[0] : `${names[0]} (+${names.length-1} more)`
+    }
+    return `${m} · ${(j.payload?.file_ids?.length||0)} files`
+  }
+  if (j.mode==='web') return `${m} · ${j.payload?.url||''}`
+  if (j.mode==='s3')  return `${m} · ${j.payload?.bucket||''}/${j.payload?.prefix||''}`
   return m
+}
+// Human-friendly type for unified list
+const rowType = (row) => {
+  if (row?.type === 'job') {
+    const k = String(row?._raw?.mode || '').toLowerCase()
+    if (!k) return 'Import'
+    return prettyKind(k)
+  }
+  // Documents (files) → default to File; we can refine by extension later
+  return 'File'
+}
+
+// Map job statuses to friendly labels
+const mapJobStatus = (s) => {
+  const v = String(s || '').toLowerCase()
+  const M = { queued: 'Queued', running: 'Running', success: 'Completed', failed: 'Failed' }
+  return M[v] || (s || '—')
+}
+const displayStatus = (row) => {
+  if (row?.type === 'job') return mapJobStatus(row._raw?.status)
+  // Documents are available/complete by nature
+  return 'Completed'
+}
+const statusClass = (row) => {
+  if (row?.type === 'job') return String(row.status || '').toLowerCase()
+  return 'success'
 }
 const fileEmoji = (name='')=>{
   const n=(name||'').toLowerCase()
@@ -306,37 +312,141 @@ const fileEmoji = (name='')=>{
   return '📄'
 }
 
+// Icon URLs for known kinds (fallback to file)
+const ICONS = {
+  // Storage / generic
+  file: icFile, files: icFile, upload: icFile,
+  web: icWeb,
+  s3: icS3,
+  gdrive: icGdrive,
+  dropbox: icDropbox,
+  onedrive: icOnedrive,
+  box: icBox,
+
+  // Enterprise
+  sharepoint: icSharepoint,
+  confluence: icConfluence,
+  notion: icNotion,
+  airtable: icAirtable,
+
+  // Comms
+  email: icGmail, // generic email → gmail icon
+  gmail: icGmail,
+  outlook: icOutlook,
+  slack: icSlack,
+  teams: icTeams,
+  zoom: icZoom,
+
+  // Dev/Project
+  github: icGithub,
+  gitlab: icGitlab,
+  jira: icJira,
+  trello: icTrello,
+
+  // Databases/BI/Search
+  postgres: icPostgres,
+  postgresql: icPostgres,
+  mysql: icMysql,
+  mongodb: icMongodb,
+  snowflake: icSnowflake,
+  bigquery: icBigQuery,
+  elasticsearch: icElasticsearch,
+  db: icPostgres,
+
+  // Feeds/APIs
+  rss: icRss,
+  api: icApi,
+  bloomberg: icBloomberg,
+  refinitiv: icRefinitiv,
+  esg: icEsg,
+
+  // Social/Calendar/Design
+  linkedin: icLinkedIn,
+  twitter: icTwitterX,
+  gcal: icGCal,
+  figma: icFigma,
+}
+const iconForKind = (k) => ICONS[k] || icFile
+
+// Icon for each row (connector kind or generic file)
+const rowIconComp = (row) => {
+  if (row?.type === 'job') {
+    const k = String(row?._raw?.mode || '').toLowerCase()
+    return iconForKind(k)
+  }
+  return icFile
+}
+
 /* ----- filters ----- */
-const filteredJobs = computed(()=>{
-  if(!q.value) return jobs.value
-  const s=q.value.toLowerCase()
-  return jobs.value.filter(j => jobTitle(j).toLowerCase().includes(s) || (j.status||'').toLowerCase().includes(s))
+// Unified list: show documents + non-upload jobs (e.g., Web, S3, etc.)
+const combinedRows = computed(() => {
+  const jobRows = (jobs.value || [])
+    .filter(j => String(j.mode || '').toLowerCase() !== 'upload')
+    .map(j => ({
+      id: `job-${j.id}`,
+      type: 'job',
+      title: jobTitle(j),
+      status: j.status,
+      progress: j.progress || 0,
+      created_at: j.created_at,
+      _raw: j,
+    }))
+
+  const docRows = (docs.value || []).map(d => ({
+    id: `doc-${d.id}`,
+    type: 'doc',
+    title: d.title || d.filename,
+    status: '',
+    progress: null,
+    created_at: d.created_at,
+    _raw: d,
+  }))
+
+  const out = [...jobRows, ...docRows]
+  out.sort((a,b) => {
+    const da = a.created_at ? new Date(a.created_at).getTime() : 0
+    const db = b.created_at ? new Date(b.created_at).getTime() : 0
+    return db - da
+  })
+  return out
 })
-const filteredDocs = computed(()=>{
-  if(!q.value) return docs.value
-  const s=q.value.toLowerCase()
-  return docs.value.filter(d => (d.title||d.filename||'').toLowerCase().includes(s))
+const filteredCombined = computed(() => {
+  if (!q.value) return combinedRows.value
+  const s = q.value.toLowerCase()
+  return combinedRows.value.filter(r =>
+    (r.title||'').toLowerCase().includes(s) ||
+    (r.status||'').toLowerCase().includes(s) ||
+    r.type.includes(s)
+  )
+})
+const uniqueSources = computed(()=>{
+  const seen = new Set(); const out = []
+  for (const s of (sources.value||[])) {
+    const k = `${(s.name||'').toLowerCase()}|${(s.kind||'').toLowerCase()}`
+    if (seen.has(k)) continue; seen.add(k); out.push(s)
+  }
+  return out
 })
 const filteredSources = computed(()=>{
-  if(!q.value) return sources.value
+  if(!q.value) return uniqueSources.value
   const s=q.value.toLowerCase()
-  return sources.value.filter(x => (x.name||'').toLowerCase().includes(s) || (x.kind||'').toLowerCase().includes(s))
+  return uniqueSources.value.filter(x => (x.name||'').toLowerCase().includes(s) || (x.kind||'').toLowerCase().includes(s))
 })
 const applySearch = ()=>{}
 
 /* ----- API ----- */
 const fetchJobs = async ()=>{
-  const r = await fetch(`${API}/api/ingest/jobs/`, { headers: { ...authHeaders() } })
+  const r = await authFetch(`${API}/api/ingest/jobs/`, { headers: { ...authHeaders() } })
   if(r.ok) jobs.value = await r.json()
   kpi.running = jobs.value.filter(j=>['queued','running'].includes(j.status)).length
 }
 const fetchDocs = async ()=>{
-  const r = await fetch(`${API}/api/documents?limit=20&sort=-created_at`, { headers: authHeaders() })
+  const r = await authFetch(`${API}/api/documents?limit=20&sort=-created_at`, { headers: authHeaders() })
   if(r.ok) docs.value = await r.json()
   kpi.documents = docs.value.length
 }
 const fetchSources = async ()=>{
-  const r = await fetch(`${API}/api/ingest/sources/`, { headers: authHeaders() })
+  const r = await authFetch(`${API}/api/ingest/sources/`, { headers: authHeaders() })
   if(r.ok) sources.value = await r.json()
 }
 const checkHealth = async ()=>{
@@ -347,174 +457,172 @@ const refreshAll = async ()=>{ await Promise.all([fetchJobs(), fetchDocs(), fetc
 /* ----- DnD / File pick ----- */
 const onDragOver = (e)=>{ e.dataTransfer.dropEffect='copy'; isOver.value=true }
 const onDragLeave = ()=>{ clearTimeout(overTimer); overTimer=setTimeout(()=>isOver.value=false,60) }
-const onDrop = async (e)=>{ isOver.value=false; pickedFiles.value = [...(e.dataTransfer?.files||[])]; if(pickedFiles.value.length) { wizard.open=true; wizard.tab='files' } }
+const onDrop = async (e)=>{ isOver.value=false; const files=[...(e.dataTransfer?.files||[])]; if(files.length){ router.push('/connect/files') } }
 
-/* ----- Wizard logic ----- */
-const pickedFiles = ref([]); const meta = reactive({ collection:'', tags:'' })
-const web = reactive({ url:'', crawl:false, depth:1 })
-const s3  = reactive({ name:'', bucket:'', prefix:'', sync:true })
-const gdrive = reactive({ name:'' })
-const generic = reactive({ name:'' })
-const statusMsg = ref(''); const uploading = ref(false)
-const validWeb = computed(()=> /^https?:\/\//i.test(web.url||'')); const validS3 = computed(()=> !!(s3.name && s3.bucket))
-const currentTabLabel = computed(()=> wizardTabs.find(x=>x.key===wizard.tab)?.label || 'Source')
-const onPickFiles = (e)=>{ pickedFiles.value = Array.from(e.target.files || []) }
-
-// helper: safely read JSON or show the first lines of HTML/text
-const readJsonSafe = async (res) => {
-  const ctype = res.headers.get('content-type') || ''
-  const text = await res.text()
-  if (ctype.includes('application/json')) {
-    try { return JSON.parse(text) } catch { /* fallthrough */ }
-  }
-  // not JSON → throw informative error
-  throw new Error(`HTTP ${res.status} ${res.statusText} — ${text.slice(0,180)}`)
-}
-
-const startUpload = async () => {
-  if (!pickedFiles.value.length) return
-  statusMsg.value = ''
-  uploading.value = true
-  try {
-    const fd = new FormData()
-    for (const f of pickedFiles.value) fd.append('files', f)
-
-    const up = await fetch(`${API}/api/ingest/upload/`, {
-      method: 'POST',
-      headers: { ...authHeaders() },          // Content-Type দিবেন না → ব্রাউজার boundary সেট করবে
-      body: fd,
-    })
-
-    const list = await readJsonSafe(up)
-    if (!up.ok) throw new Error(list?.detail || 'Upload failed')
-
-    const file_ids = Array.isArray(list) ? list.map(x => x.id) :
-                     Array.isArray(list.files) ? list.files.map(x => x.id) : []
-    if (!file_ids.length) throw new Error('No file ids returned')
-
-    const j = await fetch(`${API}/api/ingest/jobs/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...authHeaders() },
-      body: JSON.stringify({
-        mode: 'upload',
-        payload: { file_ids, collection: meta.collection, tags: meta.tags }
-      })
-    })
-    const jd = await readJsonSafe(j)
-    if (!j.ok) throw new Error(jd?.detail || 'Job create failed')
-
-    statusMsg.value = '✅ Import started'
-    wizard.open = false
-    pickedFiles.value = []
-    await fetchJobs(); await fetchDocs()
-    tab.value = 'imports'
-  } catch (e) {
-    statusMsg.value = `❌ ${e.message || e}`
-  } finally {
-    uploading.value = false
-  }
-}
-
-
-const createWebJob = async ()=>{
-  statusMsg.value=''
-  try{
-    const r=await fetch(`${API}/api/ingest/jobs/`,{
-      method:'POST', headers:{ 'Content-Type':'application/json', ...authHeaders() },
-      body: JSON.stringify({ mode:'web', payload:{ url:web.url, crawl:web.crawl, depth:web.depth } })
-    })
-    const d=await r.json(); if(!r.ok) throw new Error(d?.detail || 'Job create failed')
-    statusMsg.value='✅ Website import queued'; wizard.open=false; await fetchJobs(); tab.value='imports'
-  }catch(e){ statusMsg.value=`❌ ${e.message || e}` }
-}
-
-const createS3Job = async ()=>{
-  statusMsg.value=''
-  try{
-    const s = await fetch(`${API}/api/ingest/sources/`,{
-      method:'POST', headers:{ 'Content-Type':'application/json', ...authHeaders() },
-      body: JSON.stringify({ kind:'s3', name:s3.name, config:{ bucket:s3.bucket, prefix:s3.prefix, sync:s3.sync } })
-    })
-    const src=await s.json(); if(!s.ok) throw new Error(src?.detail || 'Source create failed')
-    const j = await fetch(`${API}/api/ingest/jobs/`,{
-      method:'POST', headers:{ 'Content-Type':'application/json', ...authHeaders() },
-      body: JSON.stringify({ mode:'s3', source:src.id, payload:{ bucket:s3.bucket, prefix:s3.prefix, sync:s3.sync } })
-    })
-    const jd=await j.json(); if(!j.ok) throw new Error(jd?.detail || 'Job create failed')
-    statusMsg.value='✅ S3 import queued'; wizard.open=false; await fetchSources(); await fetchJobs(); tab.value='imports'
-  }catch(e){ statusMsg.value=`❌ ${e.message || e}` }
-}
-
-const createGenericSource = async (kind)=>{
-  statusMsg.value=''
-  try{
-    const r=await fetch(`${API}/api/ingest/sources/`,{
-      method:'POST', headers:{ 'Content-Type':'application/json', ...authHeaders() },
-      body: JSON.stringify({ kind, name:generic.name || gdrive.name, config:{} })
-    })
-    const d=await r.json(); if(!r.ok) throw new Error(d?.detail || 'Source create failed')
-    statusMsg.value='✅ Source created'; wizard.open=false; await fetchSources()
-  }catch(e){ statusMsg.value=`❌ ${e.message || e}` }
-}
+/* ----- Wizard logic removed in favor of /connect/:kind pages ----- */
 
 /* ----- palette ----- */
 const srcPalette = [
-  { key:'gdrive', name:'Google Drive', emoji:'🟩' },
-  { key:'s3', name:'S3', emoji:'🟦' },
-  { key:'slack', name:'Slack', emoji:'🟩' },
+  { key:'files', name:'Files', emoji:'📁' },
   { key:'web', name:'Web', emoji:'🌐' },
+  { key:'gdrive', name:'Google Drive', emoji:'🟩' },
+  { key:'dropbox', name:'Dropbox', emoji:'🟦' },
+  { key:'onedrive', name:'OneDrive', emoji:'🟦' },
+  { key:'box', name:'Box', emoji:'📦' },
+  { key:'s3', name:'S3', emoji:'🟦' },
+  { key:'sharepoint', name:'SharePoint', emoji:'🏢' },
+  { key:'confluence', name:'Confluence', emoji:'📘' },
   { key:'notion', name:'Notion', emoji:'⬛' },
+  { key:'airtable', name:'Airtable', emoji:'📋' },
+  { key:'gmail', name:'Gmail', emoji:'✉️' },
+  { key:'outlook', name:'Outlook', emoji:'✉️' },
+  { key:'slack', name:'Slack', emoji:'🟩' },
+  { key:'teams', name:'Teams', emoji:'🟦' },
+  { key:'zoom', name:'Zoom', emoji:'🎥' },
+  { key:'github', name:'GitHub', emoji:'💻' },
+  { key:'gitlab', name:'GitLab', emoji:'💻' },
   { key:'jira', name:'Jira', emoji:'🟦' },
-  { key:'email', name:'Email', emoji:'✉️' },
-  { key:'media', name:'Video', emoji:'🎞️' },
-  { key:'db', name:'Database', emoji:'🗄️' },
+  { key:'trello', name:'Trello', emoji:'🗂️' },
+  { key:'postgres', name:'PostgreSQL', emoji:'🗄️' },
+  { key:'mysql', name:'MySQL', emoji:'🗄️' },
+  { key:'mongodb', name:'MongoDB', emoji:'🍃' },
+  { key:'snowflake', name:'Snowflake', emoji:'❄️' },
+  { key:'bigquery', name:'BigQuery', emoji:'🟨' },
+  { key:'elasticsearch', name:'Elasticsearch', emoji:'🔍' },
+  { key:'rss', name:'RSS', emoji:'📰' },
   { key:'api', name:'API', emoji:'🔗' },
+  { key:'bloomberg', name:'Bloomberg', emoji:'📈' },
+  { key:'refinitiv', name:'Refinitiv', emoji:'📈' },
+  { key:'esg', name:'ESG API', emoji:'🌱' },
+  { key:'linkedin', name:'LinkedIn', emoji:'🔮' },
+  { key:'twitter', name:'Twitter (X)', emoji:'🔮' },
+  { key:'gcal', name:'Google Calendar', emoji:'📆' },
+  { key:'figma', name:'Figma', emoji:'🎨' },
 ]
 
 /* ----- lifecycle ----- */
 let poll=null
-onMounted(async ()=>{ await refreshAll(); poll=setInterval(()=>{ if(autoRefresh.value) fetchJobs() }, 5000) })
 onBeforeUnmount(()=> clearInterval(poll))
+
+// Run a saved source now
+const runSource = async (s)=>{
+  try{
+    const r = await authFetch(`${API}/api/ingest/jobs/`,{
+      method:'POST', headers:{ 'Content-Type':'application/json', ...authHeaders() },
+      body: JSON.stringify({ mode: s.kind || 'source', source: s.id, payload: {} })
+    })
+    if(r.ok){ await fetchJobs(); }
+  }catch(_){ /* ignore */ }
+}
+
+// Delete a document
+const deleteDoc = async (rowOrDoc)=>{
+  const d = rowOrDoc?._raw || rowOrDoc
+  if (!d || !d.id) return
+  if (!confirm(`Delete "${d.title || d.filename || d.id}"? This cannot be undone.`)) return
+  try{
+    const r = await authFetch(`${API}/api/documents/${d.id}`, { method:'DELETE', headers: { ...authHeaders() } })
+    if (r.ok) { await fetchDocs() }
+  }catch(_){ /* noop */ }
+}
+
+// Delete a source
+const deleteSource = async (s)=>{
+  if (!s || !s.id) return
+  if (!confirm(`Delete source "${s.name}"?`)) return
+  try{
+    const r = await authFetch(`${API}/api/ingest/sources/${s.id}/`, { method:'DELETE', headers: { ...authHeaders() } })
+    if (r.ok) { await fetchSources() }
+  }catch(_){ /* noop */ }
+}
+
+// Open a job (web → open URL; others → navigate to setup)
+const openJob = (row)=>{
+  const j = row?._raw || {}
+  const mode = String(j.mode || '').toLowerCase()
+  if (mode === 'web' && j?.payload?.url) {
+    try { window.open(j.payload.url, '_blank', 'noopener') } catch (_) {}
+    return
+  }
+  if (mode) router.push(`/connect/${mode}`)
+}
+
+// Delete a job (owner only)
+const deleteJob = async (row)=>{
+  const j = row?._raw
+  if (!j || !j.id) return
+  if (!confirm(`Delete job "${row.title}"? This will remove the import record.`)) return
+  try{
+    const r = await authFetch(`${API}/api/ingest/jobs/${j.id}/`, { method:'DELETE', headers: { ...authHeaders() } })
+    if (r.ok) await fetchJobs()
+  }catch(_){ /* ignore */ }
+}
+
+// Delete files associated with an upload job row (payload.file_ids)
+const deleteUploadFiles = async (row)=>{
+  const job = row?._raw
+  const ids = job?.payload?.file_ids
+  if (!Array.isArray(ids) || !ids.length) return
+  const label = row.title || `${ids.length} file(s)`
+  if (!confirm(`Delete ${label}? This cannot be undone.`)) return
+  try {
+    for (const id of ids) {
+      await authFetch(`${API}/api/documents/${id}`, { method: 'DELETE', headers: { ...authHeaders() } })
+    }
+    jobs.value = jobs.value.filter(j => j.id !== job.id)
+    await fetchDocs()
+  } catch (_) { /* ignore */ }
+}
+
 </script>
 
 <style scoped>
-:root{ --bg:#f6f8ff; --card:#ffffff; --line:#e6ecf7; --txt:#25324a; --muted:#6e7b90; --blue:#1d4ed8; }
-.page{ background:var(--bg); min-height:100vh; }
+:root{
+  --bg:#f6f8ff; --card:#ffffff; --line:#e6ecf7; --txt:#25324a; --muted:#6e7b90; --blue:#1d4ed8;
+  --md-shadow-1: 0 1px 3px rgba(16,24,40,.08), 0 1px 2px rgba(16,24,40,.06);
+  --md-shadow-2: 0 2px 6px rgba(16,24,40,.10), 0 4px 12px rgba(16,24,40,.08);
+  --md-shadow-3: 0 6px 16px rgba(16,24,40,.12), 0 8px 24px rgba(16,24,40,.10);
+}
+.page{ background:var(--bg); min-height:100vh; padding: 0 12px; }
 
-.page-head{ width:min(1100px, 94%); margin:16px auto 10px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.page-head{ width:100%; margin:16px 0 10px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
 .page-head h1{ margin:0; font-size:22px; color:var(--txt); font-weight:800; letter-spacing:.2px; }
 .left{ display:flex; align-items:center; gap:12px; }
-.search{ display:flex; gap:6px; }
-.search input{ border:1px solid #dbe3f3; border-radius:10px; padding:8px 10px; min-width:260px; outline:none; }
-.icon{ border:1px solid #dbe3f3; background:#fff; border-radius:10px; width:38px; }
+.search{ display:flex; gap:6px; align-items:center; background:#fff; border:1px solid #e5e9f5; border-radius:999px; padding:4px 6px 4px 10px; box-shadow: var(--md-shadow-1); }
+.search input{ border:none; padding:8px 10px; min-width:300px; outline:none; border-radius:999px; }
+.icon{ border:none; background:#1f47c5; color:#fff; border-radius:999px; width:38px; height:32px; display:inline-flex; align-items:center; justify-content:center; box-shadow: var(--md-shadow-1); }
 .right{ display:flex; gap:8px; }
 .primary{ border:none; background:#1f47c5; color:#fff; font-weight:800; border-radius:10px; padding:9px 12px; cursor:pointer; }
 .ghost{ border:1px solid #dbe3f3; background:#fff; color:#1f47c5; border-radius:10px; padding:8px 10px; font-weight:800; cursor:pointer; }
 
 /* dropzone */
-.dropzone{ width:min(1100px, 94%); margin:0 auto 12px; background:#fff; border:2px dashed #cfe0ff; border-radius:16px; min-height:140px; display:grid; place-items:center; cursor:pointer; }
-.dropzone.over{ background:#f0f6ff; border-color:#97bfff; }
+.dropzone{ width:100%; margin:0 0 12px; background:#fff; border:2px dashed #cfe0ff; border-radius:16px; min-height:160px; display:grid; place-items:center; cursor:pointer; box-shadow: var(--md-shadow-1); transition: box-shadow .18s ease, background .18s ease; }
+.dropzone.over{ background:#f0f6ff; border-color:#97bfff; box-shadow: var(--md-shadow-2); }
 .dz-inner{ text-align:center; padding:24px; }
-.cloud{ font-size:32px; }
-.dz-title{ font-weight:800; color:#2b3a59; }
+.cloud{ font-size:36px; }
+.dz-title{ font-weight:800; color:#2b3a59; font-size:18px; }
 .dz-sub{ color:#6e7b90; font-size:13px; margin-top:6px; }
 
 /* grid */
-.grid{ width:min(1100px, 94%); margin:0 auto; display:grid; grid-template-columns: 1.6fr .9fr; gap:12px; }
+.grid{ width:100%; margin:0; display:grid; grid-template-columns: 1.6fr .9fr; gap:14px; }
 
 /* panel */
-.panel{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px; }
+.panel{ background:var(--card); border:1px solid #e8eef8; border-radius:14px; padding:12px; box-shadow: var(--md-shadow-1); }
 .tabs{ display:flex; gap:10px; border-bottom:1px solid var(--line); padding-bottom:8px; }
-.tab{ border:1px solid #dbe3f3; background:#fff; color:#374151; border-radius:9px; padding:6px 10px; cursor:pointer; font-weight:800; }
-.tab.active{ background:#eaf2ff; color:#1d4ed8; border-color:#c7dafb; }
+.tab{ border:1px solid transparent; background:#fff; color:#374151; border-radius:9px; padding:8px 12px; cursor:pointer; font-weight:800; transition: color .15s ease, background .15s ease; }
+.tab:hover{ background:#f4f7ff; }
+.tab.active{ background:#eaf2ff; color:#1d4ed8; border-color:#c7dafb; box-shadow: var(--md-shadow-1); }
 
 .table-wrap{ margin-top:10px; }
 .table-tools{ display:flex; justify-content:space-between; margin-bottom:6px; }
 .chk{ display:flex; align-items:center; gap:6px; color:#41506a; font-size:14px; }
-.tbl{ width:100%; border-collapse:collapse; }
-.tbl th,.tbl td{ text-align:left; padding:10px 8px; border-bottom:1px solid var(--line); font-size:14px; color:var(--txt); }
+.tbl{ width:100%; border-collapse:separate; border-spacing:0; background:#fff; border-radius:12px; overflow:hidden; box-shadow: var(--md-shadow-1); }
+.tbl th,.tbl td{ text-align:left; padding:12px 10px; border-bottom:1px solid var(--line); font-size:14px; color:var(--txt); }
 .tbl th{ color:#5b6b86; font-weight:800; }
+.tbl tr:hover td{ background:#fafcff; }
 .truncate{ max-width:380px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.type-cell{ display:flex; align-items:center; gap:8px; }
+.type-ico { display:inline-flex; font-size: 18px; line-height: 1; }
 .badge{ padding:3px 8px; border-radius:999px; font-size:12px; font-weight:800; border:1px solid transparent; }
 .badge.queued{ background:#fff0da; color:#9a6700; border-color:#ffd89a; }
 .badge.running{ background:#eaf2ff; color:#1d4ed8; border-color:#c7dafb; }
@@ -527,32 +635,37 @@ onBeforeUnmount(()=> clearInterval(poll))
 
 /* docs */
 .docs-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap:10px; padding-top:10px; }
-.doc-card{ background:#f9fbff; border:1px solid var(--line); border-radius:12px; padding:10px; display:grid; gap:6px; }
+.doc-card{ background:#fff; border:1px solid #e8eef8; border-radius:12px; padding:12px; display:grid; gap:6px; box-shadow: var(--md-shadow-1); transition: transform .15s ease, box-shadow .15s ease; }
+.doc-card:hover{ transform: translateY(-2px); box-shadow: var(--md-shadow-2); }
 .doc-ico{ font-size:24px; }
 .doc-title{ font-weight:800; color:#2a3342; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .doc-meta{ color:#6e7b90; font-size:13px; }
 .doc-actions{ display:flex; gap:10px; }
 .link{ background:transparent; border:none; color:#1d4ed8; font-weight:800; cursor:pointer; padding:0; }
 .link.danger{ color:#b42318; }
+.row-actions{ display:inline-flex; gap:10px; align-items:center; }
 
 /* right */
 .side{ display:grid; gap:12px; }
 .kpis{ display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; }
-.kpi{ background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px; }
+.kpi{ background:#fff; border:1px solid #e8eef8; border-radius:12px; padding:12px; box-shadow: var(--md-shadow-1); }
 .kpi-title{ color:#6e7b90; font-size:13px; font-weight:800; }
 .kpi-val{ font-size:22px; font-weight:900; color:#1f2a44; }
 .kpi-val.ok{ color:#0a8d3a } .kpi-val.bad{ color:#b42318 }
 
-.sources{ background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px; }
+.sources{ background:#fff; border:1px solid #e8eef8; border-radius:12px; padding:12px; box-shadow: var(--md-shadow-1); }
 .sources-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
-.src-grid{ display:grid; grid-template-columns: repeat(5, 1fr); gap:8px; }
-.src-btn{ background:#f7faff; border:1px solid #dfe8fb; border-radius:12px; padding:10px; cursor:pointer; text-align:center; }
+.src-grid{ display:grid; grid-template-columns: repeat(6, 1fr); gap:10px; }
+.src-btn{ background:#fff; border:1px solid #e6ecf7; border-radius:12px; padding:12px; cursor:pointer; text-align:center; box-shadow: var(--md-shadow-1); transition: transform .15s ease, box-shadow .15s ease, background .12s ease; display:grid; gap:8px; justify-items:center; }
+.src-btn:hover{ background:#f8fbff; transform: translateY(-2px); box-shadow: var(--md-shadow-2); }
 .src-ico{ font-size:20px; } .src-name{ margin-top:6px; font-size:12.5px; font-weight:800; color:#2a3342; }
+.src-ico-comp{ display:inline-flex; font-size: 20px; line-height: 1; }
+.src-ico-img{ width:1em; height:1em; display:inline-block; object-fit:contain; }
 
 .connected{ margin-top:12px; }
 .conn-title{ font-weight:900; color:#2a3342; margin-bottom:6px; }
 .conn-list{ display:grid; gap:6px; }
-.conn-item{ display:flex; align-items:center; justify-content:space-between; background:#fbfdff; border:1px solid #e8eefb; border-radius:10px; padding:8px 10px; }
+.conn-item{ display:flex; align-items:center; justify-content:space-between; background:#fff; border:1px solid #e8eef8; border-radius:10px; padding:10px 12px; box-shadow: var(--md-shadow-1); }
 .ci-left{ display:flex; align-items:center; gap:8px; color:#344562; }
 .dot{ width:8px; height:8px; background:#22c55e; border-radius:999px; display:inline-block; }
 .kind{ color:#8192aa; }

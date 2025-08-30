@@ -54,6 +54,14 @@ class JobListCreate(APIView):
         obj = ser.save(created_by=request.user)
         return Response(IngestJobSerializer(obj).data, status=201)
 
+class JobDetail(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+        IngestJob.objects.filter(id=pk, created_by=request.user).delete()
+        return Response(status=204)
+
 # ---- Upload ----
 class UploadView(APIView):
     authentication_classes = [JWTAuthentication]

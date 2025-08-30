@@ -59,7 +59,7 @@
   "dropFiles": "将文件拖放到此处或点击上传",
   "dropHint": "PDF、DOCX、PPTX、XLSX、HTML、图片、媒体",
   "imports": "导入",
-  "noDocs": "还没有文档。请使用上方“添加数据”。",
+  "noDocs": "还没有文档。请在右侧连接一个来源。",
   "autoRefresh": "自动刷新",
 
   "runningJobs": "运行中的作业",

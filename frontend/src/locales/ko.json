@@ -59,7 +59,7 @@
   "dropFiles": "여기로 파일을 드래그 앤 드롭하거나 클릭하여 업로드",
   "dropHint": "PDF, DOCX, PPTX, XLSX, HTML, 이미지, 미디어",
   "imports": "가져오기",
-  "noDocs": "아직 문서가 없습니다. 위의 데이터 추가를 사용하세요.",
+  "noDocs": "아직 문서가 없습니다. 오른쪽에서 소스를 연결하세요.",
   "autoRefresh": "자동 새로고침",
 
   "runningJobs": "실행 중 작업",

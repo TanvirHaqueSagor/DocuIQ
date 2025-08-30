@@ -120,6 +120,8 @@ const onSubmit = async () => {
       localStorage.setItem('access', data.access)   // fallback
       if (data.refresh) localStorage.setItem('refresh', data.refresh)
       if (data.user) localStorage.setItem('user', JSON.stringify(data.user))
+      if (data.account_type) localStorage.setItem('account_type', data.account_type)
+      if (data.org_subdomain) localStorage.setItem('org_subdomain', data.org_subdomain); else localStorage.removeItem('org_subdomain')
 
       // ✅ Redirect target (query থাকলে সেটা, না থাকলে /dashboard)
       const target = (route.query.redirect ? String(route.query.redirect) : '/dashboard')
