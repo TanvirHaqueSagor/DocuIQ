@@ -64,7 +64,12 @@
                 </td>
                 <td class="truncate">{{ row.title }}</td>
                 <td>
-                  <span class="badge" :class="statusClass(row)">{{ displayStatus(row) }}</span>
+                  <span class="badge" :class="badgeClass(row)">
+                    <template v-if="isRowRunning(row)">
+                      running<span class="dots" aria-hidden="true"><span>.</span><span>.</span><span>.</span></span>
+                    </template>
+                    <template v-else>{{ displayStatus(row) }}</template>
+                  </span>
                 </td>
                 <td>{{ fmtDate(row.created_at) }}</td>
                 <td>
@@ -200,6 +205,8 @@ const autoRefresh = ref(true)
 const jobs = ref([]); const docs = ref([]); const sources = ref([])
 const kpi = reactive({ documents: 0, running: 0, health: true })
 const fileInput = ref(null)
+// Track rows set to re-run; key by row.id
+const rerunning = ref({})
 
 /* ----- wizard ----- */
 const wizard = reactive({ open:false, tab:'' })
@@ -304,6 +311,8 @@ const mapUnifiedStatus = (row) => {
 }
 const displayStatus = (row) => mapUnifiedStatus(row)
 const statusClass = (row) => String(mapUnifiedStatus(row)).toLowerCase()
+const isRowRunning = (row) => !!(rerunning.value || {})[row?.id]
+const badgeClass = (row) => isRowRunning(row) ? 'processing' : statusClass(row)
 const fileEmoji = (name='')=>{
   const n=(name||'').toLowerCase()
   if(n.endsWith('.pdf')) return '📕'
@@ -460,6 +469,9 @@ const refreshAll = async ()=>{ await Promise.all([fetchJobs(), fetchDocs(), fetc
 // Re-run import: for docs -> create upload job with file_ids; for jobs -> clone job
 const rerunImport = async (row)=>{
   try{
+    // mark as running (animated)
+    const setFlag = (v)=>{ rerunning.value = { ...(rerunning.value||{}), [row.id]: v } }
+    setFlag(true)
     if (row?.type === 'doc'){
       const d = row._raw
       const payload = { file_ids: [d.id] }
@@ -474,6 +486,12 @@ const rerunImport = async (row)=>{
       if (r.ok) await fetchJobs()
     }
   }catch(_){ /* ignore */ }
+  finally{
+    // clear the flag after a short delay to avoid being stuck
+    setTimeout(() => {
+      const m = { ...(rerunning.value||{}) }; delete m[row.id]; rerunning.value = m
+    }, 6000)
+  }
 }
 
 /* ----- DnD / File pick ----- */
@@ -649,6 +667,11 @@ const deleteUploadFiles = async (row)=>{
 .badge.uploaded{ background:#fff0da; color:#9a6700; border-color:#ffd89a; }
 .badge.processing{ background:#eaf2ff; color:#1d4ed8; border-color:#c7dafb; }
 .badge.imported{ background:#e8f7ee; color:#047857; border-color:#b7e5c9; }
+.dots{ display:inline-flex; gap:1px; margin-left:1px; }
+.dots span{ opacity:0; animation: dotblink 1.2s infinite; }
+.dots span:nth-child(2){ animation-delay:.2s }
+.dots span:nth-child(3){ animation-delay:.4s }
+@keyframes dotblink{ 0%,20%{ opacity:0 } 50%{ opacity:1 } 100%{ opacity:0 } }
 .prog-cell{ width:190px; }
 .prog{ width:100%; height:8px; background:#edf2ff; border:1px solid #dfe8fb; border-radius:999px; overflow:hidden; }
 .prog .bar{ height:100%; width:0%; background:#4f7cff; transition:width .25s; }
