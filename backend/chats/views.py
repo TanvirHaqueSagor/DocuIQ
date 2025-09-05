@@ -60,11 +60,17 @@ class MessagesListCreate(APIView):
         th = get_object_or_404(ChatThread, pk=thread_id, owner=request.user)
         role = (request.data.get('role') or '').strip().lower()
         content = (request.data.get('content') or '').strip()
+        citations = request.data.get('citations')
+        if citations is None:
+            citations = []
+        # Ensure citations is a list-like
+        if not isinstance(citations, (list, tuple)):
+            citations = []
         if role not in {'user', 'assistant', 'system'}:
             return Response({"detail": "invalid role"}, status=status.HTTP_400_BAD_REQUEST)
         if not content:
             return Response({"detail": "content required"}, status=status.HTTP_400_BAD_REQUEST)
-        msg = ChatMessage.objects.create(thread=th, role=role, content=content)
+        msg = ChatMessage.objects.create(thread=th, role=role, content=content, citations=list(citations))
         # If thread has no title and this is the first user message, derive a title
         if not th.title and role == 'user':
             head = ' '.join(content.split())

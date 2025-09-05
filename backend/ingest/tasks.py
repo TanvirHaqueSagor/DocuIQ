@@ -6,7 +6,7 @@ from urllib.parse import urlsplit, unquote, quote
 from .models import IngestFile, IngestJob, IngestSource
 from .status import set_status
 import os, requests, os as _os, hashlib, random, io
-from pdfminer.high_level import extract_text as pdf_extract_text
+from pdfminer.high_level import extract_text as pdf_extract_text, extract_pages
 import logging
 
 # Quiet noisy pdfminer warnings (e.g., invalid color values in malformed PDFs)
@@ -117,10 +117,30 @@ def process_item(self, file_id: int, job_id: int = None):
     filename = (getattr(item, 'filename', '') or '').lower()
     set_status(item, 'NORMALIZING', patch={ 'normalizing': { 'mime': mime, 'bytes_in': len(content) } })
     text = ''
+    pages_payload = None
     try:
         if 'pdf' in mime or filename.endswith('.pdf'):
-            # Extract text from PDF bytes
-            text = pdf_extract_text(io.BytesIO(content)) or ''
+            # Extract text per-page for precise page mapping
+            pages = []
+            try:
+                for i, layout in enumerate(extract_pages(io.BytesIO(content)), start=1):
+                    parts = []
+                    for el in layout:
+                        try:
+                            if hasattr(el, 'get_text'):
+                                parts.append(el.get_text())
+                        except Exception:
+                            pass
+                    txt = "\n".join([t for t in parts if t and t.strip()])
+                    pages.append({ 'page': i, 'text': txt })
+            except Exception:
+                pages = []
+            # Fallback to whole-doc text as well
+            try:
+                text = pdf_extract_text(io.BytesIO(content)) or ''
+            except Exception:
+                text = ''
+            pages_payload = pages if pages else None
         else:
             # Fallback: naive utf-8 decode (handles txt/html minimally)
             text = content.decode('utf-8', errors='ignore')
@@ -133,11 +153,15 @@ def process_item(self, file_id: int, job_id: int = None):
     # EMBEDDING + INDEXING via AI engine
     set_status(item, 'EMBEDDING')
     try:
-        r = requests.post(f"{AI_URL}/index_document", json={
+        payload = {
             'document_id': str(item.id),
             'title': item.filename,
-            'text': text
-        }, timeout=30)
+        }
+        if pages_payload:
+            payload['pages'] = pages_payload
+        else:
+            payload['text'] = text
+        r = requests.post(f"{AI_URL}/index_document", json=payload, timeout=30)
         if not r.ok:
             # Surface AI error
             snippet = (r.text or '')[:200]

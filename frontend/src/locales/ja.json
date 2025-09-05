@@ -105,4 +105,12 @@
   "ex1": "最新のポリシー変更を要約し、重要なポイントを挙げてください。",
   "ex2": "オンボーディングの手順は何で、誰が承認しますか？",
   "ex3": "製品ライン別の第2四半期の売上成長を、ソース付きで比較してください。"
+  ,
+  "references": "参照",
+  "noReferences": "保存されたチャットに参照がまだありません。"
+  ,
+  "enterToSend": "Enter で送信",
+  "ctrlEnterToSend": "Ctrl/Cmd+Enter で送信",
+  "enterToSendHint": "Enter で送信。改行は Shift+Enter。",
+  "ctrlEnterToSendHint": "Ctrl/Cmd+Enter で送信。改行は Enter。"
 }

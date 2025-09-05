@@ -25,6 +25,7 @@ class ChatMessage(models.Model):
     thread = models.ForeignKey(ChatThread, on_delete=models.CASCADE, related_name='messages')
     role = models.CharField(max_length=16, choices=ROLE_CHOICES)
     content = models.TextField()
+    citations = models.JSONField(default=list, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

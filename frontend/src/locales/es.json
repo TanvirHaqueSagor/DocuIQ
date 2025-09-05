@@ -111,4 +111,12 @@
   "ex1": "Resume los últimos cambios de política y enumera los puntos clave.",
   "ex2": "¿Cuáles son los pasos de incorporación y quién los aprueba?",
   "ex3": "Compara el crecimiento de ingresos del Q2 por línea de producto con fuentes."
+  ,
+  "references": "Referencias",
+  "noReferences": "Aún no hay referencias en chats guardados."
+  ,
+  "enterToSend": "Enter para enviar",
+  "ctrlEnterToSend": "Ctrl/Cmd+Enter para enviar",
+  "enterToSendHint": "Pulsa Enter para enviar. Shift+Enter para nueva línea.",
+  "ctrlEnterToSendHint": "Pulsa Ctrl/Cmd+Enter para enviar. Enter para nueva línea."
 }

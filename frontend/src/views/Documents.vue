@@ -66,7 +66,12 @@
                   <span class="type-ico"><img class="src-ico-img" :src="rowIconComp(row)" :alt="rowType(row)" /></span>
                   <span>{{ rowType(row) }}</span>
                 </td>
-                <td class="truncate">{{ row.title }}</td>
+                <td class="truncate">
+                  <template v-if="row.type==='doc'">
+                    <RouterLink class="link" :to="`/documents/${row._raw?.id}`">{{ row.title }}</RouterLink>
+                  </template>
+                  <template v-else>{{ row.title }}</template>
+                </td>
                 <td>
                   <span class="badge" :class="badgeClass(row)">
                     <template v-if="isRowRunning(row)">
@@ -79,6 +84,9 @@
                 <td>
                   <template v-if="row.type==='doc'">
                     <div class="row-actions">
+                      <RouterLink class="link icon-btn" :to="`/documents/${row._raw?.id}`" :title="$t ? $t('view') : 'View'" aria-label="View">
+                        <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7Zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10Z"/></svg>
+                      </RouterLink>
                       <button class="link icon-btn" @click="editRow(row)" :title="$t ? $t('edit') : 'Edit'" aria-label="Edit">
                         <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25ZM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83Z"/></svg>
                       </button>

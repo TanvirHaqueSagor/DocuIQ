@@ -111,4 +111,12 @@
   "ex1": "总结最新政策变化并列出要点。",
   "ex2": "入职流程有哪些步骤，谁来批准？",
   "ex3": "对比各产品线第二季度的收入增长，并给出来源。"
+  ,
+  "references": "参考",
+  "noReferences": "尚未在已保存的聊天中找到参考。"
+  ,
+  "enterToSend": "按 Enter 发送",
+  "ctrlEnterToSend": "按 Ctrl/Cmd+Enter 发送",
+  "enterToSendHint": "按 Enter 发送。Shift+Enter 换行。",
+  "ctrlEnterToSendHint": "按 Ctrl/Cmd+Enter 发送。Enter 换行。"
 }

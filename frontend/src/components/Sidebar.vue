@@ -59,7 +59,7 @@
           <span class="menu-label">{{ $t ? $t('history') : 'History' }}</span>
         </div>
         <ul class="menu-sublist">
-          <li v-for="h in historyList" :key="h.id" :class="['history-item', { active: isActive(h) }]" @click.stop>
+          <li v-for="h in historyList" :key="h.id" :class="['history-item', { active: isActive(h) }]" @click="goThread(h)">
             <router-link v-if="editingId!==h.id" :to="`/analysis/${h.id}`" class="menu-child" :title="h.title || ($t ? $t('untitled') : 'Untitled')">
               <span class="menu-label">{{ h.title || ($t ? $t('untitled') : 'Untitled') }}</span>
             </router-link>
@@ -201,6 +201,9 @@ function openItemMenu(h){
 function isActive(h){
   try { return String(route.params?.id || '') === String(h.id) } catch { return false }
 }
+function goThread(h){
+  try{ router.push(`/analysis/${h.id}`) }catch(_){ }
+}
 function startRename(h){
   activeMenuFor.value = null
   editingId.value = h.id
@@ -292,6 +295,7 @@ onMounted(async () => {
   width: var(--sb-open);
   background: #f6f7fa;
   box-shadow: 2px 0 8px #dde7fa26;
+  border-right: 1px solid #e6ecf7; /* thin vertical divider */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -300,7 +304,7 @@ onMounted(async () => {
 }
 .sidebar.closed { width: var(--sb-rail); }
 
-.sidebar-top { padding: 16px 0 0 0; }
+.sidebar-top { padding: 16px 0 0 0; display:flex; flex-direction:column; flex:1; min-height:0; overflow:hidden; }
 .logo-section {
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 18px 14px 18px; min-height: 56px; position: relative;
@@ -314,12 +318,15 @@ onMounted(async () => {
 /* Mini brand (closed) */
 .brand-mini { display: none; align-items: center; gap: 6px; cursor: pointer; }
 .brand-mini-text { font-size: .98rem; font-weight: 700; color: #2788df; letter-spacing: -.3px; white-space: nowrap; text-decoration: none; }
-.open-hint { 
+.brand-mini-text { transition: opacity .18s ease, transform .18s ease; }
+.open-hint {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 22px; height: 22px; border-radius: 6px; border: 1px solid #dbe3f3;
-  background: #fff; cursor: pointer; opacity: 0; transform: translateX(-2px);
+  width: 32px; height: 32px; border-radius: 6px; border: 1px solid #dbe3f3;
+  background: #fff; cursor: pointer; opacity: 0;
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%) translateX(-2px);
   pointer-events: none;
   transition: opacity .18s ease, transform .18s ease, background .12s ease;
+  z-index: 2;
 }
 .open-hint:hover { background: #eef3ff; }
 
@@ -327,7 +334,14 @@ onMounted(async () => {
 .sidebar.closed .brand { display: none; }
 .sidebar.closed .brand-mini { display: inline-flex; }
 /* Reveal the chevron only on hover of the logo row */
-.sidebar.closed .logo-section:hover .open-hint { opacity: 1; transform: translateX(0); pointer-events: auto; }
+.sidebar.closed .logo-section:hover .open-hint,
+.sidebar.closed .brand-mini:hover .open-hint,
+.sidebar.closed:hover .open-hint { opacity: 1; transform: translateY(-50%) translateX(0); pointer-events: auto; }
+
+/* On hover in collapsed mode, fade out the small DocuIQ label and show only the expand chevron */
+.sidebar.closed .brand-mini { position: relative; }
+.sidebar.closed .logo-section:hover .brand-mini-text,
+.sidebar.closed .brand-mini:hover .brand-mini-text { opacity: 0; pointer-events: none; transform: scale(.98); }
 
 .sidebar-toggle { background: transparent; border: none; cursor: pointer; margin-left: 5px; padding: 4px; outline: none; border-radius: 7px; transition: background .13s, transform .24s ease; width: 32px; height: 32px; display:inline-flex; align-items:center; justify-content:center; }
 .sidebar-toggle:hover { background: #e2e8f0; transform: translateX(0); }
@@ -338,7 +352,7 @@ onMounted(async () => {
 .sidebar.closed .open-hint { display: inline-flex; }
 .sidebar.closed .brand-mini-text { font-size: .78rem; letter-spacing: -.2px; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-.sidebar-menu { display: flex; flex-direction: column; gap: 5px; padding: 0 6px; }
+.sidebar-menu { display: flex; flex-direction: column; gap: 5px; padding: 0 6px; flex:1; padding-right: 0; min-height: 0; overflow-x: hidden; }
 .menu-item {
   display: flex; align-items: center; gap: 11px;
   justify-content: flex-start;
@@ -359,7 +373,16 @@ onMounted(async () => {
 .menu-group-title:hover,
 .menu-group-title:focus { background: #e4eaf8; color: #2788df; outline: none; }
 
-.menu-sublist { list-style: none; margin: 0; padding: 0; }
+.menu-sublist { list-style: none; margin: 0; padding: 0 6px 0 0; flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; scrollbar-gutter: stable both-edges; }
+/* Thin, subtle scrollbar for history list */
+.menu-sublist{ scrollbar-width: thin; scrollbar-color: #b7c5de transparent; }
+.menu-sublist::-webkit-scrollbar{ width: 6px; height: 6px; }
+.menu-sublist::-webkit-scrollbar-track{ background: transparent; }
+.menu-sublist::-webkit-scrollbar-thumb{ background-color: #cbd5e1; border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+/* On hover, make scrollbar stand out a bit (focus) */
+.menu-sublist:hover{ scrollbar-color: #94a3b8 transparent; }
+.menu-sublist:hover::-webkit-scrollbar{ width: 8px; }
+.menu-sublist:hover::-webkit-scrollbar-thumb{ background-color: #94a3b8; }
 .menu-child {
   color: #50556b; font-size: 0.97rem; display: block; text-decoration: none;
   border-radius: 5px; padding: 7px 7px 7px 36px; transition: background .12s, color .15s;
@@ -374,7 +397,16 @@ onMounted(async () => {
 .history-item:hover .menu-child, .history-item:hover .menu-child.router-link-exact-active { background: transparent; }
 .history-item.active .menu-label, .history-item:focus-within .menu-label { color:#1976d2; }
 .history-item:hover .menu-label { color:#1d4ed8; }
-.item-actions{ position:absolute; right:6px; border:none; background:transparent; color:#6b7280; cursor:pointer; padding:4px 6px; border-radius:6px; }
+.history-item .menu-child{ flex:1 1 auto; min-width: 0; padding-right: 36px; padding-left: 16px; }
+.history-item:hover .menu-child{ padding-right: 56px; }
+.history-item .menu-label{ display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+/* Ensure no pseudo ellipsis; rely on native text-overflow */
+.history-item:hover .menu-label::after{ content: none; }
+
+/* Hide the three-dot actions until hover/focus */
+.item-actions{ position:absolute; right:8px; border:none; background:transparent; color:#6b7280; cursor:pointer; padding:4px 6px; border-radius:6px; opacity:0; pointer-events:none; transition: opacity .15s ease; z-index: 1; }
+.history-item:hover .item-actions,
+.history-item:focus-within .item-actions{ opacity:1; pointer-events:auto; }
 .item-actions:hover{ background:#eef2ff; color:#374151; }
 .item-menu{ position:absolute; right:6px; top:30px; background:#fff; border:1px solid #e6ecf7; border-radius:8px; box-shadow: 0 8px 24px rgba(0,0,0,.12); z-index:23; padding:4px; display:flex; flex-direction:column; min-width:160px; }
 .item-menu-btn{ text-align:left; padding:8px 10px; border:none; background:#fff; border-radius:6px; font-size:.9rem; color:#2f3b52; cursor:pointer; }
@@ -413,11 +445,10 @@ onMounted(async () => {
 .profile-item.danger:hover { background: #feeceb; }
 
 .sidebar.closed .menu-label { display: none; }
-.sidebar.closed .menu-sublist { display: none; }
 .sidebar.closed .sidebar-username { width: 0; opacity: 0; margin: 0; }
 .sidebar.closed .profile-menu { left: calc(var(--sb-rail) + 8px); width: 260px; bottom: 96px; }
 
-.scrim { position: fixed; inset: 0; background: rgba(0,0,0,.25); z-index: 20; }
+.scrim { position: fixed; inset: 0; background: rgba(0,0,0,.25); z-index: 20; pointer-events: none; }
 
 @media (max-width: 700px) {
   .sidebar { width: min(88vw, var(--sb-open)); }

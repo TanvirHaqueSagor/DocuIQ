@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 // Static, relative imports (no alias, no lazy)
 import Dashboard from './views/Dashboard.vue'
 import Documents from './views/Documents.vue'
+import DocumentDetail from './views/DocumentDetail.vue'
 import Home from './views/Home.vue'
 
 import Login from './views/Login.vue'
@@ -17,8 +18,7 @@ const routes = [
   // Main app
   { path: '/dashboard', component: Dashboard, meta: { requiresAuth: true } },
   { path: '/documents', component: Documents, meta: { requiresAuth: true } },
-  // Redirect legacy document detail route to Documents (edit handled from list)
-  { path: '/documents/:id', redirect: '/documents' },
+  { path: '/documents/:id', component: DocumentDetail, meta: { requiresAuth: true } },
 
   // Chat history: reuse Home for viewing a saved chat
   { path: '/analysis/:id', component: Home, meta: { requiresAuth: true } },

@@ -75,6 +75,14 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
+# Project layout: code mounted at /app/backend, media usually at /app/media
+# Place media one level above BASE_DIR so existing files under /app/media resolve
+MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'media')
+
+# Allow embedding media/PDFs in iframe during development for the document viewer
+if DEBUG:
+    X_FRAME_OPTIONS = 'ALLOWALL'
 
 CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOW_CREDENTIALS = True

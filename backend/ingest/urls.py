@@ -2,7 +2,7 @@ from django.urls import path, re_path
 from .views import (
     HealthView, SourceListCreate, SourceDetail,
     JobListCreate, JobDetail, UploadView, DocumentList, DocumentDetail,
-    ContentList, ContentStatus, ContentRetry, SyncJobCancel
+    ContentList, ContentStatus, ContentRetry, SyncJobCancel, DocumentFind
 )
 
 urlpatterns = [
@@ -17,6 +17,7 @@ urlpatterns = [
 
     re_path(r'^api/documents/?$', DocumentList.as_view()),
     re_path(r'^api/documents/(?P<pk>\d+)/?$', DocumentDetail.as_view()),
+    re_path(r'^api/documents/find/?$', DocumentFind.as_view()),
 
     # Unified content endpoints
     re_path(r'^api/content/?$', ContentList.as_view()),

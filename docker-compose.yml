@@ -29,6 +29,7 @@ services:
     command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8890"
     volumes:
       - ./backend:/app
+      - media_data:/app/media
     ports:
       - "8890:8890"
     depends_on:
@@ -48,6 +49,7 @@ services:
       - .env
     volumes:
       - ./backend:/app
+      - media_data:/app/media
     restart: always
 
   beat:
@@ -61,6 +63,7 @@ services:
       - .env
     volumes:
       - ./backend:/app
+      - media_data:/app/media
     restart: always
 
   ai:
@@ -95,3 +98,4 @@ services:
 volumes:
   postgres_data:
   ai_data:
+  media_data:

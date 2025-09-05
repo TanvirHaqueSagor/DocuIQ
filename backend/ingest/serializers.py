@@ -26,12 +26,13 @@ class DocumentSerializer(serializers.ModelSerializer):
     title = serializers.SerializerMethodField()
     created_at = serializers.SerializerMethodField()
     status = serializers.SerializerMethodField()
+    file_url = serializers.SerializerMethodField()
 
     class Meta:
         model = IngestFile
         fields = (
             'id','title','filename','created_at',
-            'status','status_updated_at','error_code','error_text','steps_json','indexed_bool'
+            'status','status_updated_at','error_code','error_text','steps_json','indexed_bool','file_url'
         )
 
     def get_title(self, obj):
@@ -60,3 +61,19 @@ class DocumentSerializer(serializers.ModelSerializer):
         if getattr(obj, 'indexed_bool', False):
             return 'READY'
         return 'QUEUED'
+
+    def get_file_url(self, obj):
+        """Return a usable file URL only if the file actually exists on storage.
+        This avoids returning stale paths that 404 after container changes.
+        """
+        try:
+            f = getattr(obj, 'file', None)
+            if not f or not getattr(f, 'name', ''):
+                return None
+            storage = getattr(f, 'storage', None)
+            if storage and hasattr(storage, 'exists'):
+                if not storage.exists(f.name):
+                    return None
+            return getattr(f, 'url', None)
+        except Exception:
+            return None

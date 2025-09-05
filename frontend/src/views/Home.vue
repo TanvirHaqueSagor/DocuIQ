@@ -15,19 +15,19 @@
           </div>
         </div>
 
-        <div v-for="m in messages" :key="m.id" class="msg" :class="m.role">
-          <div class="avatar" aria-hidden="true">{{ m.role==='assistant' ? '🤖' : '🧑' }}</div>
+        <div v-for="m in messages" :key="m.id" class="msg" :class="m.role" :data-mid="m.id">
           <div class="bubble">
-            <div class="content">{{ m.content }}</div>
-            <div v-if="m.citations && m.citations.length" class="sources-list">
-              <div v-for="(s, i) in m.citations" :key="i" class="src-chip">
-                <span class="src-ico-comp" v-if="s.kind"><img class="src-ico-img" :src="iconForKind(s.kind)" :alt="s.kind" /></span>
-                <span class="src-title">{{ s.title || s.label || s.name || ('Source #' + (i+1)) }}</span>
-                <span v-if="s.page" class="src-meta">· p. {{ s.page }}</span>
-                <a v-if="s.url" class="link" :href="s.url" target="_blank" rel="noopener">{{ $t ? $t('open') : 'Open' }}</a>
-                <RouterLink v-else class="link" :to="linkForCitation(s)">{{ $t ? $t('view') : 'View' }}</RouterLink>
-              </div>
+            <div v-if="m.thinking && hasAnyUserMessage()" class="typing" aria-live="polite" aria-label="Thinking">
+              <span class="dot"></span><span class="dot"></span><span class="dot"></span>
             </div>
+            <template v-else>
+            <div class="content" v-html="renderAnswer(m)"></div>
+            <div v-if="isValidAnswer(m) && !hasInlineMarkers(m) && fallbackInline(m).length" class="inline-fallback">
+              <template v-for="(s, i) in fallbackInline(m)" :key="i">
+                <RouterLink v-if="s.type==='doc'" class="src-inline" :to="s.href">Source<span v-if="s.page"> p. {{ s.page }}</span></RouterLink>
+              </template>
+            </div>
+            </template>
           </div>
         </div>
       </div>
@@ -36,17 +36,17 @@
       <div class="composer">
         <div class="comp-inner">
           <textarea
+            ref="composerInput"
             v-model="q"
             class="comp-input"
             rows="1"
             :placeholder="$t ? $t('askSomething') : 'Ask across your documents and sources…'"
-            @keydown.enter.exact.prevent="send"
-            @keydown.enter.shift.stop
+            @input="autoGrow"
+            @keydown="onKeydown"
           ></textarea>
           <div class="comp-actions">
-            <button class="ghost" @click="goDocuments">{{ $t ? $t('documents') : 'Documents' }}</button>
-            <button class="send" :disabled="loading || !q.trim()" @click="send">
-              {{ loading ? ($t ? $t('sending') : 'Sending…') : ($t ? $t('send') : 'Send') }}
+            <button class="send" :disabled="loading || !q.trim()" @click="send" :aria-label="$t ? $t('send') : 'Send'">
+              {{ loading ? '…' : '↑' }}
             </button>
           </div>
         </div>
@@ -57,8 +57,9 @@
 </template>
 
 <script setup>
-import { ref, nextTick, onMounted, watch } from 'vue'
+import { ref, nextTick, onMounted, watch, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { API_BASE_URL } from '../config'
 import { authFetch } from '../lib/authFetch'
 
@@ -73,12 +74,15 @@ import icBox from '../assets/icons/box.svg'
 
 const router = useRouter()
 const route = useRoute()
+const { t } = useI18n ? useI18n() : { t: (s)=>s }
 const q = ref('')
 const loading = ref(false)
 const error = ref('')
 const messages = ref([])
 const chatBody = ref(null)
 const threadId = ref(null)
+const composerInput = ref(null)
+const sendOnEnter = ref(true)
 
 // Basic kind→icon mapping used for rendering citations
 const ICONS = { file: icFile, files: icFile, upload: icFile, web: icWeb, s3: icS3, gdrive: icGdrive, dropbox: icDropbox, onedrive: icOnedrive, box: icBox }
@@ -121,9 +125,25 @@ function normalizeCitations(data){
   return uniq
 }
 
-function linkForCitation(s){
-  const label = s?.title || s?.label || s?.documentId || ''
-  return `/documents?q=${encodeURIComponent(label)}`
+function linkForCitation(s, m){
+  const id = s?.documentId || s?.document_id || ''
+  const tid = threadId.value || route.params?.id
+  const mid = (m && typeof m.id === 'string') ? m.id.replace(/^db-/, '') : ''
+  const params = []
+  if (tid) params.push(`fromThread=${encodeURIComponent(String(tid))}`)
+  if (mid) params.push(`fromMessage=${encodeURIComponent(String(mid))}`)
+  const baseQS = params.length ? ('?' + params.join('&')) : ''
+  if (id) return `/documents/${encodeURIComponent(id)}${baseQS}`
+  const label = s?.title || s?.label || ''
+  if (label) return `/documents${baseQS ? (baseQS + '&') : '?'}q=${encodeURIComponent(label)}`
+  return `/documents${baseQS}`
+}
+
+function scrollToMessage(dbId){
+  try{
+    const el = chatBody.value?.querySelector(`[data-mid="${CSS.escape(dbId)}"]`)
+    if (el && typeof el.scrollIntoView === 'function') el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }catch(_){ /* ignore */ }
 }
 
 function scrollToBottom(){
@@ -152,6 +172,10 @@ async function send(){
   q.value = ''
   scrollToBottom()
   loading.value = true
+  // Show thinking placeholder
+  const waitId = id + '-t'
+  messages.value.push({ id: waitId, role:'assistant', thinking: true })
+  scrollToBottom()
   try{
     // Ensure thread exists
     if (!threadId.value) {
@@ -189,16 +213,21 @@ async function send(){
     }
     let output = data?.answer || data?.output || data?.result || ''
     let cites = normalizeCitations(data)
+    const irefs = data?.inline_refs || {}
     if(!output && Array.isArray(data?.matches)){
       output = data.matches.slice(0,3).map(m => m.text || m.chunk || m.content || '').filter(Boolean).join('\n\n')
     }
-    messages.value.push({ id: id+'-a', role:'assistant', content: output || (data?.source ? `Source: ${data.source}` : '—'), citations: cites })
+    // Replace thinking placeholder with real answer
+    const idxWait = messages.value.findIndex(x => x.id === waitId)
+    const finalMsg = { id: id+'-a', role:'assistant', content: output || (data?.source ? `Source: ${data.source}` : '—'), citations: cites, inlineRefs: irefs }
+    if (idxWait !== -1) messages.value.splice(idxWait, 1, finalMsg)
+    else messages.value.push(finalMsg)
     // Save assistant message
     if (threadId.value) {
       try{
         await authFetch(`${API_BASE_URL}/api/chats/threads/${threadId.value}/messages/`, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ role: 'assistant', content: output })
+          body: JSON.stringify({ role: 'assistant', content: output, citations: cites })
         })
       }catch(_){ /* ignore */ }
     }
@@ -210,6 +239,9 @@ async function send(){
       error.value = msg
     }
   }finally{
+    // Remove thinking if still present
+    const idxWait = messages.value.findIndex(x => x.id === waitId)
+    if (idxWait !== -1 && messages.value[idxWait]?.thinking) messages.value.splice(idxWait, 1)
     loading.value = false
     scrollToBottom()
   }
@@ -222,11 +254,26 @@ async function loadThread(id){
     const r = await authFetch(`${API_BASE_URL}/api/chats/threads/${id}/messages/`)
     if (r.ok) {
       const arr = await r.json()
-      messages.value = (arr || []).map(m => ({ id: 'db-'+m.id, role: m.role, content: m.content }))
+      const serverMsgs = (arr || []).map(m => ({ id: 'db-'+m.id, role: m.role, content: m.content, citations: Array.isArray(m.citations) ? m.citations : [] }))
+      // Build signatures for server messages to dedupe local optimistic ones
+      const sig = (m) => `${m.role}|${(m.content||'').trim()}`
+      const serverSigs = new Set(serverMsgs.map(sig))
+      const localHasUser = (messages.value || []).some(y => typeof y?.id === 'string' && !y.id.startsWith('db-') && y.role==='user')
+      const localMsgs = (messages.value || []).filter(x => {
+        if (!(typeof x?.id === 'string' && !x.id.startsWith('db-'))) return false
+        if (x.thinking) return localHasUser
+        // drop local if same role+content exists on server
+        return !serverSigs.has(sig(x))
+      })
+      messages.value = [...localMsgs, ...serverMsgs]
       threadId.value = id
       nextTick(() => scrollToBottom())
     }
   }catch(_){ /* ignore */ }
+}
+
+function hasAnyUserMessage(){
+  try { return (messages.value||[]).some(m => m && m.role==='user') } catch { return false }
 }
 
 function resetChat(){
@@ -236,15 +283,156 @@ function resetChat(){
 }
 
 onMounted(() => {
+  // init send preference
+  try { const v = localStorage.getItem('sendOnEnter'); if (v!==null) sendOnEnter.value = JSON.parse(v) } catch(_) {}
+  // ensure composer grows to fit content
+  nextTick(() => autoGrow())
   const tid = route.params?.id
-  if (tid) loadThread(String(tid))
+  const mid = route.query?.m
+  if (tid) {
+    loadThread(String(tid)).then(() => { if (mid) scrollToMessage('db-'+String(mid)) })
+  }
   else resetChat()
 })
 
 watch(() => route.params?.id, (n) => {
-  if (n) loadThread(String(n))
+  if (n) {
+    loadThread(String(n)).then(() => { const mid = route.query?.m; if (mid) scrollToMessage('db-'+String(mid)) })
+  }
   else resetChat()
 })
+
+watch(() => route.query?.m, (n) => { if (n) scrollToMessage('db-'+String(n)) })
+
+function autoGrow(){
+  try{
+    const el = composerInput.value
+    if (!el) return
+    el.style.height = 'auto'
+    const max = 280
+    el.style.height = Math.min(max, el.scrollHeight) + 'px'
+  }catch(_){ /* ignore */ }
+}
+
+function onKeydown(e){
+  if (e.key !== 'Enter') return
+  // Allow Shift+Enter to insert newline
+  if (e.shiftKey) return
+  // If pref is Enter to send, send on Enter
+  if (sendOnEnter.value && !e.ctrlKey && !e.metaKey) { e.preventDefault(); send(); return }
+  // If pref is not Enter to send, require Ctrl/Cmd+Enter to send
+  if (!sendOnEnter.value && (e.ctrlKey || e.metaKey)) { e.preventDefault(); send(); return }
+}
+
+const sendPrefLabel = computed(() => sendOnEnter.value ? (t('enterToSend') || 'Enter to send') : (t('ctrlEnterToSend') || 'Ctrl/Cmd+Enter to send'))
+const sendPrefTitle  = computed(() => sendOnEnter.value ? (t('enterToSendHint') || 'Press Enter to send. Shift+Enter for newline.') : (t('ctrlEnterToSendHint') || 'Press Ctrl/Cmd+Enter to send. Enter for newline.'))
+function saveSendPref(){ try { localStorage.setItem('sendOnEnter', JSON.stringify(!!sendOnEnter.value)) } catch(_) {} }
+
+function htmlEscape(s){
+  return String(s||'')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+}
+
+function renderAnswer(m){
+  const raw = String(m?.content || '')
+  const text = htmlEscape(raw).replace(/\n/g,'<br/>')
+  const refs = m?.inlineRefs || {}
+  // Replace [n] with Source buttons using inline refs when available
+  const tid = threadId.value || route.params?.id || ''
+  const mid = (m && typeof m.id === 'string') ? m.id.replace(/^db-/, '') : ''
+  // If the answer indicates uncertainty, do not render sources and strip markers
+  const low = raw.trim().toLowerCase()
+  if (/i\s*(do\s*not|don't|dont)\s*know|not\s+sure|cannot\s+(determine|find)|no\s+(information|data)\s+(found|available)/.test(low)){
+    return text.replace(/\[(\d+)\]/g, '')
+  }
+  return text.replace(/(?:\[(\d+)\]\s*)+/g, (full) => {
+    const nums = Array.from(full.matchAll(/\[(\d+)\]/g)).map(x => x[1])
+    if (!nums.length) return full
+
+    const candidates = []
+    for (const n of nums){
+      const r = refs[String(n)] || {}
+      if (r && r.document_id){
+        candidates.push({ url: '', doc: r.document_id || '', page: r.page, title: r.title })
+      } else if (Array.isArray(m?.citations)){
+        const idx = Math.max(0, parseInt(n,10)-1)
+        const c = m.citations[idx]
+        if (c && (c.documentId || c.document_id)){
+          candidates.push({ url: '', doc: c.documentId || c.document_id || '', page: c.page, title: c.title || c.label })
+        }
+      }
+    }
+    const seen = new Set(); const uniq = []
+    for (const c of candidates){
+      const key = `${c.url || c.doc}|${c.page || ''}`
+      if (seen.has(key)) continue
+      seen.add(key)
+      uniq.push(c)
+    }
+    if (!uniq.length) return ''
+
+    const one = uniq[0]
+    const multi = uniq.length > 1
+    const qparts = []
+    if (tid) qparts.push(`fromThread=${encodeURIComponent(String(tid))}`)
+    if (mid) qparts.push(`fromMessage=${encodeURIComponent(String(mid))}`)
+    if (one.page) qparts.push(`p=${encodeURIComponent(String(one.page))}`)
+    if (one.title) qparts.push(`t=${encodeURIComponent(String(one.title))}`)
+    const qs = qparts.length ? ('?' + qparts.join('&')) : ''
+    const label = multi ? `Sources (${uniq.length})` : `Source${one.page ? ` p. ${one.page}` : ''}`
+    return `<a class="src-inline" href="/documents/${encodeURIComponent(String(one.doc))}${qs}">${label}</a>`
+  })
+}
+
+function hasInlineMarkers(m){
+  try { return /\[(\d+)\]/.test(String(m?.content || '')) } catch { return false }
+}
+
+// Consider an answer invalid if it's empty or explicitly uncertain.
+function isValidAnswer(m){
+  try{
+    const raw = String(m?.content || '').trim()
+    if (!raw) return false
+    const low = raw.toLowerCase()
+    const denies = [
+      /i\s*(do\s*not|don't|dont)\s*know/,
+      /not\s+sure/,
+      /cannot\s+(determine|find)/,
+      /no\s+(information|data)\s+(found|available)/,
+    ]
+    return !denies.some(rx => rx.test(low))
+  }catch{ return true }
+}
+
+function fallbackInline(m){
+  const out = []
+  const refs = m?.inlineRefs || {}
+  const list = Object.values(refs)
+  const tid = threadId.value || route.params?.id || ''
+  const mid = (m && typeof m.id === 'string') ? m.id.replace(/^db-/, '') : ''
+  const params = []
+  if (tid) params.push(`fromThread=${encodeURIComponent(String(tid))}`)
+  if (mid) params.push(`fromMessage=${encodeURIComponent(String(mid))}`)
+  const qs = params.length ? ('?' + params.join('&')) : ''
+  for (const r of list.slice(0, 3)){
+    if (r && r.document_id){
+      const href = `/documents/${encodeURIComponent(String(r.document_id))}${qs}${qs ? '&' : '?'}${r.page ? ('p='+encodeURIComponent(String(r.page))) : ''}`.replace(/\?&$/, '').replace(/\?$/, '')
+      out.push({ type:'doc', href, page: r.page })
+    }
+  }
+  if (!out.length && Array.isArray(m?.citations)){
+    for (const c of m.citations.slice(0,3)){
+      if (c.documentId || c.document_id){
+        const did = c.documentId || c.document_id
+        const href = `/documents/${encodeURIComponent(String(did))}${qs}${qs ? '&' : '?'}${c.page ? ('p='+encodeURIComponent(String(c.page))) : ''}`.replace(/\?&$/, '').replace(/\?$/, '')
+        out.push({ type:'doc', href, page: c.page })
+      }
+    }
+  }
+  return out
+}
 </script>
 
 <style scoped>
@@ -271,11 +459,20 @@ watch(() => route.params?.id, (n) => {
 
 .msg{ display:flex; gap:10px; align-items:flex-start; }
 .msg + .msg{ margin-top:10px; }
-.msg .avatar{ width:28px; height:28px; display:grid; place-items:center; border-radius:999px; background:#eef2ff; }
-.msg.user .avatar{ background:#e8f7ee; }
-.bubble{ background:#f8fbff; border:1px solid #e6ecf7; border-radius:12px; padding:10px 12px; flex:1; color:#2a3342; }
+.msg.user{ justify-content:flex-end; }
+.bubble{ background:#f8fbff; border:1px solid #e6ecf7; border-radius:12px; padding:10px 12px; color:#2a3342; max-width:82%; flex: 0 1 auto; }
 .msg.user .bubble{ background:#fff; }
 .content{ white-space:pre-wrap; line-height:1.4; }
+.typing{ display:inline-flex; gap:6px; align-items:center; height:18px; }
+.typing .dot{ width:6px; height:6px; border-radius:999px; background:#cbd5e1; animation: think-bounce 1s infinite ease-in-out; }
+.typing .dot:nth-child(2){ animation-delay: .15s }
+.typing .dot:nth-child(3){ animation-delay: .3s }
+@keyframes think-bounce{ 0%, 80%, 100%{ transform: translateY(0); opacity:.5 } 40%{ transform: translateY(-3px); opacity:1 } }
+.inline-fallback{ margin-top:6px; }
+.inline-fallback .src-inline{ margin-right:6px; }
+.content .src-inline{ display:inline-block; margin-left:6px; border:1px solid #dbe3f3; background:#fff; color:#1d4ed8; border-radius:999px; padding:1px 8px; font-size:12px; font-weight:800; text-decoration:none; }
+.content .src-inline:hover{ background:#f0f6ff; }
+.content .src-inline.disabled{ color:#6b7280; border-color:#e5e7eb; cursor:default; }
 .sources-list{ display:grid; gap:8px; margin-top:8px; }
 .src-chip{ display:flex; align-items:center; flex-wrap:wrap; gap:8px; background:#fff; border:1px solid #e6ecf7; border-radius:10px; padding:6px 8px; }
 .src-ico-comp{ display:inline-flex; font-size:16px; line-height:1; }
@@ -287,10 +484,14 @@ watch(() => route.params?.id, (n) => {
 
 .composer{ position:sticky; bottom:8px; }
 .comp-inner{ display:flex; gap:8px; align-items:flex-end; background:#fff; border:1px solid #e8eef8; border-radius:12px; padding:10px; box-shadow: var(--md-shadow-1); }
-.comp-input{ flex:1; resize:none; border:none; outline:none; font-size:15px; max-height: 180px; }
-.comp-actions{ display:flex; gap:8px; }
-.send{ border:none; background:#1f47c5; color:#fff; border-radius:10px; padding:8px 12px; font-weight:800; cursor:pointer; }
-.send[disabled]{ opacity:.6; cursor:not-allowed; }
+.comp-input{ flex:1; resize:none; border:none; outline:none; font-size:15px; line-height:1.4; max-height: 280px; overflow:hidden; padding:6px 2px; }
+.comp-actions{ display:flex; gap:8px; align-items:center; }
+.send-pref{ display:flex; align-items:center; gap:6px; color:#6b7280; font-size:12.5px; }
+.send-pref input{ margin:0; }
+.send{ width:40px; height:40px; border:none; background:#1f47c5; color:#fff; border-radius:999px; display:inline-grid; place-items:center; font-size:18px; font-weight:900; line-height:1; cursor:pointer; box-shadow: var(--md-shadow-1); transition: transform .12s ease, box-shadow .12s ease; }
+.send:hover{ transform: translateY(-1px); box-shadow: var(--md-shadow-2); }
+.send:active{ transform: translateY(0); }
+.send[disabled]{ opacity:.6; cursor:not-allowed; transform:none; box-shadow: var(--md-shadow-1); }
 .comp-error{ color:#b42318; margin-top:6px; font-weight:700; }
 
 @media (max-width: 640px){

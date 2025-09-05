@@ -1,7 +1,7 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from openai import OpenAI
 import os, json, hashlib
 from fastapi.responses import JSONResponse
@@ -32,10 +32,16 @@ class AskRequest(BaseModel):
     with_sources: bool = True
 
 
+class PageChunk(BaseModel):
+    page: int
+    text: str
+
+
 class IndexDocumentRequest(BaseModel):
     document_id: str
-    title: str | None = None
-    text: str = Field(..., description="Plaintext content to index")
+    title: Optional[str] = None
+    text: Optional[str] = Field(None, description="Plaintext content to index")
+    pages: Optional[List[PageChunk]] = Field(None, description="Optional per-page texts for precise page mapping")
 
 
 def embed_texts(texts: List[str]) -> List[List[float]]:
@@ -81,15 +87,40 @@ def answer_with_openai(question: str, context_chunks: List[Dict[str, Any]]) -> s
 
 @app.post("/index_document")
 def index_document(req: IndexDocumentRequest):
-    chunks = list(chunk_text(req.text, target_chars=1200))
+    items = []
+    texts_to_embed: List[str] = []
+    metas: List[Dict[str, Any]] = []
+
+    if req.pages:
+        # Build chunks per page and preserve page number in metadata
+        for p in req.pages:
+            for j, ch in enumerate(chunk_text(p.text or "", target_chars=1100)):
+                texts_to_embed.append(ch)
+                metas.append({
+                    "document_id": req.document_id,
+                    "title": req.title,
+                    "chunk": j,
+                    "page": int(p.page or 0) if p.page else None,
+                })
+    elif req.text:
+        for j, ch in enumerate(chunk_text(req.text or "", target_chars=1200)):
+            texts_to_embed.append(ch)
+            metas.append({
+                "document_id": req.document_id,
+                "title": req.title,
+                "chunk": j,
+            })
+    else:
+        return JSONResponse({"ok": False, "error": "no_content", "detail": "Provide text or pages"}, status_code=400)
+
     try:
-        embeds = embed_texts(chunks)
+        embeds = embed_texts(texts_to_embed)
     except Exception as e:
         return JSONResponse({"ok": False, "error": "embed_failed", "detail": str(e)}, status_code=502)
-    items = []
-    for i, (text, emb) in enumerate(zip(chunks, embeds)):
-        uid = hashlib.sha1(f"{req.document_id}:{i}".encode("utf-8")).hexdigest()
-        meta = {"document_id": req.document_id, "title": req.title, "chunk": i}
+
+    for i, (text, emb, meta) in enumerate(zip(texts_to_embed, embeds, metas)):
+        # ensure unique id across doc
+        uid = hashlib.sha1(f"{req.document_id}:{meta.get('page') or 0}:{meta.get('chunk') or i}".encode("utf-8")).hexdigest()
         items.append({"id": uid, "content": text, "metadata": meta, "embedding": emb})
     store.add_many(items)
     return {"ok": True, "chunks": len(items)}
@@ -140,12 +171,25 @@ def ask(req: AskRequest):
                 "document_id": doc_id,
                 # Expose chunk index as page-ish indicator (1-based)
                 "page": (meta.get("chunk") + 1) if isinstance(meta.get("chunk"), int) else None,
+                "url": meta.get("url") or meta.get("source_url"),
                 "score": float(m.get("score") or 0),
+                "chunk": meta.get("chunk"),
+                "excerpt": (m.get("content") or "").strip()[:220],
             }
-    # Sort by score desc and limit to requested top_k
+    # Sort by score desc and limit to requested top_k (for chips / fallback)
     citations = sorted(best_by_doc.values(), key=lambda x: x.get("score", 0), reverse=True)[: max(1, req.top_k)]
     answer = answer_with_openai(q, matches)
-    out = {"answer": answer}
+    # Build inline refs map aligned to [n] citations used by the model
+    inline_refs = {}
+    for i, m in enumerate(matches, 1):
+        meta = (m.get("metadata") or {})
+        inline_refs[str(i)] = {
+            "title": meta.get("title"),
+            "document_id": meta.get("document_id"),
+            "page": (meta.get("page") if isinstance(meta.get("page"), int) else ((meta.get("chunk") + 1) if isinstance(meta.get("chunk"), int) else None)),
+            "url": meta.get("url") or meta.get("source_url"),
+        }
+    out = {"answer": answer, "inline_refs": inline_refs}
     if req.with_sources:
         out["sources"] = citations
     return out

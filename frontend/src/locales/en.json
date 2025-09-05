@@ -105,4 +105,12 @@
   "ex1": "Summarize the latest policy changes and list key points.",
   "ex2": "What are the onboarding steps and who approves them?",
   "ex3": "Compare Q2 revenue growth across product lines with sources."
+  ,
+  "references": "References",
+  "noReferences": "No references found in saved chats yet."
+  ,
+  "enterToSend": "Enter to send",
+  "ctrlEnterToSend": "Ctrl/Cmd+Enter to send",
+  "enterToSendHint": "Press Enter to send. Shift+Enter for newline.",
+  "ctrlEnterToSendHint": "Press Ctrl/Cmd+Enter to send. Enter for newline."
 }

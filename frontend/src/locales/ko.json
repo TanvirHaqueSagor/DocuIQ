@@ -111,4 +111,12 @@
   "ex1": "최신 정책 변경 사항을 요약하고 핵심 포인트를 나열하세요.",
   "ex2": "온보딩 단계는 무엇이며 누가 승인하나요?",
   "ex3": "제품 라인별 2분기 매출 성장률을 소스와 함께 비교하세요."
+  ,
+  "references": "참조",
+  "noReferences": "저장된 채팅에서 참조가 아직 없습니다."
+  ,
+  "enterToSend": "Enter로 전송",
+  "ctrlEnterToSend": "Ctrl/Cmd+Enter로 전송",
+  "enterToSendHint": "Enter를 눌러 전송합니다. 줄바꿈은 Shift+Enter.",
+  "ctrlEnterToSendHint": "Ctrl/Cmd+Enter로 전송합니다. 줄바꿈은 Enter."
 }

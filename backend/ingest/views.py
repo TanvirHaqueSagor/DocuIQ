@@ -163,6 +163,64 @@ class DocumentDetail(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
+    def get(self, request, pk):
+        obj = IngestFile.objects.filter(id=pk, uploaded_by=request.user).first()
+        # Fallbacks: allow locating by title hint (?t=) or source URL (?url=)
+        if not obj:
+            t = request.query_params.get('t') or request.query_params.get('title')
+            src_url = request.query_params.get('url')
+            if src_url:
+                try:
+                    obj = (IngestFile.objects
+                           .filter(uploaded_by=request.user, steps_json__contains={'source_url': src_url})
+                           .order_by('-uploaded_at')
+                           .first())
+                except Exception:
+                    obj = None
+            if not obj and t:
+                try:
+                    obj = (IngestFile.objects
+                           .filter(uploaded_by=request.user, filename__icontains=t)
+                           .order_by('-uploaded_at')
+                           .first())
+                except Exception:
+                    obj = None
+        if not obj:
+            return Response({"detail": "not_found"}, status=404)
+        d = DocumentSerializer(obj).data
+        # Build references from saved chat messages that cite this document
+        refs = []
+        try:
+            from chats.models import ChatMessage
+            doc_id_str = str(obj.id)
+            src_url = None
+            try:
+                src_url = (getattr(obj, 'steps_json', {}) or {}).get('source_url')
+            except Exception:
+                src_url = None
+            msgs = ChatMessage.objects.filter(thread__owner=request.user, role='assistant').order_by('-created_at')[:200]
+            for m in msgs:
+                cits = []
+                try:
+                    for c in (m.citations or []):
+                        did = str(c.get('documentId') or c.get('document_id') or '')
+                        url = c.get('url') or ''
+                        if (did and did == doc_id_str) or (src_url and url and url == src_url):
+                            cits.append(c)
+                except Exception:
+                    cits = []
+                if cits:
+                    refs.append({
+                        'thread_id': m.thread_id,
+                        'message_id': m.id,
+                        'created_at': m.created_at.isoformat(),
+                        'content': m.content,
+                        'citations': cits,
+                    })
+        except Exception:
+            refs = []
+        return Response({'document': d, 'references': refs})
+
     def delete(self, request, pk):
         obj = IngestFile.objects.filter(id=pk, uploaded_by=request.user).first()
         if not obj:
@@ -181,6 +239,27 @@ class DocumentDetail(APIView):
             pass
         obj.delete()
         return Response(status=204)
+
+
+class DocumentFind(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        title = (request.query_params.get('title') or request.query_params.get('t') or '').strip()
+        url = (request.query_params.get('url') or '').strip()
+        qs = IngestFile.objects.filter(uploaded_by=request.user)
+        obj = None
+        if url:
+            try:
+                obj = qs.filter(steps_json__contains={'source_url': url}).order_by('-uploaded_at').first()
+            except Exception:
+                obj = None
+        if (not obj) and title:
+            obj = qs.filter(filename__icontains=title).order_by('-uploaded_at').first()
+        if not obj:
+            return Response({"detail": "not_found"}, status=404)
+        return Response(DocumentSerializer(obj).data)
 
 # ---- Unified content endpoints ----
 class ContentList(APIView):
