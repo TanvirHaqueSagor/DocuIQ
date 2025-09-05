@@ -2,8 +2,8 @@
   <div class="upload-box">
     <div class="icon">&#8682;</div>
     <div>
-      Drag and drop a <b>PDF DOCX, or TXT</b> here<br>
-      <span class="or">or click to upload</span>
+      {{ $t ? $t('dragDropDocs') : 'Drag and drop a PDF, DOCX, or TXT here' }}<br>
+      <span class="or">{{ $t ? $t('orClickUpload') : 'or click to upload' }}</span>
     </div>
   </div>
 </template>

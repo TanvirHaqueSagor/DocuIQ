@@ -18,7 +18,7 @@
           <div v-if="item.a" class="answer-card">
             <div class="answer-label">{{ $t('answer') }}</div>
             <blockquote>{{ item.a }}</blockquote>
-            <button v-if="item.page" class="page-btn">View Page {{ item.page }}</button>
+            <button v-if="item.page" class="page-btn">{{ $t ? $t('viewPage') : 'View Page' }} {{ item.page }}</button>
           </div>
         </div>
         <!-- Example Empty State -->

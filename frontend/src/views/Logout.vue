@@ -36,5 +36,5 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div style="padding:24px">Logging out…</div>
+  <div style="padding:24px">{{ $t ? $t('loggingOut') : 'Logging out…' }}</div>
 </template>

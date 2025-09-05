@@ -395,8 +395,16 @@ const schemaFor = (k) => {
 const schema = computed(() => schemaFor(kind.value))
 
 onMounted(() => {
-  // Default connection name
-  name.value = `${schema.value.title}`
+  // Pre-fill from query when editing
+  try{
+    const qp = route.query || {}
+    if (kind.value === 'web'){
+      if (qp.url) config['url'] = String(qp.url)
+      if (!name.value && qp.url) name.value = String(qp.url)
+    }
+  }catch(_){ /* ignore */ }
+  // Default connection name if empty
+  if (!name.value) name.value = `${schema.value.title}`
 })
 </script>
 

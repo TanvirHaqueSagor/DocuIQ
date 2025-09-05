@@ -59,10 +59,27 @@
           <span class="menu-label">{{ $t ? $t('history') : 'History' }}</span>
         </div>
         <ul class="menu-sublist">
-          <li v-for="h in historyList" :key="h.id">
-            <router-link :to="`/analysis/${h.id}`" class="menu-child" :title="h.title">
-              <span class="menu-label">{{ h.title }}</span>
+          <li v-for="h in historyList" :key="h.id" :class="['history-item', { active: isActive(h) }]" @click.stop>
+            <router-link v-if="editingId!==h.id" :to="`/analysis/${h.id}`" class="menu-child" :title="h.title || ($t ? $t('untitled') : 'Untitled')">
+              <span class="menu-label">{{ h.title || ($t ? $t('untitled') : 'Untitled') }}</span>
             </router-link>
+            <div v-else class="menu-child">
+              <input
+                class="history-rename"
+                v-model="editingTitle"
+                :placeholder="h.title || ($t ? $t('untitled') : 'Untitled')"
+                @keydown.enter.prevent="commitRename(h)"
+                @keydown.esc.prevent="cancelRename"
+                @blur="commitRename(h)"
+              />
+            </div>
+            <button class="item-actions" @click.stop="openItemMenu(h)">⋯</button>
+            <div v-if="activeMenuFor===h.id" class="item-menu" @click.stop>
+              <button class="item-menu-btn" @click="startRename(h)">{{ $t ? $t('rename') : 'Rename' }}</button>
+              <button v-if="!h.archived" class="item-menu-btn" @click="archiveThread(h, true)">{{ $t ? $t('archive') : 'Archive' }}</button>
+              <button v-else class="item-menu-btn" @click="archiveThread(h, false)">{{ $t ? $t('unarchive') : 'Unarchive' }}</button>
+              <button class="item-menu-btn danger" @click="deleteThread(h)">{{ $t ? $t('delete') : 'Delete' }}</button>
+            </div>
           </li>
           <li v-if="!historyList.length" class="menu-child-empty">
             <span class="menu-label">{{ $t ? $t('noHistory') : 'No history yet' }}</span>
@@ -83,6 +100,7 @@
         <button class="profile-item">{{ $t ? $t('settings') : 'Settings' }}</button>
         <button class="profile-item">{{ $t ? $t('upgradePlan') : 'Upgrade plan' }}</button>
         <button class="profile-item">{{ $t ? $t('help') : 'Help' }}</button>
+        <button class="profile-item" @click="toggleArchived">{{ showArchived ? ($t ? $t('hideArchived') : 'Hide archived') : ($t ? $t('showArchived') : 'Show archived') }}</button>
         <button class="profile-item danger" @click="goLogout">{{ $t ? $t('logout') : 'Logout' }}</button>
       </div>
     </div>
@@ -92,15 +110,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, computed, onBeforeUnmount } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, watch, computed, onBeforeUnmount, nextTick } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { API_BASE_URL } from '../config'
+import { authFetch } from '../lib/authFetch'
 
-const historyList = ref([
-  { id: 1, title: 'Annual Report Summary' },
-  { id: 2, title: 'ESG Risk Analysis' },
-])
+const historyList = ref([])
 
 const isOpen = ref(true)
 const showMenu = ref(false)
@@ -134,7 +150,7 @@ const updateBodyAttr = () => {
 }
 watch(isOpen, updateBodyAttr)
 
-const onDocClick = () => { showMenu.value = false }
+const onDocClick = () => { showMenu.value = false; activeMenuFor.value = null }
 
 onMounted(() => {
   updateBodyAttr()
@@ -148,6 +164,85 @@ onBeforeUnmount(() => {
     document.removeEventListener('click', onDocClick)
   }
 })
+
+/* ---------- Chat history ---------- */
+const route = useRoute()
+const showArchived = ref(false)
+const activeMenuFor = ref(null)
+const editingId = ref(null)
+const editingTitle = ref('')
+let renaming = false
+
+async function fetchHistory(){
+  try{
+    // Always fetch active (non-archived)
+    const r1 = await authFetch(`${API_BASE_URL}/api/chats/threads/?archived=0`)
+    const a = r1.ok ? await r1.json() : []
+    if (!showArchived.value) { historyList.value = a; return }
+    // Optionally include archived and merge
+    const r2 = await authFetch(`${API_BASE_URL}/api/chats/threads/?archived=1`)
+    const b = r2.ok ? await r2.json() : []
+    const byId = new Map()
+    for (const x of [...a, ...b]) byId.set(x.id, x)
+    historyList.value = Array.from(byId.values())
+  }catch(_){ /* ignore */ }
+}
+onMounted(fetchHistory)
+watch(() => route.fullPath, () => { fetchHistory() })
+
+function toggleArchived(){
+  showArchived.value = !showArchived.value
+  fetchHistory()
+  showMenu.value = false
+}
+function openItemMenu(h){
+  activeMenuFor.value = (activeMenuFor.value === h.id) ? null : h.id
+}
+function isActive(h){
+  try { return String(route.params?.id || '') === String(h.id) } catch { return false }
+}
+function startRename(h){
+  activeMenuFor.value = null
+  editingId.value = h.id
+  editingTitle.value = h.title || ''
+  nextTick(() => { try { document.querySelector('.history-rename')?.focus() } catch(_) {} })
+}
+async function commitRename(h){
+  if (renaming) return
+  if (!editingId.value) return cancelRename()
+  const newTitle = (editingTitle.value || '').trim()
+  if ((h.title || '') === newTitle) return cancelRename()
+  renaming = true
+  try{
+    const r = await authFetch(`${API_BASE_URL}/api/chats/threads/${h.id}/`, {
+      method:'PATCH', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ title: newTitle || 'Untitled' })
+    })
+    if (r.ok) await fetchHistory()
+  }catch(_){ /* ignore */ }
+  finally{
+    renaming = false
+    cancelRename()
+  }
+}
+function cancelRename(){ editingId.value = null; editingTitle.value = '' }
+async function archiveThread(h, val){
+  activeMenuFor.value = null
+  try{
+    const r = await authFetch(`${API_BASE_URL}/api/chats/threads/${h.id}/`, {
+      method:'PATCH', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ archived: !!val })
+    })
+    if (r.ok) fetchHistory()
+  }catch(_){ /* ignore */ }
+}
+async function deleteThread(h){
+  activeMenuFor.value = null
+  const msg = (typeof t === 'function') ? t('confirmDeleteChat') : 'Delete this chat? This cannot be undone.'
+  if (!confirm(msg)) return
+  try{
+    const r = await authFetch(`${API_BASE_URL}/api/chats/threads/${h.id}/`, { method:'DELETE' })
+    if (r.ok) fetchHistory()
+  }catch(_){ /* ignore */ }
+}
 
 /* ---------- Name display logic ---------- */
 const me = ref(null)
@@ -271,6 +366,24 @@ onMounted(async () => {
 }
 .menu-child:hover, .menu-child.router-link-exact-active { background: #ecf3fd; color: #1976d2; }
 .menu-child-empty { color: #9fa8c1; font-size: 0.95rem; padding: 7px 7px 7px 36px; }
+
+.history-item{ position: relative; display:flex; align-items:center; border-radius: 5px; }
+.history-item:hover { background:#f5f9ff; }
+.history-item.active, .history-item:focus-within { background:#ecf3fd; }
+.history-item.active .menu-child.router-link-exact-active { background: transparent; }
+.history-item:hover .menu-child, .history-item:hover .menu-child.router-link-exact-active { background: transparent; }
+.history-item.active .menu-label, .history-item:focus-within .menu-label { color:#1976d2; }
+.history-item:hover .menu-label { color:#1d4ed8; }
+.item-actions{ position:absolute; right:6px; border:none; background:transparent; color:#6b7280; cursor:pointer; padding:4px 6px; border-radius:6px; }
+.item-actions:hover{ background:#eef2ff; color:#374151; }
+.item-menu{ position:absolute; right:6px; top:30px; background:#fff; border:1px solid #e6ecf7; border-radius:8px; box-shadow: 0 8px 24px rgba(0,0,0,.12); z-index:23; padding:4px; display:flex; flex-direction:column; min-width:160px; }
+.item-menu-btn{ text-align:left; padding:8px 10px; border:none; background:#fff; border-radius:6px; font-size:.9rem; color:#2f3b52; cursor:pointer; }
+.item-menu-btn:hover{ background:#eff6ff; }
+.item-menu-btn.danger{ color:#d93025; }
+.item-menu-btn.danger:hover{ background:#feeceb; }
+
+.history-rename{ width: 100%; border: 1px solid #dbe3f3; background:#fff; color:#1e2a44; border-radius:6px; padding:6px 8px; font-size:.95rem; outline:none; }
+.history-rename:focus{ border-color:#b7cdfa; box-shadow: 0 0 0 3px rgba(99,102,241,.15); }
 
 .sidebar-bottom {
   margin: 10px 0 22px 0; padding: 12px 16px 0 16px; display: flex; flex-direction: column; gap: 14px; position: relative;

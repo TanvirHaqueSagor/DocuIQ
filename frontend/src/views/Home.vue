@@ -9,9 +9,9 @@
           <div class="w-title">{{ $t ? $t('welcomeAsk') : 'Ask anything from your data' }}</div>
           <div class="w-sub">{{ $t ? $t('welcomeHint') : 'Your files and connected sources are indexed in a vector database. Ask questions and get referenced answers.' }}</div>
           <div class="w-examples">
-            <button class="example" @click="useExample('Summarize the latest policy changes and list key points.')">Summarize the latest policy changes and list key points.</button>
-            <button class="example" @click="useExample('What are the onboarding steps and who approves them?')">What are the onboarding steps and who approves them?</button>
-            <button class="example" @click="useExample('Compare Q2 revenue growth across product lines with sources.')">Compare Q2 revenue growth across product lines with sources.</button>
+            <button class="example" @click="useExample($t ? $t('ex1') : 'Summarize the latest policy changes and list key points.')">{{ $t ? $t('ex1') : 'Summarize the latest policy changes and list key points.' }}</button>
+            <button class="example" @click="useExample($t ? $t('ex2') : 'What are the onboarding steps and who approves them?')">{{ $t ? $t('ex2') : 'What are the onboarding steps and who approves them?' }}</button>
+            <button class="example" @click="useExample($t ? $t('ex3') : 'Compare Q2 revenue growth across product lines with sources.')">{{ $t ? $t('ex3') : 'Compare Q2 revenue growth across product lines with sources.' }}</button>
           </div>
         </div>
 
@@ -24,8 +24,8 @@
                 <span class="src-ico-comp" v-if="s.kind"><img class="src-ico-img" :src="iconForKind(s.kind)" :alt="s.kind" /></span>
                 <span class="src-title">{{ s.title || s.label || s.name || ('Source #' + (i+1)) }}</span>
                 <span v-if="s.page" class="src-meta">· p. {{ s.page }}</span>
-                <RouterLink v-if="s.documentId" class="link" :to="`/documents/${s.documentId}`">{{ $t ? $t('view') : 'View' }}</RouterLink>
-                <a v-else-if="s.url" class="link" :href="s.url" target="_blank" rel="noopener">{{ $t ? $t('open') : 'Open' }}</a>
+                <a v-if="s.url" class="link" :href="s.url" target="_blank" rel="noopener">{{ $t ? $t('open') : 'Open' }}</a>
+                <RouterLink v-else class="link" :to="linkForCitation(s)">{{ $t ? $t('view') : 'View' }}</RouterLink>
               </div>
             </div>
           </div>
@@ -57,9 +57,10 @@
 </template>
 
 <script setup>
-import { ref, nextTick } from 'vue'
-import { useRouter } from 'vue-router'
-// no API import needed here
+import { ref, nextTick, onMounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { API_BASE_URL } from '../config'
+import { authFetch } from '../lib/authFetch'
 
 // Minimal icon set for citations
 import icFile from '../assets/icons/file.svg'
@@ -71,11 +72,13 @@ import icOnedrive from '../assets/icons/onedrive.svg'
 import icBox from '../assets/icons/box.svg'
 
 const router = useRouter()
+const route = useRoute()
 const q = ref('')
 const loading = ref(false)
 const error = ref('')
 const messages = ref([])
 const chatBody = ref(null)
+const threadId = ref(null)
 
 // Basic kind→icon mapping used for rendering citations
 const ICONS = { file: icFile, files: icFile, upload: icFile, web: icWeb, s3: icS3, gdrive: icGdrive, dropbox: icDropbox, onedrive: icOnedrive, box: icBox }
@@ -89,12 +92,14 @@ function normalizeCitations(data){
   const arr = data?.sources || data?.citations || data?.matches || data?.chunks || []
   if (Array.isArray(arr)) {
     for (const s of arr) {
+      const meta = s.metadata || {}
+      const chunkIdx = typeof meta.chunk === 'number' ? (meta.chunk + 1) : undefined
       out.push({
-        title: s.title || s.document?.title || s.metadata?.title || s.name,
+        title: s.title || s.document?.title || meta.title || s.name,
         label: s.label,
-        url: s.url || s.metadata?.url,
-        page: s.page || s.metadata?.page,
-        kind: (s.kind || s.metadata?.kind || s.source || '').toString().toLowerCase(),
+        url: s.url || meta.url,
+        page: s.page || meta.page || chunkIdx,
+        kind: (s.kind || meta.kind || s.source || '').toString().toLowerCase(),
         documentId: s.document_id || s.documentId || s.doc_id || s.id,
         score: s.score,
       })
@@ -102,7 +107,23 @@ function normalizeCitations(data){
   } else if (data?.source) {
     out.push({ title: data.source, label: data.source })
   }
-  return out
+  // Deduplicate by documentId (fallback to title)
+  const seen = new Set()
+  const uniq = []
+  for (const c of out) {
+    const key = c.documentId || c.title || c.label || c.url || c.name || ''
+    if (seen.has(key)) continue
+    seen.add(key)
+    uniq.push(c)
+  }
+  // Sort by score descending if present
+  uniq.sort((a,b) => (b.score||0) - (a.score||0))
+  return uniq
+}
+
+function linkForCitation(s){
+  const label = s?.title || s?.label || s?.documentId || ''
+  return `/documents?q=${encodeURIComponent(label)}`
 }
 
 function scrollToBottom(){
@@ -122,12 +143,39 @@ async function send(){
   const text = (q.value||'').trim()
   if (!text || loading.value) return
   error.value = ''
+  // Starting a brand new chat in root view: clear any stale messages
+  if (!threadId.value && messages.value.length) {
+    resetChat()
+  }
   const id = Date.now() + '-' + Math.random().toString(36).slice(2)
   messages.value.push({ id, role:'user', content: text })
   q.value = ''
   scrollToBottom()
   loading.value = true
   try{
+    // Ensure thread exists
+    if (!threadId.value) {
+      const title = text.split(/\s+/).slice(0, 8).join(' ')
+      const r = await authFetch(`${API_BASE_URL}/api/chats/threads/`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title })
+      })
+      if (r.ok) {
+        const data = await r.json()
+        threadId.value = data?.id
+        // Navigate to thread URL
+        if (threadId.value) router.push(`/analysis/${threadId.value}`)
+      }
+    }
+    // Save user message
+    if (threadId.value) {
+      try{
+        await authFetch(`${API_BASE_URL}/api/chats/threads/${threadId.value}/messages/`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ role: 'user', content: text })
+        })
+      }catch(_){ /* ignore */ }
+    }
     const res = await fetch(`${AI}/ask`, {
       method:'POST', headers:{ 'Content-Type':'application/json' },
       body: JSON.stringify({ question: text, top_k: 5, with_sources: true })
@@ -145,6 +193,15 @@ async function send(){
       output = data.matches.slice(0,3).map(m => m.text || m.chunk || m.content || '').filter(Boolean).join('\n\n')
     }
     messages.value.push({ id: id+'-a', role:'assistant', content: output || (data?.source ? `Source: ${data.source}` : '—'), citations: cites })
+    // Save assistant message
+    if (threadId.value) {
+      try{
+        await authFetch(`${API_BASE_URL}/api/chats/threads/${threadId.value}/messages/`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ role: 'assistant', content: output })
+        })
+      }catch(_){ /* ignore */ }
+    }
   }catch(e){
     const msg = e?.message || 'Something went wrong'
     if (/Failed to fetch|NetworkError|TypeError: fetch/i.test(String(msg))) {
@@ -157,6 +214,37 @@ async function send(){
     scrollToBottom()
   }
 }
+
+// Load existing thread if route has :id
+async function loadThread(id){
+  if (!id) return
+  try{
+    const r = await authFetch(`${API_BASE_URL}/api/chats/threads/${id}/messages/`)
+    if (r.ok) {
+      const arr = await r.json()
+      messages.value = (arr || []).map(m => ({ id: 'db-'+m.id, role: m.role, content: m.content }))
+      threadId.value = id
+      nextTick(() => scrollToBottom())
+    }
+  }catch(_){ /* ignore */ }
+}
+
+function resetChat(){
+  messages.value = []
+  threadId.value = null
+  error.value = ''
+}
+
+onMounted(() => {
+  const tid = route.params?.id
+  if (tid) loadThread(String(tid))
+  else resetChat()
+})
+
+watch(() => route.params?.id, (n) => {
+  if (n) loadThread(String(n))
+  else resetChat()
+})
 </script>
 
 <style scoped>

@@ -49,11 +49,15 @@
               <span>{{ $t ? $t('autoRefresh') : 'Auto refresh' }}</span>
             </label>
           </div>
-          <div class="info-line">Data from uploads and connected sources is indexed into your vector database. Use Re-run Import to refresh vectors.</div>
+          <div class="info-line">{{ $t ? $t('docsInfo') : 'Data from uploads and connected sources is indexed into your vector database. Use Re-run Import to refresh vectors.' }}</div>
           <table class="tbl" role="table">
             <thead>
               <tr>
-                <th>Type</th><th>Title</th><th>Status</th><th>Imported</th><th>Actions</th>
+                <th>{{ $t ? $t('type') : 'Type' }}</th>
+                <th>{{ $t ? $t('title') : 'Title' }}</th>
+                <th>{{ $t ? $t('status') : 'Status' }}</th>
+                <th>{{ $t ? $t('imported') : 'Imported' }}</th>
+                <th>{{ $t ? $t('actions') : 'Actions' }}</th>
               </tr>
             </thead>
             <tbody>
@@ -66,7 +70,7 @@
                 <td>
                   <span class="badge" :class="badgeClass(row)">
                     <template v-if="isRowRunning(row)">
-                      running<span class="dots" aria-hidden="true"><span>.</span><span>.</span><span>.</span></span>
+                      {{ $t ? $t('running') : 'running' }}<span class="dots" aria-hidden="true"><span>.</span><span>.</span><span>.</span></span>
                     </template>
                     <template v-else>{{ displayStatus(row) }}</template>
                   </span>
@@ -75,22 +79,34 @@
                 <td>
                   <template v-if="row.type==='doc'">
                     <div class="row-actions">
-                      <RouterLink class="link" :to="`/documents/${row._raw.id}`">View</RouterLink>
-                      <button class="link" @click="rerunImport(row)">Re-run Import</button>
-                      <button class="link danger" @click="deleteDoc(row)">Delete</button>
+                      <button class="link icon-btn" @click="editRow(row)" :title="$t ? $t('edit') : 'Edit'" aria-label="Edit">
+                        <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25ZM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83Z"/></svg>
+                      </button>
+                      <button class="link icon-btn" @click="rerunImport(row)" :disabled="isRowRunning(row) || isRowDeleting(row)" :title="$t ? $t('rerunImport') : 'Re-run Import'" aria-label="Re-run Import">
+                        <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 5a7 7 0 1 1-6.9 8.2h2.1A5 5 0 1 0 12 7V3l5 4-5 4V9a3 3 0 1 1-3 3H5A7 7 0 0 1 12 5Z"/></svg>
+                      </button>
+                      <button class="link danger icon-btn" @click="deleteDoc(row)" :disabled="isRowRunning(row) || isRowDeleting(row)" :title="$t ? $t('delete') : 'Delete'" aria-label="Delete">
+                        <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9Zm5 2v8h2v-8h-2Z"/></svg>
+                      </button>
                     </div>
                   </template>
                   <template v-else>
                     <div class="row-actions">
-                      <button class="link" @click="openJob(row)">View</button>
-                      <button class="link" @click="rerunImport(row)">Re-run Import</button>
-                      <button class="link danger" @click="deleteJob(row)">Delete</button>
+                      <button class="link icon-btn" @click="editRow(row)" :title="$t ? $t('edit') : 'Edit'" aria-label="Edit">
+                        <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25ZM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83Z"/></svg>
+                      </button>
+                      <button class="link icon-btn" @click="rerunImport(row)" :disabled="isRowRunning(row) || isRowDeleting(row)" :title="$t ? $t('rerunImport') : 'Re-run Import'" aria-label="Re-run Import">
+                        <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 5a7 7 0 1 1-6.9 8.2h2.1A5 5 0 1 0 12 7V3l5 4-5 4V9a3 3 0 1 1-3 3H5A7 7 0 0 1 12 5Z"/></svg>
+                      </button>
+                      <button class="link danger icon-btn" @click="deleteJob(row)" :disabled="isRowRunning(row) || isRowDeleting(row)" :title="$t ? $t('delete') : 'Delete'" aria-label="Delete">
+                        <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9Zm5 2v8h2v-8h-2Z"/></svg>
+                      </button>
                     </div>
                   </template>
                 </td>
               </tr>
               <tr v-if="!filteredCombined.length">
-                <td colspan="5" class="empty">No items yet</td>
+                <td colspan="5" class="empty">{{ $t ? $t('noItems') : 'No items yet' }}</td>
               </tr>
             </tbody>
           </table>
@@ -101,22 +117,22 @@
       <aside class="side">
         <div class="kpis">
           <div class="kpi">
-            <div class="kpi-title">Documents</div>
+            <div class="kpi-title">{{ $t ? $t('documents') : 'Documents' }}</div>
             <div class="kpi-val">{{ kpi.documents }}</div>
           </div>
           <div class="kpi">
-            <div class="kpi-title">Running jobs</div>
+            <div class="kpi-title">{{ $t ? $t('runningJobs') : 'Running jobs' }}</div>
             <div class="kpi-val">{{ kpi.running }}</div>
           </div>
           <div class="kpi">
-            <div class="kpi-title">Server</div>
+            <div class="kpi-title">{{ $t ? $t('server') : 'Server' }}</div>
             <div class="kpi-val" :class="kpi.health ? 'ok' : 'bad'">{{ kpi.health ? 'OK' : 'Down' }}</div>
           </div>
         </div>
 
-        <div class="sources">
+          <div class="sources">
           <div class="sources-head">
-            <h3>Sources</h3>
+            <h3>{{ $t ? $t('sources') : 'Sources' }}</h3>
           </div>
 
           <div class="src-grid">
@@ -127,7 +143,7 @@
           </div>
 
           <div class="connected" v-if="sources.length">
-            <div class="conn-title">Connected</div>
+            <div class="conn-title">{{ $t ? $t('connected') : 'Connected' }}</div>
             <div class="conn-list">
               <div v-for="s in filteredSources" :key="s.id" class="conn-item">
                 <div class="ci-left">
@@ -137,8 +153,12 @@
                   <span class="kind">· {{ prettyKind(s.kind) }}</span>
                 </div>
                 <div class="ci-actions">
-                  <button class="link" @click="runSource(s)">Run</button>
-                  <button class="link danger" @click="deleteSource(s)">Delete</button>
+                  <button class="link icon-btn" @click="runSource(s)" :title="$t ? $t('run') : 'Run'" aria-label="Run">
+                    <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7L8 5Z"/></svg>
+                  </button>
+                  <button class="link danger icon-btn" @click="deleteSource(s)" :disabled="isSourceDeleting(s)" :title="$t ? $t('delete') : 'Delete'" aria-label="Delete">
+                    <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9Zm5 2v8h2v-8h-2Z"/></svg>
+                  </button>
                 </div>
               </div>
             </div>
@@ -153,6 +173,7 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { API_BASE_URL as API } from '../config'
 // Icon components (via unplugin-icons)
 import { authFetch } from '../lib/authFetch'
@@ -207,6 +228,10 @@ const kpi = reactive({ documents: 0, running: 0, health: true })
 const fileInput = ref(null)
 // Track rows set to re-run; key by row.id
 const rerunning = ref({})
+// Track rows being deleted; key by row.id
+const deletingRows = ref({})
+// Track sources being deleted; key by source.id
+const deletingSources = ref({})
 
 /* ----- wizard ----- */
 const wizard = reactive({ open:false, tab:'' })
@@ -216,8 +241,11 @@ const openWizard = (t='gdrive') => { router.push(`/connect/${t}`) }
 onMounted(async () => {
   try {
     ensureAuthOrRedirect()   // টোকেন না থাকলে এখানে থেমে /login এ যাবে
+    // Seed search from query param (?q=...)
+    try { q.value = String(route.query.q || '').trim() } catch (_) { /* ignore */ }
     await refreshAll()
-    poll = setInterval(() => { if (autoRefresh.value) fetchJobs() }, 5000)
+    // Auto-refresh both jobs and documents so statuses update in UI
+    poll = setInterval(() => { if (autoRefresh.value) refreshAll() }, 5000)
   } catch (e) {
     // redirected; কিছুই করার নেই
   }
@@ -227,6 +255,7 @@ onMounted(async () => {
 import { useRouter, useRoute } from 'vue-router'
 const router = useRouter()
 const route  = useRoute()
+const { t } = useI18n ? useI18n() : { t: (s)=>s }
 const goFiles = () => router.push('/connect/files')
 
 const getAccessToken = () =>
@@ -285,34 +314,62 @@ const jobTitle = (j) => {
   if (j.mode==='s3')  return `${m} · ${j.payload?.bucket||''}/${j.payload?.prefix||''}`
   return m
 }
+// Deduplication key for jobs so re-run doesn't show duplicates
+const stableStr = (obj) => {
+  if (obj === null || obj === undefined) return ''
+  if (typeof obj !== 'object') return String(obj)
+  const keys = Object.keys(obj).sort()
+  return keys.map(k => `${k}:${stableStr(obj[k])}`).join('|')
+}
+const jobKey = (j) => {
+  const mode = String(j.mode||'').toLowerCase()
+  if (mode === 'web') return `web|${j.payload?.url||''}`
+  if (mode === 's3') return `s3|${j.payload?.bucket||''}|${j.payload?.prefix||''}`
+  if (j.source) return `${mode}|src:${j.source}`
+  return `${mode}|${stableStr(j.payload||{})}`
+}
 // Human-friendly type for unified list
+const isWebDoc = (row) => {
+  try { return !!(row?._raw?.steps_json && row._raw.steps_json.source_url) } catch { return false }
+}
 const rowType = (row) => {
   if (row?.type === 'job') {
     const k = String(row?._raw?.mode || '').toLowerCase()
     if (!k) return 'Import'
     return prettyKind(k)
   }
-  // Documents (files) → default to File; we can refine by extension later
+  // Documents: detect web-fetched items via steps_json.source_url
+  if (isWebDoc(row)) return 'Web'
+  // Default to File; we can refine by extension later
   return 'File'
 }
 
 // Map job statuses to friendly labels
+const mapDocStatus = (s) => {
+  const v = String(s || '').toUpperCase()
+  if (['READY','PARTIAL_READY'].includes(v)) return 'Imported'
+  if (['FAILED','CANCELLED','DELETED'].includes(v)) return 'Failed'
+  if (['QUEUED','FETCHING','NORMALIZING','CHUNKING','EMBEDDING','INDEXING'].includes(v)) return 'Processing'
+  return 'Uploaded'
+}
 const mapUnifiedStatus = (row) => {
   // Desired: Uploaded, Processing, Imported
   if (row?.type === 'job') {
     const v = String(row._raw?.status || '').toLowerCase()
     if (v === 'queued' || v === 'running') return 'Processing'
     if (v === 'success') return 'Imported'
-    // fallback
+    if (v === 'failed') return 'Failed'
     return 'Uploaded'
   }
-  // Documents (files) default to Uploaded
-  return 'Uploaded'
+  // Documents: use backend-provided status if present
+  return mapDocStatus(row?._raw?.status)
 }
 const displayStatus = (row) => mapUnifiedStatus(row)
 const statusClass = (row) => String(mapUnifiedStatus(row)).toLowerCase()
 const isRowRunning = (row) => !!(rerunning.value || {})[row?.id]
 const badgeClass = (row) => isRowRunning(row) ? 'processing' : statusClass(row)
+const isRowDeleting = (row) => !!(deletingRows.value || {})[row?.id]
+const isSourceDeleting = (s) => !!(deletingSources.value || {})[s?.id]
 const fileEmoji = (name='')=>{
   const n=(name||'').toLowerCase()
   if(n.endsWith('.pdf')) return '📕'
@@ -386,31 +443,47 @@ const rowIconComp = (row) => {
     const k = String(row?._raw?.mode || '').toLowerCase()
     return iconForKind(k)
   }
-  return icFile
+  return isWebDoc(row) ? iconForKind('web') : icFile
 }
 
 /* ----- filters ----- */
 // Unified list: show documents + non-upload jobs (e.g., Web, S3, etc.)
 const combinedRows = computed(() => {
-  const jobRows = (jobs.value || [])
-    .filter(j => String(j.mode || '').toLowerCase() !== 'upload')
-    .map(j => ({
-      id: `job-${j.id}`,
-      type: 'job',
-      title: jobTitle(j),
-      status: j.status,
-      progress: j.progress || 0,
-      created_at: j.created_at,
-      _raw: j,
-    }))
+  // Deduplicate non-upload jobs by a stable key; keep the most recent
+  // Show web jobs only when they are NOT successful (to surface errors/progress).
+  // Hide successful web jobs because the resulting document row is shown separately.
+  const nonUpload = (jobs.value || []).filter(j => {
+    const m = String(j.mode || '').toLowerCase()
+    if (m === 'upload') return false
+    if (m === 'web') return String(j.status || '').toLowerCase() !== 'success'
+    return true
+  })
+  const latestByKey = new Map()
+  for (const j of nonUpload) {
+    const k = jobKey(j)
+    const prev = latestByKey.get(k)
+    if (!prev) { latestByKey.set(k, j); continue }
+    const da = prev.created_at ? new Date(prev.created_at).getTime() : 0
+    const db = j.created_at ? new Date(j.created_at).getTime() : 0
+    if (db >= da) latestByKey.set(k, j)
+  }
+  const jobRows = Array.from(latestByKey.values()).map(j => ({
+    id: `job-${j.id}`,
+    type: 'job',
+    title: jobTitle(j),
+    status: j.status,
+    progress: j.progress || 0,
+    created_at: j.created_at,
+    _raw: j,
+  }))
 
   const docRows = (docs.value || []).map(d => ({
     id: `doc-${d.id}`,
     type: 'doc',
     title: d.title || d.filename,
-    status: 'Uploaded',
+    status: d.status || 'QUEUED',
     progress: null,
-    created_at: d.created_at,
+    created_at: d.status_updated_at || d.created_at,
     _raw: d,
   }))
 
@@ -559,21 +632,33 @@ const runSource = async (s)=>{
 const deleteDoc = async (rowOrDoc)=>{
   const d = rowOrDoc?._raw || rowOrDoc
   if (!d || !d.id) return
-  if (!confirm(`Delete "${d.title || d.filename || d.id}"? This cannot be undone.`)) return
+  const msg = (typeof t === 'function') ? t('confirmDeleteDoc', { name: d.title || d.filename || d.id }) : `Delete "${d.title || d.filename || d.id}"? This cannot be undone.`
+  if (!confirm(msg)) return
   try{
+    const row = rowOrDoc?._raw ? rowOrDoc : { id: `doc-${d.id}` }
+    deletingRows.value = { ...(deletingRows.value||{}), [row.id]: true }
     const r = await authFetch(`${API}/api/documents/${d.id}`, { method:'DELETE', headers: { ...authHeaders() } })
     if (r.ok) { await fetchDocs() }
   }catch(_){ /* noop */ }
+  finally{
+    const row = rowOrDoc?._raw ? rowOrDoc : { id: `doc-${d.id}` }
+    const m = { ...(deletingRows.value||{}) }; delete m[row.id]; deletingRows.value = m
+  }
 }
 
 // Delete a source
 const deleteSource = async (s)=>{
   if (!s || !s.id) return
-  if (!confirm(`Delete source "${s.name}"?`)) return
+  const smsg = (typeof t === 'function') ? t('confirmDeleteSource', { name: s.name }) : `Delete source "${s.name}"?`
+  if (!confirm(smsg)) return
   try{
+    deletingSources.value = { ...(deletingSources.value||{}), [s.id]: true }
     const r = await authFetch(`${API}/api/ingest/sources/${s.id}/`, { method:'DELETE', headers: { ...authHeaders() } })
     if (r.ok) { await fetchSources() }
   }catch(_){ /* noop */ }
+  finally{
+    const m = { ...(deletingSources.value||{}) }; delete m[s.id]; deletingSources.value = m
+  }
 }
 
 // Open a job (web → open URL; others → navigate to setup)
@@ -587,15 +672,44 @@ const openJob = (row)=>{
   if (mode) router.push(`/connect/${mode}`)
 }
 
+// Edit action: route to appropriate setup UI used for adding sources/uploads
+const editRow = (row)=>{
+  // Jobs
+  if (row?.type === 'job') {
+    const j = row._raw || {}
+    const mode = String(j.mode || '').toLowerCase()
+    if (mode === 'web'){
+      const u = j.payload?.url || j.payload?.start_url || ''
+      const q = u ? (`?url=${encodeURIComponent(u)}`) : ''
+      router.push(`/connect/web${q}`)
+      return
+    }
+    if (mode){ router.push(`/connect/${mode}`); return }
+  }
+  // Documents
+  if (isWebDoc(row)){
+    const u = (row?._raw?.steps_json || {}).source_url || ''
+    const q = u ? (`?url=${encodeURIComponent(u)}`) : ''
+    router.push(`/connect/web${q}`)
+    return
+  }
+  router.push('/connect/files')
+}
+
 // Delete a job (owner only)
 const deleteJob = async (row)=>{
   const j = row?._raw
   if (!j || !j.id) return
-  if (!confirm(`Delete job "${row.title}"? This will remove the import record.`)) return
+  const jmsg = (typeof t === 'function') ? t('confirmDeleteJob', { name: row.title }) : `Delete job "${row.title}"? This will remove the import record.`
+  if (!confirm(jmsg)) return
   try{
+    deletingRows.value = { ...(deletingRows.value||{}), [row.id]: true }
     const r = await authFetch(`${API}/api/ingest/jobs/${j.id}/`, { method:'DELETE', headers: { ...authHeaders() } })
     if (r.ok) await fetchJobs()
   }catch(_){ /* ignore */ }
+  finally{
+    const m = { ...(deletingRows.value||{}) }; delete m[row.id]; deletingRows.value = m
+  }
 }
 
 // Delete files associated with an upload job row (payload.file_ids)
@@ -604,7 +718,8 @@ const deleteUploadFiles = async (row)=>{
   const ids = job?.payload?.file_ids
   if (!Array.isArray(ids) || !ids.length) return
   const label = row.title || `${ids.length} file(s)`
-  if (!confirm(`Delete ${label}? This cannot be undone.`)) return
+  const umsg = (typeof t === 'function') ? t('confirmDeleteFiles', { name: label }) : `Delete ${label}? This cannot be undone.`
+  if (!confirm(umsg)) return
   try {
     for (const id of ids) {
       await authFetch(`${API}/api/documents/${id}`, { method: 'DELETE', headers: { ...authHeaders() } })
@@ -667,6 +782,7 @@ const deleteUploadFiles = async (row)=>{
 .badge.uploaded{ background:#fff0da; color:#9a6700; border-color:#ffd89a; }
 .badge.processing{ background:#eaf2ff; color:#1d4ed8; border-color:#c7dafb; }
 .badge.imported{ background:#e8f7ee; color:#047857; border-color:#b7e5c9; }
+.badge.failed{ background:#ffe8e6; color:#b42318; border-color:#f6b2ad; }
 .dots{ display:inline-flex; gap:1px; margin-left:1px; }
 .dots span{ opacity:0; animation: dotblink 1.2s infinite; }
 .dots span:nth-child(2){ animation-delay:.2s }
@@ -688,6 +804,10 @@ const deleteUploadFiles = async (row)=>{
 .link{ background:transparent; border:none; color:#1d4ed8; font-weight:800; cursor:pointer; padding:0; }
 .link.danger{ color:#b42318; }
 .row-actions{ display:inline-flex; gap:10px; align-items:center; }
+.link[disabled]{ opacity:.6; pointer-events:none; }
+.icon-btn{ width:28px; height:28px; display:inline-flex; align-items:center; justify-content:center; border-radius:6px; }
+.icon-btn:hover{ background:#eef3ff; }
+.icon-svg{ width:16px; height:16px; display:block; }
 
 /* right */
 .side{ display:grid; gap:12px; }

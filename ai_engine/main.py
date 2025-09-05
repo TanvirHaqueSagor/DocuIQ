@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 from typing import List, Dict, Any
 from openai import OpenAI
 import os, json, hashlib
+from fastapi.responses import JSONResponse
 
 # Import sibling module directly since this service runs as a top-level module (uvicorn main:app)
 from vector_store import VectorStore, chunk_text
@@ -40,8 +41,15 @@ class IndexDocumentRequest(BaseModel):
 def embed_texts(texts: List[str]) -> List[List[float]]:
     if not OPENAI_API_KEY:
         raise RuntimeError("OPENAI_API_KEY not set")
-    resp = client.embeddings.create(model="text-embedding-3-small", input=texts)
-    return [d.embedding for d in resp.data]
+    # simple retry on transient errors
+    last_exc = None
+    for _ in range(2):
+        try:
+            resp = client.embeddings.create(model=os.getenv("OPENAI_EMBED_MODEL", "text-embedding-3-small"), input=texts)
+            return [d.embedding for d in resp.data]
+        except Exception as e:
+            last_exc = e
+    raise RuntimeError(f"embed_failed: {last_exc}")
 
 
 def answer_with_openai(question: str, context_chunks: List[Dict[str, Any]]) -> str:
@@ -74,7 +82,10 @@ def answer_with_openai(question: str, context_chunks: List[Dict[str, Any]]) -> s
 @app.post("/index_document")
 def index_document(req: IndexDocumentRequest):
     chunks = list(chunk_text(req.text, target_chars=1200))
-    embeds = embed_texts(chunks)
+    try:
+        embeds = embed_texts(chunks)
+    except Exception as e:
+        return JSONResponse({"ok": False, "error": "embed_failed", "detail": str(e)}, status_code=502)
     items = []
     for i, (text, emb) in enumerate(zip(chunks, embeds)):
         uid = hashlib.sha1(f"{req.document_id}:{i}".encode("utf-8")).hexdigest()
@@ -82,6 +93,18 @@ def index_document(req: IndexDocumentRequest):
         items.append({"id": uid, "content": text, "metadata": meta, "embedding": emb})
     store.add_many(items)
     return {"ok": True, "chunks": len(items)}
+
+
+class UnindexRequest(BaseModel):
+    document_id: str
+
+@app.post("/unindex_document")
+def unindex_document(req: UnindexRequest):
+    try:
+        removed = store.delete_by_document_id(req.document_id)
+        return {"ok": True, "removed": removed}
+    except Exception as e:
+        return JSONResponse({"ok": False, "error": "unindex_failed", "detail": str(e)}, status_code=500)
 
 
 @app.post("/upload")
@@ -102,15 +125,25 @@ def ask(req: AskRequest):
     if not q:
         return {"answer": "", "sources": []}
     q_emb = embed_texts([q])[0]
-    matches = store.query(q_emb, top_k=max(1, min(10, req.top_k)))
-    citations = [
-        {
-            "title": (m.get("metadata") or {}).get("title"),
-            "document_id": (m.get("metadata") or {}).get("document_id"),
-            "score": m.get("score"),
-        }
-        for m in matches
-    ]
+    matches = store.query(q_emb, top_k=max(1, min(25, req.top_k * 3)))
+    # Collapse citations by document (keep best score); cap to req.top_k unique
+    best_by_doc = {}
+    for m in matches:
+        meta = (m.get("metadata") or {})
+        doc_id = meta.get("document_id")
+        if not doc_id:
+            continue
+        prev = best_by_doc.get(doc_id)
+        if (not prev) or (m.get("score", 0) > prev.get("score", 0)):
+            best_by_doc[doc_id] = {
+                "title": meta.get("title"),
+                "document_id": doc_id,
+                # Expose chunk index as page-ish indicator (1-based)
+                "page": (meta.get("chunk") + 1) if isinstance(meta.get("chunk"), int) else None,
+                "score": float(m.get("score") or 0),
+            }
+    # Sort by score desc and limit to requested top_k
+    citations = sorted(best_by_doc.values(), key=lambda x: x.get("score", 0), reverse=True)[: max(1, req.top_k)]
     answer = answer_with_openai(q, matches)
     out = {"answer": answer}
     if req.with_sources:
@@ -119,3 +152,29 @@ def ask(req: AskRequest):
 @app.get("/health")
 def health():
     return {"ok": True}
+
+
+class EmbedRequest(BaseModel):
+    texts: List[str]
+    model: str | None = None
+
+@app.post("/embed")
+def embed(req: EmbedRequest):
+    model = req.model or os.getenv("OPENAI_EMBED_MODEL", "text-embedding-3-small")
+    if not req.texts:
+        return {"vectors": []}
+    # Use our helper; override model via env for now
+    if not OPENAI_API_KEY:
+        raise RuntimeError("OPENAI_API_KEY not set")
+    resp = client.embeddings.create(model=model, input=req.texts)
+    return {"vectors": [d.embedding for d in resp.data], "model": model}
+
+
+class RerankRequest(BaseModel):
+    query: str
+    passages: List[str]
+
+@app.post("/rerank")
+def rerank(req: RerankRequest):
+    # Minimal stub: preserve order with trivial scores
+    return {"results": [{"text": p, "score": 1.0 - (i * 0.01)} for i, p in enumerate(req.passages)]}

@@ -37,6 +37,32 @@ services:
       - .env
     restart: always
 
+  worker:
+    build:
+      context: ./backend
+    command: celery -A core worker -l info -Q ingest
+    depends_on:
+      - backend
+      - redis
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/app
+    restart: always
+
+  beat:
+    build:
+      context: ./backend
+    command: celery -A core beat -l info
+    depends_on:
+      - backend
+      - redis
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/app
+    restart: always
+
   ai:
     build:
       context: ./ai_engine
@@ -49,6 +75,10 @@ services:
       - VECTOR_DB_PATH=/data/vector_store.sqlite3
     volumes:
       - ai_data:/data
+
+  redis:
+    image: redis:7-alpine
+    restart: always
 
   docuiqdb:
     image: postgres:14

@@ -69,6 +69,26 @@ class VectorStore:
         scored.sort(key=lambda x: x["score"], reverse=True)
         return scored[: top_k or 5]
 
+    def delete_by_document_id(self, document_id: str) -> int:
+        """Delete all items whose metadata.document_id matches.
+        Returns number of rows deleted.
+        """
+        cur = self.conn.cursor()
+        cur.execute("SELECT id, metadata FROM items")
+        ids = []
+        for _id, meta_json in cur.fetchall():
+            try:
+                m = json.loads(meta_json or "{}")
+            except Exception:
+                m = {}
+            if str(m.get('document_id')) == str(document_id):
+                ids.append(_id)
+        if not ids:
+            return 0
+        with self.conn:
+            cur.executemany("DELETE FROM items WHERE id = ?", [(i,) for i in ids])
+        return len(ids)
+
 
 def chunk_text(text: str, target_chars: int = 1200, overlap: int = 120) -> Iterable[str]:
     text = text or ""
@@ -82,4 +102,3 @@ def chunk_text(text: str, target_chars: int = 1200, overlap: int = 120) -> Itera
         if j >= L:
             break
         i = j - o
-

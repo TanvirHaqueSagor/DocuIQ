@@ -6,10 +6,10 @@
     <table>
       <thead>
         <tr>
-          <th>Title</th>
-          <th>Company</th>
-          <th>Year</th>
-          <th>Uploaded</th>
+          <th>{{ $t ? $t('title') : 'Title' }}</th>
+          <th>{{ $t ? $t('company') : 'Company' }}</th>
+          <th>{{ $t ? $t('year') : 'Year' }}</th>
+          <th>{{ $t ? $t('uploaded') : 'Uploaded' }}</th>
           <th></th>
         </tr>
       </thead>
@@ -20,12 +20,12 @@
           <td>{{ row.year ?? '—' }}</td>
           <td>{{ formatDate(row.created_at) }}</td>
           <td class="actions">
-            <button class="btn sm" @click="$emit('view', row)">View</button>
-            <button class="btn sm danger" @click="$emit('delete', row)">Delete</button>
+            <button class="btn sm" @click="$emit('view', row)">{{ $t ? $t('view') : 'View' }}</button>
+            <button class="btn sm danger" @click="$emit('delete', row)">{{ $t ? $t('delete') : 'Delete' }}</button>
           </td>
         </tr>
         <tr v-if="!rows || rows.length===0">
-          <td colspan="5" class="empty">No documents yet.</td>
+          <td colspan="5" class="empty">{{ $t ? $t('noDocs') : 'No documents yet.' }}</td>
         </tr>
       </tbody>
     </table>

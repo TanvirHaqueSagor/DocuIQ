@@ -5,10 +5,10 @@
   <div class="page">
     <header class="page-head">
       <div class="left">
-        <h1>Dashboard</h1>
+        <h1>{{ $t ? $t('dashboard') : 'Dashboard' }}</h1>
       </div>
       <div class="right">
-        <RouterLink class="primary" to="/documents">Upload Documents</RouterLink>
+        <RouterLink class="primary" to="/documents">{{ $t ? $t('uploadDocuments') : 'Upload Documents' }}</RouterLink>
       </div>
     </header>
 
