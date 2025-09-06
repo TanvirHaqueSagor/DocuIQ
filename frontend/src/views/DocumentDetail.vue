@@ -44,7 +44,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { API_BASE_URL } from '../config'
 import { authFetch } from '../lib/authFetch'
@@ -70,6 +70,10 @@ const pdfUrl = computed(() => {
     // Highest priority: explicit url passed via query (when available)
     const urlQ = route.query?.url
     if (urlQ) return toAbs(urlQ)
+    // Prefer backend streaming endpoint (works even if storage path changed)
+    if (doc.value?.id){
+      return `${API_BASE_URL}/api/documents/${doc.value.id}/file`
+    }
     const f = doc.value?.file_url
     if (f) return toAbs(f)
     // Fallback to source URL if it's a PDF
@@ -84,6 +88,16 @@ const pageParam = computed(() => {
 const viewerSrc = computed(() => {
   const base = pdfUrl.value
   if (!base) return ''
+  // Append access token for iframe (no headers in iframe requests)
+  try {
+    const access = localStorage.getItem('token') || localStorage.getItem('access') || ''
+    if (access && base.startsWith(API_BASE_URL)){
+      const sep = base.includes('?') ? '&' : '?'
+      const withTok = `${base}${sep}access=${encodeURIComponent(access)}`
+      if (pageParam.value) return `${withTok}#page=${pageParam.value}`
+      return withTok
+    }
+  } catch(_) { /* ignore */ }
   if (pageParam.value) return `${base}#page=${pageParam.value}`
   return base
 })
@@ -135,6 +149,10 @@ async function load(){
       }
     }catch(_){ /* ignore */ }
   }
+  // If still not found, go back to listing
+  if (!doc.value) {
+    try { router.replace('/documents') } catch(_) {}
+  }
   loading.value = false
 }
 
@@ -151,6 +169,8 @@ function goBack(){
 }
 
 onMounted(load)
+// If navigating between /documents/:id with the same component instance, reload
+watch(() => route.params?.id, () => { try { load() } catch(_){} })
 </script>
 
 <style scoped>

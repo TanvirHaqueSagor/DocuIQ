@@ -6,7 +6,9 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import status
 from django.db.models import Q
 from django.utils import timezone
+from django.http import FileResponse, Http404
 import os, requests
+import logging
 
 from .models import IngestSource, IngestJob, IngestFile
 from .serializers import SourceSerializer, IngestJobSerializer, DocumentSerializer
@@ -56,13 +58,18 @@ class JobListCreate(APIView):
         ser = IngestJobSerializer(data=data)
         ser.is_valid(raise_exception=True)
         obj = ser.save(created_by=request.user)
+        try:
+            logging.getLogger(__name__).info("Job created id=%s mode=%s by user=%s", obj.id, obj.mode, getattr(request.user, 'id', None))
+        except Exception:
+            pass
         # Kick off processing for certain modes
         mode = str(obj.mode or '').lower()
         try:
             if mode == 'web':
                 process_web_job.delay(obj.id)
+                logging.getLogger(__name__).info("process_web_job queued job_id=%s", obj.id)
         except Exception:
-            pass
+            logging.getLogger(__name__).exception("Failed to enqueue web job id=%s", obj.id)
         return Response(IngestJobSerializer(obj).data, status=201)
 
 class JobDetail(APIView):
@@ -132,6 +139,10 @@ class UploadView(APIView):
         if not files:
             return Response({'detail':'No files provided'}, status=400)
         out = []
+        try:
+            logging.getLogger(__name__).info("Upload received count=%d by user=%s", len(files), getattr(request.user, 'id', None))
+        except Exception:
+            pass
         for f in files:
             doc = IngestFile.objects.create(
                 uploaded_by=request.user,
@@ -141,8 +152,9 @@ class UploadView(APIView):
             # Queue processing (Celery)
             try:
                 process_item.delay(doc.id)
+                logging.getLogger(__name__).info("Queued process_item file_id=%s name=%s size=%s", doc.id, doc.filename, getattr(doc, 'size', None))
             except Exception:
-                pass
+                logging.getLogger(__name__).exception("Failed to queue process_item for file_id=%s", doc.id)
             out.append({'id': doc.id, 'name': doc.filename})
         return Response(out, status=201)
 
@@ -164,6 +176,8 @@ class DocumentDetail(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, pk):
+        logger = logging.getLogger(__name__)
+        logger.info("DocumentDetail requested id=%s user=%s", pk, getattr(request.user, 'id', None))
         obj = IngestFile.objects.filter(id=pk, uploaded_by=request.user).first()
         # Fallbacks: allow locating by title hint (?t=) or source URL (?url=)
         if not obj:
@@ -186,7 +200,9 @@ class DocumentDetail(APIView):
                 except Exception:
                     obj = None
         if not obj:
+            logger.warning("DocumentDetail not found id=%s user=%s", pk, getattr(request.user, 'id', None))
             return Response({"detail": "not_found"}, status=404)
+        logger.info("DocumentDetail found id=%s filename=%s status=%s", obj.id, obj.filename, obj.status)
         d = DocumentSerializer(obj).data
         # Build references from saved chat messages that cite this document
         refs = []
@@ -229,8 +245,9 @@ class DocumentDetail(APIView):
         try:
             AI_URL = os.environ.get('AI_ENGINE_URL') or os.environ.get('AI_URL') or 'http://ai:9000'
             requests.post(f"{AI_URL}/unindex_document", json={ 'document_id': str(obj.id) }, timeout=10)
+            logging.getLogger(__name__).info("Unindex requested for file_id=%s", obj.id)
         except Exception:
-            pass
+            logging.getLogger(__name__).warning("Failed to unindex file_id=%s", obj.id)
         # Remove stored file if present
         try:
             if getattr(obj, 'file', None):
@@ -238,6 +255,10 @@ class DocumentDetail(APIView):
         except Exception:
             pass
         obj.delete()
+        try:
+            logging.getLogger(__name__).info("Deleted document file_id=%s by user=%s", pk, getattr(request.user, 'id', None))
+        except Exception:
+            pass
         return Response(status=204)
 
 
@@ -260,6 +281,63 @@ class DocumentFind(APIView):
         if not obj:
             return Response({"detail": "not_found"}, status=404)
         return Response(DocumentSerializer(obj).data)
+
+
+class DocumentFile(APIView):
+    # AllowAny so we can accept token via query param; we will validate manually
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    def get(self, request, pk):
+        logger = logging.getLogger(__name__)
+        user = None
+        # Try Authorization header first
+        try:
+            authz = request.headers.get('Authorization', '')
+            if authz.lower().startswith('bearer '):
+                tok = authz.split(' ',1)[1].strip()
+                if tok:
+                    auth = JWTAuthentication()
+                    v = auth.get_validated_token(tok)
+                    user = auth.get_user(v)
+        except Exception:
+            user = None
+        # Fallback: query param token (for iframe)
+        if not user:
+            try:
+                qtok = request.query_params.get('access') or request.query_params.get('token')
+                if qtok:
+                    auth = JWTAuthentication()
+                    v = auth.get_validated_token(qtok)
+                    user = auth.get_user(v)
+                    logger.info("Authenticated via query token for document file id=%s user=%s", pk, getattr(user, 'id', None))
+            except Exception as e:
+                user = None
+        if not user:
+            return Response(status=401)
+        obj = IngestFile.objects.filter(id=pk, uploaded_by=user).first()
+        if not obj or not getattr(obj, 'file', None) or not getattr(obj.file, 'name', ''):
+            raise Http404
+        try:
+            storage = obj.file.storage
+            if storage and hasattr(storage, 'exists') and not storage.exists(obj.file.name):
+                raise Http404
+        except Exception:
+            pass
+        fh = obj.file.open('rb')
+        resp = FileResponse(fh, content_type=obj.content_type or 'application/pdf')
+        # Allow iframe embedding (especially for dev/local)
+        try:
+            from django.conf import settings
+            if getattr(settings, 'DEBUG', False):
+                resp['X-Frame-Options'] = 'ALLOWALL'
+        except Exception:
+            pass
+        try:
+            logging.getLogger(__name__).info("Serving file download id=%s path=%s", obj.id, getattr(obj.file, 'name', None))
+        except Exception:
+            pass
+        return resp
 
 # ---- Unified content endpoints ----
 class ContentList(APIView):
@@ -313,6 +391,10 @@ class ContentRetry(APIView):
         job.started_at = None
         job.finished_at = None
         job.save(update_fields=['state','started_at','finished_at'])
+        try:
+            logging.getLogger(__name__).info("Retry queued for file_id=%s job_id=%s", obj.id, job.id)
+        except Exception:
+            pass
         return Response({'ok': True, 'job_id': job.id}, status=201)
 
 class SyncJobCancel(APIView):
@@ -329,4 +411,8 @@ class SyncJobCancel(APIView):
         j.finished_at = timezone.now()
         j.error_text = 'Cancelled by user'
         j.save(update_fields=['status','state','finished_at','error_text'])
+        try:
+            logging.getLogger(__name__).info("Sync job cancelled id=%s by user=%s", j.id, getattr(request.user, 'id', None))
+        except Exception:
+            pass
         return Response({'ok': True})

@@ -23,6 +23,7 @@ for _ln in (
     except Exception:
         pass
 
+logger = logging.getLogger(__name__)
 AI_URL = os.environ.get('AI_ENGINE_URL') or os.environ.get('AI_URL') or 'http://ai:9000'
 CRAWL_UA = os.environ.get('CRAWL_UA', 'DocuIQBot/1.0 (+https://docuiq.local)')
 SCRAPER_URL = os.environ.get('SCRAPER_URL')  # optional external render/fetch service
@@ -86,9 +87,11 @@ def _fetch_url(url, *, headers=None, timeout=20):
 
 @shared_task(bind=True, max_retries=3, default_retry_delay=15)
 def process_item(self, file_id: int, job_id: int = None):
+    logger.info("process_item start file_id=%s job_id=%s", file_id, job_id)
     try:
         item = IngestFile.objects.get(id=file_id)
     except IngestFile.DoesNotExist:
+        logger.warning("process_item missing file_id=%s", file_id)
         return
 
     # FETCHING
@@ -100,8 +103,10 @@ def process_item(self, file_id: int, job_id: int = None):
             with fh.open('rb') as f:
                 content = f.read()
         bytes_in = len(content)
+        logger.info("process_item fetched bytes file_id=%s bytes=%s", item.id, len(content))
     except Exception as e:
         set_status(item, 'FAILED', error_code='FETCH_ERROR', error_text=str(e))
+        logger.exception("process_item fetch failed file_id=%s error=%s", item.id, e)
         # Reflect in job if provided
         if job_id:
             try:
@@ -141,11 +146,14 @@ def process_item(self, file_id: int, job_id: int = None):
             except Exception:
                 text = ''
             pages_payload = pages if pages else None
+            logger.info("process_item pdf extracted file_id=%s pages=%s text_len=%s", item.id, len(pages_payload or []), len(text or ''))
         else:
             # Fallback: naive utf-8 decode (handles txt/html minimally)
             text = content.decode('utf-8', errors='ignore')
+            logger.info("process_item text extracted file_id=%s text_len=%s", item.id, len(text or ''))
     except Exception as e:
         text = ''
+        logger.exception("process_item normalize failed file_id=%s error=%s", item.id, e)
 
     # CHUNKING (handled by AI for now; record placeholder)
     set_status(item, 'CHUNKING', patch={ 'chunking': { 'chunk_count': 0, 'avg_tokens': 0 } })
@@ -166,6 +174,7 @@ def process_item(self, file_id: int, job_id: int = None):
             # Surface AI error
             snippet = (r.text or '')[:200]
             set_status(item, 'FAILED', error_code='EMBED_ERROR', error_text=f'AI index failed {r.status_code}: {snippet}')
+            logger.error("process_item AI index failed file_id=%s status=%s snippet=%s", item.id, r.status_code, snippet)
             if job_id:
                 try:
                     j = IngestJob.objects.filter(id=job_id).first()
@@ -177,6 +186,7 @@ def process_item(self, file_id: int, job_id: int = None):
         data = r.json() if r.content else {}
     except Exception as e:
         set_status(item, 'FAILED', error_code='EMBED_ERROR', error_text=str(e))
+        logger.exception("process_item AI error file_id=%s error=%s", item.id, e)
         if job_id:
             try:
                 j = IngestJob.objects.filter(id=job_id).first()
@@ -187,8 +197,10 @@ def process_item(self, file_id: int, job_id: int = None):
         return
 
     set_status(item, 'INDEXING', patch={ 'indexing': { 'vectors_written': int(data.get('chunks') or 0) } })
+    logger.info("process_item indexed file_id=%s chunks=%s", item.id, int(data.get('chunks') or 0))
     if int(data.get('chunks') or 0) > 0:
         set_status(item, 'READY', patch={ 'partial': False })
+        logger.info("process_item success file_id=%s", item.id)
         if job_id:
             try:
                 j = IngestJob.objects.filter(id=job_id).first()
@@ -198,6 +210,7 @@ def process_item(self, file_id: int, job_id: int = None):
                 pass
     else:
         set_status(item, 'FAILED', error_code='EMBED_ERROR', error_text='No chunks embedded')
+        logger.error("process_item no chunks embedded file_id=%s", item.id)
         if job_id:
             try:
                 j = IngestJob.objects.filter(id=job_id).first()
@@ -215,6 +228,7 @@ def process_web_job(self, job_id: int):
     except IngestJob.DoesNotExist:
         return
     # Mark running
+    logger.info("process_web_job start job_id=%s", job_id)
     j.status = 'running'
     j.started_at = timezone.now()
     j.save(update_fields=['status','started_at'])
@@ -266,6 +280,7 @@ def process_web_job(self, job_id: int):
             base = _os.path.basename(pth) or 'page.html'
             if '.' not in base:
                 base = (base or 'page') + '.html'
+            logger.info("process_web_job fetched url=%s bytes=%s ct=%s", url, len(content or b''), ct)
         sha = hashlib.sha256(content).hexdigest()
         # Reuse existing file for same URL if present; else fallback to checksum
         rec = rec or (IngestFile.objects
@@ -284,6 +299,7 @@ def process_web_job(self, job_id: int):
                 checksum=sha,
                 steps_json={'source_url': url}
             )
+            logger.info("process_web_job created file id=%s for url=%s", rec.id, url)
         else:
             # Update metadata and checksum
             rec.filename = base
@@ -296,9 +312,10 @@ def process_web_job(self, job_id: int):
             rec.save(update_fields=['filename','content_type','size','checksum','steps_json'])
         try:
             rec.file.save(base, ContentFile(content), save=True)
+            logger.info("process_web_job saved file blob id=%s path=%s", rec.id, getattr(rec.file, 'name', None))
         except Exception:
             # Ignore file save issues; we still can index text
-            pass
+            logger.warning("process_web_job failed to save file blob id=%s", rec.id)
         # Persist back file_id/url into job payload for future re-runs
         try:
             new_payload = dict(j.payload or {})
@@ -311,6 +328,7 @@ def process_web_job(self, job_id: int):
 
         # Enqueue indexing pipeline (job will be marked success/failed by process_item)
         process_item.delay(rec.id, j.id)
+        logger.info("process_web_job queued process_item file_id=%s job_id=%s", rec.id, j.id)
         # Keep job running; update message
         j.status = 'running'
         j.message = f'Fetched {url} -> {base}; indexing queued'
@@ -320,3 +338,4 @@ def process_web_job(self, job_id: int):
         j.finished_at = timezone.now()
         j.message = str(e)
         j.save(update_fields=['status','finished_at','message'])
+        logger.exception("process_web_job failed job_id=%s error=%s", job_id, e)

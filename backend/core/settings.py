@@ -1,5 +1,6 @@
 import os
 import re
+import logging
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -76,9 +77,78 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
-# Project layout: code mounted at /app/backend, media usually at /app/media
-# Place media one level above BASE_DIR so existing files under /app/media resolve
-MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'media')
+# Ensure media files live under /app/media inside the container.
+# Our code is mounted at /app (BASE_DIR), so put media alongside it.
+# This avoids writing to container root (/media) which breaks across services.
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# ----- Logging -----
+# Log file directory configurable via LOG_DIR; defaults to /app/logs
+LOG_DIR = os.environ.get('LOG_DIR', os.path.join(BASE_DIR, 'logs'))
+try:
+    os.makedirs(LOG_DIR, exist_ok=True)
+except Exception:
+    # Fallback to base dir if cannot create; prevents startup crash
+    LOG_DIR = BASE_DIR
+
+LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
+_fmt = '[%(asctime)s] %(levelname)s %(name)s: %(message)s'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format': _fmt,
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard',
+        },
+        'file_app': {
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'formatter': 'standard',
+            'filename': os.path.join(LOG_DIR, 'app.log'),
+            'when': 'midnight',
+            'interval': 1,
+            'backupCount': int(os.environ.get('LOG_BACKUPS', 7)),
+            'encoding': 'utf-8',
+        },
+        'file_celery': {
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'formatter': 'standard',
+            'filename': os.path.join(LOG_DIR, 'celery.log'),
+            'when': 'midnight',
+            'interval': 1,
+            'backupCount': int(os.environ.get('LOG_BACKUPS', 7)),
+            'encoding': 'utf-8',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file_app'],
+            'level': LOG_LEVEL,
+            'propagate': False,
+        },
+        'ingest': {
+            'handlers': ['console', 'file_app'],
+            'level': LOG_LEVEL,
+            'propagate': False,
+        },
+        'celery': {
+            'handlers': ['console', 'file_celery'],
+            'level': LOG_LEVEL,
+            'propagate': False,
+        },
+        # Catch-all
+        '': {
+            'handlers': ['console', 'file_app'],
+            'level': LOG_LEVEL,
+        },
+    },
+}
 
 # Allow embedding media/PDFs in iframe during development for the document viewer
 if DEBUG:

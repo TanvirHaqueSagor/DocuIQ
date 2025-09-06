@@ -5,11 +5,37 @@ from typing import List, Dict, Any, Optional
 from openai import OpenAI
 import os, json, hashlib
 from fastapi.responses import JSONResponse
+import logging
+from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
 
 # Import sibling module directly since this service runs as a top-level module (uvicorn main:app)
 from vector_store import VectorStore, chunk_text
 
 app = FastAPI(title="AI Engine")
+
+# ----- Logging -----
+AI_LOG_DIR = os.getenv("AI_LOG_DIR") or os.getenv("VECTOR_DB_DIR") or "/data/logs"
+try:
+    os.makedirs(AI_LOG_DIR, exist_ok=True)
+except Exception:
+    AI_LOG_DIR = "/data"
+
+log_level = os.getenv("AI_LOG_LEVEL", "INFO").upper()
+logger = logging.getLogger("ai_engine")
+logger.setLevel(log_level)
+_fmt = logging.Formatter('[%(asctime)s] %(levelname)s %(name)s: %(message)s')
+if not any(isinstance(h, (RotatingFileHandler, TimedRotatingFileHandler)) for h in logger.handlers):
+    fh = TimedRotatingFileHandler(os.path.join(AI_LOG_DIR, 'ai_engine.log'), when='midnight', interval=1, backupCount=int(os.getenv('AI_LOG_BACKUPS', 7)))
+    # Name rotated files by date: ai_engine.log.YYYY-MM-DD
+    try:
+        fh.suffix = "%Y-%m-%d"
+    except Exception:
+        pass
+    fh.setFormatter(_fmt)
+    logger.addHandler(fh)
+    ch = logging.StreamHandler()
+    ch.setFormatter(_fmt)
+    logger.addHandler(ch)
 
 app.add_middleware(
     CORSMiddleware,
@@ -87,6 +113,10 @@ def answer_with_openai(question: str, context_chunks: List[Dict[str, Any]]) -> s
 
 @app.post("/index_document")
 def index_document(req: IndexDocumentRequest):
+    try:
+        logger.info("index_document doc_id=%s title=%s pages=%s text_len=%s", req.document_id, (req.title or "")[:80], len(req.pages or []), len(req.text or ""))
+    except Exception:
+        pass
     items = []
     texts_to_embed: List[str] = []
     metas: List[Dict[str, Any]] = []
@@ -116,6 +146,7 @@ def index_document(req: IndexDocumentRequest):
     try:
         embeds = embed_texts(texts_to_embed)
     except Exception as e:
+        logger.exception("index_document embed_failed doc_id=%s error=%s", req.document_id, e)
         return JSONResponse({"ok": False, "error": "embed_failed", "detail": str(e)}, status_code=502)
 
     for i, (text, emb, meta) in enumerate(zip(texts_to_embed, embeds, metas)):
@@ -123,6 +154,7 @@ def index_document(req: IndexDocumentRequest):
         uid = hashlib.sha1(f"{req.document_id}:{meta.get('page') or 0}:{meta.get('chunk') or i}".encode("utf-8")).hexdigest()
         items.append({"id": uid, "content": text, "metadata": meta, "embedding": emb})
     store.add_many(items)
+    logger.info("index_document stored doc_id=%s chunks=%s", req.document_id, len(items))
     return {"ok": True, "chunks": len(items)}
 
 
@@ -133,8 +165,10 @@ class UnindexRequest(BaseModel):
 def unindex_document(req: UnindexRequest):
     try:
         removed = store.delete_by_document_id(req.document_id)
+        logger.info("unindex_document doc_id=%s removed=%s", req.document_id, removed)
         return {"ok": True, "removed": removed}
     except Exception as e:
+        logger.exception("unindex_document failed doc_id=%s error=%s", req.document_id, e)
         return JSONResponse({"ok": False, "error": "unindex_failed", "detail": str(e)}, status_code=500)
 
 
@@ -146,6 +180,10 @@ async def upload(file: UploadFile = File(...)):
     except Exception:
         text = ""
     doc_id = file.filename
+    try:
+        logger.info("upload name=%s size=%s", file.filename, len(content or b""))
+    except Exception:
+        pass
     index_document(IndexDocumentRequest(document_id=doc_id, title=file.filename, text=text))
     return {"message": "uploaded", "document_id": doc_id}
 
@@ -155,6 +193,7 @@ def ask(req: AskRequest):
     q = (req.question or "").strip()
     if not q:
         return {"answer": "", "sources": []}
+    logger.info("ask len=%s top_k=%s", len(q), req.top_k)
     q_emb = embed_texts([q])[0]
     matches = store.query(q_emb, top_k=max(1, min(25, req.top_k * 3)))
     # Collapse citations by document (keep best score); cap to req.top_k unique
@@ -178,7 +217,11 @@ def ask(req: AskRequest):
             }
     # Sort by score desc and limit to requested top_k (for chips / fallback)
     citations = sorted(best_by_doc.values(), key=lambda x: x.get("score", 0), reverse=True)[: max(1, req.top_k)]
-    answer = answer_with_openai(q, matches)
+    try:
+        answer = answer_with_openai(q, matches)
+    except Exception as e:
+        logger.exception("ask openai_failed error=%s", e)
+        return JSONResponse({"ok": False, "error": "openai_failed", "detail": str(e)}, status_code=502)
     # Build inline refs map aligned to [n] citations used by the model
     inline_refs = {}
     for i, m in enumerate(matches, 1):
@@ -210,6 +253,7 @@ def embed(req: EmbedRequest):
     # Use our helper; override model via env for now
     if not OPENAI_API_KEY:
         raise RuntimeError("OPENAI_API_KEY not set")
+    logger.info("embed count=%s model=%s", len(req.texts), model)
     resp = client.embeddings.create(model=model, input=req.texts)
     return {"vectors": [d.embedding for d in resp.data], "model": model}
 
@@ -221,4 +265,8 @@ class RerankRequest(BaseModel):
 @app.post("/rerank")
 def rerank(req: RerankRequest):
     # Minimal stub: preserve order with trivial scores
+    try:
+        logger.info("rerank passages=%s", len(req.passages or []))
+    except Exception:
+        pass
     return {"results": [{"text": p, "score": 1.0 - (i * 0.01)} for i, p in enumerate(req.passages)]}
