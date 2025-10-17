@@ -26,7 +26,7 @@ const route = useRoute()
 
 .app-shell {
   min-height: 100vh;
-  background: #f7f9fc;
+  background: var(--bg);
 }
 
 /* ডিফল্ট main */

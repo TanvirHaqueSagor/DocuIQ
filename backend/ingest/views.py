@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import status
+from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
 from django.http import FileResponse, Http404
@@ -14,6 +15,7 @@ from .models import IngestSource, IngestJob, IngestFile
 from .serializers import SourceSerializer, IngestJobSerializer, DocumentSerializer
 from .status import set_status
 from .tasks import process_item, process_web_job
+from accounts.plan import get_effective_plan, get_plan_limits
 
 class HealthView(APIView):
     permission_classes = [AllowAny]
@@ -138,16 +140,47 @@ class UploadView(APIView):
         files = request.FILES.getlist('files')
         if not files:
             return Response({'detail':'No files provided'}, status=400)
+        plan_code = get_effective_plan(request.user)
+        limits = get_plan_limits(plan_code)
+        profile = getattr(request.user, 'userprofile', None)
+        org = getattr(profile, 'organization', None) if profile else None
+
+        if limits.document_limit is not None:
+            if org:
+                doc_qs = IngestFile.objects.filter(Q(organization=org) | Q(uploaded_by=request.user, organization__isnull=True))
+            else:
+                doc_qs = IngestFile.objects.filter(uploaded_by=request.user, organization__isnull=True)
+            existing = doc_qs.count()
+            if existing + len(files) > limits.document_limit:
+                return Response({
+                    'detail': 'plan_document_limit_reached',
+                    'limit': limits.document_limit,
+                }, status=status.HTTP_403_FORBIDDEN)
+
+        max_size_bytes = None
+        if limits.max_file_size_mb is not None:
+            max_size_bytes = limits.max_file_size_mb * 1024 * 1024
+
         out = []
         try:
             logging.getLogger(__name__).info("Upload received count=%d by user=%s", len(files), getattr(request.user, 'id', None))
         except Exception:
             pass
         for f in files:
+            f_size = getattr(f, 'size', 0) or 0
+            if max_size_bytes is not None and f_size > max_size_bytes:
+                return Response({
+                    'detail': 'plan_file_size_limit',
+                    'limit_mb': limits.max_file_size_mb,
+                    'filename': getattr(f, 'name', None),
+                }, status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
             doc = IngestFile.objects.create(
                 uploaded_by=request.user,
                 filename=f.name,
-                file=f
+                file=f,
+                size=f_size,
+                content_type=getattr(f, 'content_type', ''),
+                organization=org
             )
             # Queue processing (Celery)
             try:
@@ -238,25 +271,77 @@ class DocumentDetail(APIView):
         return Response({'document': d, 'references': refs})
 
     def delete(self, request, pk):
+        logger = logging.getLogger(__name__)
         obj = IngestFile.objects.filter(id=pk, uploaded_by=request.user).first()
         if not obj:
             return Response(status=204)
-        # Ask AI engine to unindex vectors for this document
+        jobs_deleted = 0
+        sources_deleted = 0
+        with transaction.atomic():
+            # Cascade delete related ingest jobs referencing this file
+            try:
+                jobs = list(IngestJob.objects.filter(created_by=request.user))
+                src_ids = set()
+                for j in jobs:
+                    try:
+                        p = j.payload or {}
+                        want = False
+                        # upload jobs: payload.file_ids contains pk
+                        if isinstance(p.get('file_ids'), list):
+                            try:
+                                if int(pk) in [int(x) for x in p.get('file_ids')]:
+                                    want = True
+                            except Exception:
+                                want = any(str(pk) == str(x) for x in p.get('file_ids'))
+                        # web jobs: payload.file_id equals pk or url matches source_url
+                        if not want:
+                            if (p.get('file_id') and str(p.get('file_id')) == str(pk)):
+                                want = True
+                            else:
+                                try:
+                                    src_url = (getattr(obj, 'steps_json', {}) or {}).get('source_url')
+                                except Exception:
+                                    src_url = None
+                                if src_url and (p.get('url') == src_url or p.get('start_url') == src_url):
+                                    want = True
+                        if want:
+                            if getattr(j, 'source_id', None):
+                                src_ids.add(j.source_id)
+                            j.delete()
+                            jobs_deleted += 1
+                    except Exception:
+                        # Ignore malformed payloads or casting errors per job
+                        pass
+                # Optionally delete orphan sources
+                for sid in list(src_ids):
+                    try:
+                        # Only delete if no other jobs reference it
+                        if not IngestJob.objects.filter(source_id=sid).exists():
+                            src = IngestSource.objects.filter(id=sid, created_by=request.user).first()
+                            if src:
+                                src.delete()
+                                sources_deleted += 1
+                    except Exception:
+                        pass
+            except Exception:
+                pass
+
+            # Ask AI engine to unindex vectors for this document
+            try:
+                AI_URL = os.environ.get('AI_ENGINE_URL') or os.environ.get('AI_URL') or 'http://ai:9000'
+                requests.post(f"{AI_URL}/unindex_document", json={ 'document_id': str(obj.id) }, timeout=10)
+                logger.info("Unindex requested for file_id=%s", obj.id)
+            except Exception:
+                logger.warning("Failed to unindex file_id=%s", obj.id)
+            # Remove stored file if present
+            try:
+                if getattr(obj, 'file', None):
+                    obj.file.delete(save=False)
+            except Exception:
+                pass
+            obj.delete()
         try:
-            AI_URL = os.environ.get('AI_ENGINE_URL') or os.environ.get('AI_URL') or 'http://ai:9000'
-            requests.post(f"{AI_URL}/unindex_document", json={ 'document_id': str(obj.id) }, timeout=10)
-            logging.getLogger(__name__).info("Unindex requested for file_id=%s", obj.id)
-        except Exception:
-            logging.getLogger(__name__).warning("Failed to unindex file_id=%s", obj.id)
-        # Remove stored file if present
-        try:
-            if getattr(obj, 'file', None):
-                obj.file.delete(save=False)
-        except Exception:
-            pass
-        obj.delete()
-        try:
-            logging.getLogger(__name__).info("Deleted document file_id=%s by user=%s", pk, getattr(request.user, 'id', None))
+            logger.info("Deleted document id=%s; cascade jobs=%s sources=%s", pk, jobs_deleted, sources_deleted)
         except Exception:
             pass
         return Response(status=204)
@@ -416,3 +501,102 @@ class SyncJobCancel(APIView):
         except Exception:
             pass
         return Response({'ok': True})
+
+
+class AdminCleanup(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        action = str((request.data or {}).get('action') or '').lower()
+        if action not in ('clear_vectors','delete_documents','delete_all'):
+            return Response({'detail': 'invalid_action'}, status=400)
+        cleared = False
+        vectors_removed = 0
+        deleted_docs = 0
+        deleted_jobs = 0
+        deleted_sources = 0
+        # Helper to cascade-delete a single file (reuse logic from DocumentDetail.delete)
+        def _delete_doc(obj: IngestFile):
+            nonlocal deleted_jobs, deleted_sources
+            if not obj:
+                return
+            with transaction.atomic():
+                try:
+                    jobs = list(IngestJob.objects.filter(created_by=request.user))
+                    src_ids = set()
+                    for j in jobs:
+                        try:
+                            p = j.payload or {}
+                            want = False
+                            if isinstance(p.get('file_ids'), list):
+                                try:
+                                    if int(obj.id) in [int(x) for x in p.get('file_ids')]:
+                                        want = True
+                                except Exception:
+                                    want = any(str(obj.id) == str(x) for x in p.get('file_ids'))
+                            if not want:
+                                if (p.get('file_id') and str(p.get('file_id')) == str(obj.id)):
+                                    want = True
+                                else:
+                                    try:
+                                        src_url = (getattr(obj, 'steps_json', {}) or {}).get('source_url')
+                                    except Exception:
+                                        src_url = None
+                                    if src_url and (p.get('url') == src_url or p.get('start_url') == src_url):
+                                        want = True
+                            if want:
+                                if getattr(j, 'source_id', None):
+                                    src_ids.add(j.source_id)
+                                j.delete(); deleted_jobs += 1
+                        except Exception:
+                            pass
+                    for sid in list(src_ids):
+                        try:
+                            if not IngestJob.objects.filter(source_id=sid).exists():
+                                src = IngestSource.objects.filter(id=sid, created_by=request.user).first()
+                                if src:
+                                    src.delete(); deleted_sources += 1
+                        except Exception:
+                            pass
+                except Exception:
+                    pass
+                try:
+                    AI_URL = os.environ.get('AI_ENGINE_URL') or os.environ.get('AI_URL') or 'http://ai:9000'
+                    requests.post(f"{AI_URL}/unindex_document", json={ 'document_id': str(obj.id) }, timeout=10)
+                except Exception:
+                    pass
+                try:
+                    if getattr(obj, 'file', None):
+                        obj.file.delete(save=False)
+                except Exception:
+                    pass
+                obj.delete()
+
+        # Clear vectors
+        if action in ('clear_vectors','delete_all'):
+            try:
+                AI_URL = os.environ.get('AI_ENGINE_URL') or os.environ.get('AI_URL') or 'http://ai:9000'
+                r = requests.post(f"{AI_URL}/admin/clear_all", timeout=15)
+                cleared = bool(r.ok)
+                try:
+                    data = r.json() if r.content else {}
+                    vectors_removed = int(data.get('removed') or 0)
+                except Exception:
+                    vectors_removed = 0
+            except Exception:
+                cleared = False
+        # Delete documents (+ cascade)
+        if action in ('delete_documents','delete_all'):
+            qs = IngestFile.objects.filter(uploaded_by=request.user).order_by('-id')
+            for obj in qs:
+                _delete_doc(obj)
+                deleted_docs += 1
+        return Response({
+            'ok': True,
+            'cleared_vectors': cleared,
+            'vectors_removed': vectors_removed,
+            'deleted_docs': deleted_docs,
+            'deleted_jobs': deleted_jobs,
+            'deleted_sources': deleted_sources,
+        })

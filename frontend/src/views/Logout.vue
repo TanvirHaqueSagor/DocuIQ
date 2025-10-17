@@ -29,6 +29,8 @@ onMounted(async () => {
   localStorage.removeItem('token')
   localStorage.removeItem('refresh')
   localStorage.removeItem('user')
+  localStorage.removeItem('subscription_plan')
+  try { window.dispatchEvent(new CustomEvent('docuiq-plan-changed', { detail: null })) } catch (_) {}
 
   // লগইনে ফেরত
   router.replace('/login')

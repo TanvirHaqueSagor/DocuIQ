@@ -1,11 +1,13 @@
 {
   "documents": "문서",
+  "home": "홈",
   "askDoc": "Ask-Doc",
   "briefIntel": "Brief-Intel",
   "settings": "설정",
   "researchAnalyst": "리서치 애널리스트",
 
   "askSomething": "질문을 입력하세요...",
+  "send": "보내기",
   "uploadDoc": "문서 업로드",
   "answer": "답변",
   "page": "페이지",
@@ -61,6 +63,38 @@
   "imports": "가져오기",
   "noDocs": "아직 문서가 없습니다. 오른쪽에서 소스를 연결하세요.",
   "autoRefresh": "자동 새로고침",
+  "dashboardTotalDocuments": "총 문서 수",
+  "dashboardQueries7d": "질의(7일)",
+  "dashboardAvgAnswerTime": "평균 답변 시간",
+  "dashboardAnswerConfidence": "답변 신뢰도",
+  "usageActivitySpan": "활동 (최근 {days}일)",
+  "usagePeak": "최대",
+  "usageTotal": "총합",
+  "usageEmpty": "사용 데이터가 아직 없습니다.",
+  "usageAria": "업로드 및 채팅 상호작용 합계 {start} ~ {end}. 최신 날짜: {value}회 상호작용.",
+  "usageAriaEmpty": "사용량 그래프에 데이터가 없습니다.",
+  "recentDocumentsTitle": "최근 문서",
+  "settingsTitle": "설정",
+  "settingsBasic": "기본 설정",
+  "settingsTheme": "테마",
+  "settingsThemeLight": "라이트",
+  "settingsThemeDark": "다크",
+  "settingsThemeSystem": "시스템",
+  "settingsLanguage": "언어",
+  "settingsDanger": "데이터 관리",
+  "settingsDangerHint": "주의: 이 작업은 되돌릴 수 없습니다.",
+  "settingsClearVectors": "벡터 데이터 삭제",
+  "settingsDeleteDocs": "모든 문서 삭제",
+  "settingsDeleteAll": "전체 삭제 (문서 + 벡터)",
+  "settingsConfirm": "“{action}” 작업을 진행하시겠습니까? 되돌릴 수 없습니다.",
+  "settingsSummaryClearedVectors": "{count}개의 벡터 항목을 삭제했습니다",
+  "settingsSummaryDeletedDocs": "{count}개의 문서를 삭제했습니다",
+  "settingsSummaryDeletedJobs": "{count}개의 작업을 삭제했습니다",
+  "settingsSummaryDeletedSources": "{count}개의 소스를 삭제했습니다",
+  "settingsDone": "✅ 완료: {summary}.",
+  "settingsDoneFallback": "완료",
+  "settingsError": "❌ {error}",
+  "settingsOperationFailed": "작업에 실패했습니다",
 
   "runningJobs": "실행 중 작업",
   "server": "서버",
@@ -83,6 +117,68 @@
   "noItems": "항목이 없습니다",
   "docsInfo": "업로드 및 연결된 소스의 데이터가 벡터 데이터베이스에 인덱싱됩니다. 벡터를 새로 고치려면 가져오기 재실행을 사용하세요.",
   "view": "보기",
+  "documentsPage": {
+    "searchPlaceholder": "작업, 제목 검색…",
+    "statuses": {
+      "uploaded": "업로드됨",
+      "processing": "처리 중",
+      "imported": "가져오기 완료",
+      "failed": "실패",
+      "running": "실행 중"
+    },
+    "kinds": {
+      "import": "가져오기",
+      "job": "가져오기",
+      "file": "파일",
+      "web": "웹",
+      "s3": "AWS S3",
+      "gdrive": "Google Drive",
+      "dropbox": "Dropbox",
+      "onedrive": "OneDrive",
+      "box": "Box",
+      "sharepoint": "SharePoint",
+      "confluence": "Confluence",
+      "notion": "Notion",
+      "airtable": "Airtable",
+      "email": "이메일",
+      "gmail": "Gmail",
+      "outlook": "Outlook",
+      "slack": "Slack",
+      "teams": "Microsoft Teams",
+      "zoom": "Zoom",
+      "github": "GitHub",
+      "gitlab": "GitLab",
+      "jira": "Jira",
+      "trello": "Trello",
+      "postgres": "PostgreSQL",
+      "mysql": "MySQL",
+      "mongodb": "MongoDB",
+      "snowflake": "Snowflake",
+      "bigquery": "BigQuery",
+      "elasticsearch": "Elasticsearch",
+      "database": "데이터베이스",
+      "rss": "RSS",
+      "api": "API",
+      "bloomberg": "Bloomberg",
+      "refinitiv": "Refinitiv",
+      "esg": "ESG API",
+      "linkedin": "LinkedIn",
+      "twitter": "Twitter (X)",
+      "gcal": "Google 캘린더",
+      "figma": "Figma",
+      "media": "미디어",
+      "video": "비디오",
+      "audio": "오디오"
+    },
+    "jobTitle": {
+      "uploadMultiple": "{first} (+{extra}개 더)",
+      "uploadCount": "{mode} · 파일 {count}개",
+      "web": "{mode} · {url}",
+      "s3": "{mode} · {bucket}/{prefix}",
+      "generic": "{mode}"
+    },
+    "filesCount": "{count}개 파일"
+  },
 
   "rename": "이름 변경",
   "archive": "보관",
@@ -118,5 +214,339 @@
   "enterToSend": "Enter로 전송",
   "ctrlEnterToSend": "Ctrl/Cmd+Enter로 전송",
   "enterToSendHint": "Enter를 눌러 전송합니다. 줄바꿈은 Shift+Enter.",
-  "ctrlEnterToSendHint": "Ctrl/Cmd+Enter로 전송합니다. 줄바꿈은 Enter."
+  "ctrlEnterToSendHint": "Ctrl/Cmd+Enter로 전송합니다. 줄바꿈은 Enter.",
+  "upgradePage": {
+    "heroTitle": "문서 인텔리전스를 강화할 플랜을 선택하세요",
+    "heroSubtitle": "DocuIQ 구독 플랜을 비교하여 팀의 규모, 거버넌스, 협업 요구에 맞춰 보세요. 모든 플랜에는 안전한 처리, 다국어 지원, AI 기반 인사이트가 포함됩니다.",
+    "heroPrimaryCta": "플랜 보기",
+    "heroSecondaryCta": "기능 비교",
+    "statusLabel": "현재 플랜",
+    "statusManaged": "조직에서 관리 중",
+    "planCurrentLabel": "현재 플랜",
+    "planUpdatingLabel": "업데이트 중…",
+    "planStatusUnknown": "알 수 없는 플랜",
+    "plans": {
+      "starter": {
+        "name": "Starter",
+        "tagline": "“퍼스널 인사이트”",
+        "price": "가격: 무료 / 월 0달러",
+        "bestFor": "적합 대상: AI 기반 문서 이해를 시도하는 개인 사용자.",
+        "includes": "",
+        "cta": "시작하기",
+        "features": [
+          "최대 10개의 문서 업로드",
+          "최대 파일 크기: 20MB",
+          "페이지 참조가 포함된 AI 문서 Q&A",
+          "자동 요약 및 키워드 추출",
+          "개인 작업 공간 1개",
+          "50건의 질의 기록",
+          "기본 분석",
+          "다국어 지원(영어, 벵골어, 일본어 등)",
+          "안전한 암호화 스토리지(AES-256)",
+          "DocuIQ 공개 LLM 모델 접근",
+          "이메일 전용 커뮤니티 지원"
+        ]
+      },
+      "pro": {
+        "name": "Pro",
+        "tagline": "“팀 인텔리전스”",
+        "price": "가격: 작업 공간당 월 49달러",
+        "bestFor": "적합 대상: 협업으로 보고서를 분석하는 팀.",
+        "includes": "Starter의 모든 기능에 추가로:",
+        "cta": "업그레이드",
+        "features": [
+          "최대 2,000개의 문서를 업로드 (파일당 500MB까지)",
+          "컨텍스트 인식 RAG 검색",
+          "최대 10명의 구성원이 사용하는 다중 작업 공간",
+          "맞춤형 임베딩",
+          "공유 AI 채팅 작업 공간",
+          "자동 생성 요약·표·하이라이트",
+          "S3 / Google Drive / OneDrive 연동",
+          "고급 분석 및 로그",
+          "API 액세스",
+          "우선 처리",
+          "우선 지원 (24시간 SLA)"
+        ]
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "tagline": "“프라이빗 RAG 클라우드”",
+        "price": "가격: 맞춤형 (월 299달러부터)",
+        "bestFor": "적합 대상: 규모, 보안, 통합이 필요한 대규모 조직.",
+        "includes": "Pro의 모든 기능에 추가로:",
+        "cta": "영업팀 문의",
+        "features": [
+          "문서 및 스토리지 무제한",
+          "전용 벡터 데이터베이스 (S3 / PostgreSQL / Pinecone / Milvus)",
+          "프라이빗 클라우드 또는 온프레미스 배포",
+          "자체 LLM API 키 사용",
+          "SSO / OAuth / LDAP 연동",
+          "역할 기반 접근 제어 (RBAC)",
+          "조직 대시보드 및 감사 로그",
+          "맞춤 모델 파인 튜닝 및 파이프라인",
+          "서드파티 연동 (Slack, Jira, Notion, Teams 등)",
+          "99.9% 가동 시간 SLA",
+          "전담 기술 계정 관리자",
+          "우선 온보딩 및 엔터프라이즈 지원"
+        ]
+      }
+    },
+    "addonsTitle": "옵션 추가 기능 (모든 플랜 포함)",
+    "addonsSubtitle": "유연한 애드온으로 스토리지를 확장하고 처리량을 늘리거나 경험을 맞춤화하세요.",
+    "addonsHeaders": {
+      "name": "애드온",
+      "description": "설명",
+      "price": "가격"
+    },
+    "addons": [
+      { "name": "추가 스토리지", "description": "+50GB 스토리지", "price": "$10 / 월" },
+      { "name": "추가 AI 쿼리", "description": "+500 쿼리", "price": "$5 / 월" },
+      { "name": "맞춤형 브랜딩", "description": "자체 도메인과 로고", "price": "$19 / 월" },
+      { "name": "API 확장", "description": "+10,000 요청", "price": "$0.001 / 요청" },
+      { "name": "데이터 보관", "description": "장기 보관", "price": "$9 / 월" }
+    ],
+    "comparisonTitle": "기능 비교",
+    "comparisonSubtitle": "인제스트, 협업, 거버넌스 측면에서 Starter, Pro, Enterprise 를 비교해 보세요.",
+    "comparisonHeaders": {
+      "feature": "기능",
+      "starter": "Starter",
+      "pro": "Pro",
+      "enterprise": "Enterprise"
+    },
+    "comparisonRows": [
+      { "feature": "문서 업로드 한도", "starter": "10", "pro": "2000", "enterprise": "무제한" },
+      { "feature": "최대 파일 크기", "starter": "20 MB", "pro": "500 MB", "enterprise": "무제한" },
+      { "feature": "지원 파일 형식", "starter": "PDF/DOCX/XLSX/PPTX", "pro": "주요 형식 전체", "enterprise": "전체 + 커스텀" },
+      { "feature": "AI Q&A", "starter": "✅ 기본", "pro": "✅ 고급", "enterprise": "✅ 프라이빗" },
+      { "feature": "페이지 참조", "starter": "✅", "pro": "✅", "enterprise": "✅" },
+      { "feature": "스마트 요약", "starter": "✅", "pro": "✅ 향상", "enterprise": "✅ 튜닝" },
+      { "feature": "키워드 추출", "starter": "✅", "pro": "✅", "enterprise": "✅" },
+      { "feature": "워크스페이스", "starter": "1", "pro": "10", "enterprise": "무제한" },
+      { "feature": "맞춤형 임베딩", "starter": "❌", "pro": "✅", "enterprise": "✅" },
+      { "feature": "공유 채팅", "starter": "❌", "pro": "✅", "enterprise": "✅" },
+      { "feature": "클라우드 연동", "starter": "❌", "pro": "✅", "enterprise": "✅" },
+      { "feature": "API 접근", "starter": "❌", "pro": "✅", "enterprise": "✅ 확장" },
+      { "feature": "분석 기능", "starter": "기본", "pro": "고급", "enterprise": "조직 수준" },
+      { "feature": "쿼리 히스토리", "starter": "50", "pro": "무제한", "enterprise": "무제한" },
+      { "feature": "보안 스토리지", "starter": "✅", "pro": "✅", "enterprise": "✅ 전용" },
+      { "feature": "모델 파인튜닝", "starter": "❌", "pro": "❌", "enterprise": "✅" },
+      { "feature": "자체 LLM 키", "starter": "❌", "pro": "❌", "enterprise": "✅" },
+      { "feature": "RBAC / SSO / LDAP", "starter": "❌", "pro": "❌", "enterprise": "✅" },
+      { "feature": "연동 (Slack, Jira 등)", "starter": "❌", "pro": "제한적", "enterprise": "완전" },
+      { "feature": "지원", "starter": "이메일", "pro": "24시간", "enterprise": "전담" },
+      { "feature": "SLA", "starter": "—", "pro": "—", "enterprise": "99.9 %" }
+    ],
+    "faqTitle": "자주 묻는 질문",
+    "faq": [
+      {
+        "q": "업그레이드 전에 Pro 플랜을 체험할 수 있나요?",
+        "a": "가능합니다. 샘플 데이터나 자체 데이터로 14일 체험을 요청하세요. 설정은 저희 팀이 도와드립니다."
+      },
+      {
+        "q": "교육 기관이나 비영리 단체 할인은 있나요?",
+        "a": "자격을 갖춘 기관에는 Pro 및 Enterprise 플랜 할인을 제공합니다. 자세한 내용은 hello@docuiq.ai 로 문의하세요."
+      },
+      {
+        "q": "Enterprise 플랜 도입에는 얼마나 걸리나요?",
+        "a": "SSO 및 데이터 통합 범위에 따라 보통 2~4주가 소요됩니다. 마이그레이션 계획도 함께 지원합니다."
+      }
+    ],
+    "feedbackPro": "Pro 플랜으로 업그레이드하고 협업 기능을 강화하세요.",
+    "feedbackEnterprise": "Enterprise에는 프라이빗 배포, SSO, 전담 온보딩이 포함됩니다.",
+    "feedbackUpgradeSuccess": "지금은 Pro 플랜입니다. 고급 협업 기능을 즐겨보세요!",
+    "feedbackUpgradeError": "업그레이드에 실패했습니다. 다시 시도해 주세요.",
+    "feedbackLoadError": "플랜 정보를 불러올 수 없습니다.",
+    "feedbackUnknownError": "알 수 없는 오류가 발생했습니다.",
+    "redirectDocuments": "문서로 이동"
+  },
+  "helpMenu": {
+    "title": "도움말 및 지원",
+    "footer": "영업일 기준 하루 안에 답변해 드립니다.",
+    "options": {
+      "helpCenter": { "title": "도움말 센터", "desc": "가이드와 FAQ, 온보딩 체크리스트를 살펴보세요." },
+      "releaseNotes": { "title": "릴리스 노트", "desc": "DocuIQ의 최신 업데이트와 개선 사항을 확인하세요." },
+      "termsPolicies": { "title": "이용약관 및 정책", "desc": "보안, 프라이버시, 이용 가이드를 확인하세요." },
+      "bugReport": { "title": "버그 신고", "desc": "발견한 문제를 알려주시면 신속히 해결하겠습니다." }
+    }
+  },
+  "helpCenter": {
+    "heroTitle": "무엇을 도와드릴까요?",
+    "heroSubtitle": "DocuIQ 설정, 협업, 거버넌스와 관련해 자주 묻는 질문에 답합니다.",
+    "searchPlaceholder": "도움말 문서 검색",
+    "quickLinksTitle": "빠르게 시작하기",
+    "quickLinksSubtitle": "많이 찾는 주제를 모았습니다.",
+    "quickLinks": [
+      { "key": "gettingStarted", "anchor": "getting-started", "title": "시작하기", "desc": "문서를 업로드하고 데이터 소스를 연결해 질문을 시작하세요." },
+      { "key": "workspaceAdmin", "anchor": "workspace-admin", "title": "워크스페이스 관리", "desc": "좌석, 보안, 결제를 관리합니다." },
+      { "key": "troubleshooting", "anchor": "troubleshooting", "title": "문제 해결", "desc": "인제스트나 검색 오류를 빠르게 해결합니다." },
+      { "key": "bestPractices", "anchor": "best-practices", "title": "모범 사례", "desc": "팀 전체에서 DocuIQ를 잘 활용하는 방법을 알아보세요." }
+    ],
+    "sections": [
+      {
+        "id": "getting-started",
+        "title": "시작하기",
+        "summary": "워크스페이스 구축을 위한 기본 단계입니다.",
+        "articles": [
+          { "title": "문서 업로드", "body": "‘문서 → 업로드’에서 PDF, DOCX, PPTX, HTML 등을 드래그 앤 드롭하면 자동으로 처리되고 진행 상황이 표시됩니다." },
+          { "title": "클라우드 드라이브 연결", "body": "‘문서 → 소스 연결’에서 Google Drive, OneDrive 또는 S3를 연동하고 동기화 일정도 설정하세요." },
+          { "title": "팀원 초대", "body": "‘설정 → 워크스페이스’에서 팀원을 이메일로 초대하고 역할에 맞는 권한을 부여합니다." }
+        ]
+      },
+      {
+        "id": "workspace-admin",
+        "title": "워크스페이스 관리",
+        "summary": "보안과 운영을 안전하게 관리하세요.",
+        "articles": [
+          { "title": "좌석 관리", "body": "관리자는 언제든 사용자를 추가 또는 제거할 수 있으며, 변경 사항은 다음 청구서에 반영됩니다." },
+          { "title": "SSO 설정", "body": "Enterprise 고객은 ‘설정 → 보안’에서 SAML/OAuth SSO를 설정할 수 있습니다. SCIM은 지원팀에 문의하세요." },
+          { "title": "활동 감사", "body": "‘설정 → 활동 로그’에서 업로드, 삭제, 권한 변경 내역을 확인할 수 있습니다." }
+        ]
+      },
+      {
+        "id": "troubleshooting",
+        "title": "문제 해결",
+        "summary": "자주 발생하는 오류를 빠르게 해결합니다.",
+        "articles": [
+          { "title": "인제스트가 멈춰 있는 경우", "body": "큰 파일은 처리에 시간이 조금 걸릴 수 있습니다. 페이지를 새로고침하거나 릴리스 노트에서 점검 일정을 확인하세요." },
+          { "title": "검색 결과가 없는 경우", "body": "문서 인덱싱이 완료되었는지 확인하고 관련 키워드를 사용하세요. 고급 필터도 활용해 보세요." },
+          { "title": "답변 품질이 낮은 경우", "body": "대화 메뉴에서 피드백을 보내고 질문과 관련 문서를 알려주시면 더 나은 답변을 제공할 수 있습니다." }
+        ]
+      },
+      {
+        "id": "best-practices",
+        "title": "모범 사례",
+        "summary": "DocuIQ를 일상 업무에 자연스럽게 녹여 보세요.",
+        "articles": [
+          { "title": "공유 컬렉션 만들기", "body": "승인된 자료를 공유 컬렉션에 모아 팀이 쉽게 찾을 수 있도록 합니다." },
+          { "title": "도입 현황 추적", "body": "대시보드 사용량과 릴리스 노트를 참고해 교육 계획을 세우세요." },
+          { "title": "스니펫 공유", "body": "재사용 가능한 프롬프트를 저장해 팀 채널에서 공유하세요." }
+        ]
+      }
+    ],
+    "faqTitle": "자주 묻는 질문",
+    "faq": [
+      { "q": "민감한 문서 접근을 어떻게 제한하나요?", "a": "컬렉션별 권한을 설정하면 허용된 사용자만 문서를 열 수 있습니다." },
+      { "q": "답변이나 참고 자료를 내보낼 수 있나요?", "a": "예. 저장된 분석의 ••• 메뉴에서 내보내기를 선택하면 대화와 참고 자료를 다운로드할 수 있습니다." },
+      { "q": "시스템 상태는 어디서 확인하나요?", "a": "릴리스 노트를 확인하거나 ‘설정 → 알림’에서 상태 메일을 구독하세요." }
+    ],
+    "cta": {
+      "title": "더 필요한 것이 있나요?",
+      "description": "support@docuiq.ai 로 메일을 보내주시면 영업일 기준 하루 안에 답변드리겠습니다.",
+      "button": "지원팀에 문의"
+    }
+  },
+  "releaseNotes": {
+    "heroTitle": "DocuIQ 최신 소식",
+    "heroSubtitle": "새로운 기능, 개선 사항, 버그 수정 내용을 매주 소개합니다.",
+    "lastUpdated": "최종 업데이트: 2024년 7월",
+    "highlightsTitle": "주요 업데이트",
+    "changesTitle": "변경 사항",
+    "entries": [
+      {
+        "version": "2024.07",
+        "date": "2024년 7월 3일",
+        "highlights": ["워크스페이스 내 릴리스 노트 페이지 추가", "인제스트 진행률 실시간 표시"],
+        "changes": ["다중 파일 업로드에 일시 중지/재개 기능 추가", "검색 결과에서 문서 미리보기 제공", "청구 페이지에서 예상 청구액 미리보기"]
+      },
+      {
+        "version": "2024.06",
+        "date": "2024년 6월 19일",
+        "highlights": ["역할 기반 워크스페이스 템플릿", "컬렉션 권한 확장"],
+        "changes": ["관리자는 활동 로그를 CSV로 다운로드 가능", "챗 답변에 페이지 참조가 표시", "대용량 HTML 처리 안정화"]
+      },
+      {
+        "version": "2024.05",
+        "date": "2024년 5월 28일",
+        "highlights": ["엔터프라이즈 SSO 온보딩 속도 향상"],
+        "changes": ["SharePoint 커넥터 버그 수정", "실시간 협업 안정성 개선"],
+        "links": [{ "label": "상태 페이지", "href": "https://status.docuiq.ai" }]
+      }
+    ],
+    "upNextTitle": "곧 제공 예정",
+    "upNext": ["팀 맞춤 프롬프트 템플릿", "SOC 2 Type II 문서", "분석 결과 내보내기 확장"],
+    "feedbackPrompt": "피드백 또는 사전 체험을 원하시면"
+  },
+  "termsPolicies": {
+    "heroTitle": "이용약관, 정책 및 보안",
+    "heroSubtitle": "DocuIQ가 데이터를 처리하는 방식과 기대하는 사용 원칙을 확인하세요.",
+    "lastUpdated": "2024년 7월 기준",
+    "sections": [
+      {
+        "title": "이용약관",
+        "description": "DocuIQ 이용 시 준수해야 할 기본 규정입니다.",
+        "points": ["좌석은 사용자 단위로 부여되며 계정 공유는 허용되지 않습니다.", "업로드한 콘텐츠의 소유권은 사용자에게 있으며, 서비스 제공을 위해 암호화 저장합니다.", "법령 위반이나 서비스 안정성을 해치는 경우 접근을 제한할 수 있습니다."]
+      },
+      {
+        "title": "개인정보 및 데이터 처리",
+        "items": [
+          { "title": "암호화", "body": "문서는 저장 시 AES-256, 전송 시 TLS 1.2+로 보호됩니다." },
+          { "title": "보존 기간", "body": "문서를 삭제하면 활성 저장소에서 즉시 제거되고, 백업은 30일 이내 제거됩니다." },
+          { "title": "접근 권한", "body": "승인된 DocuIQ 직원만이 지원 목적에 한해 제한적으로 접근할 수 있습니다." }
+        ]
+      },
+      {
+        "title": "허용되는 사용",
+        "points": ["허가 없이 민감한 개인정보를 업로드하지 마세요.", "자동 스크래핑, 스팸, 서비스 장애 행위는 금지됩니다.", "오용 사례를 발견하면 legal@docuiq.ai 로 신고해 주세요."]
+      }
+    ],
+    "questionsTitle": "보안 또는 컴플라이언스 문의",
+    "questionsSubtitle": "감사 보고서, DPA, 벤더 질문서 등도 요청하시면 공유해 드립니다."
+  },
+  "bugReport": {
+    "heroTitle": "버그 신고",
+    "heroSubtitle": "재현 절차를 함께 알려주시면 빠르게 해결할 수 있습니다.",
+    "form": {
+      "summary": "문제 요약",
+      "environment": "사용 환경",
+      "steps": "재현 단계",
+      "expected": "기대 결과",
+      "actual": "실제 결과",
+      "contact": "연락 받을 이메일 (선택)"
+    },
+    "placeholders": {
+      "summary": "예: PDF 내보내기 실패",
+      "environment": "워크스페이스, 브라우저, OS, 연동 서비스",
+      "steps": "버그가 발생하는 과정을 순서대로 입력하세요",
+      "expected": "예상했던 동작",
+      "actual": "실제 발생한 동작 (에러 메시지 등)",
+      "contact": "name@example.com"
+    },
+    "tips": {
+      "title": "함께 알려주시면 좋아요",
+      "items": ["관련 문서 ID 또는 제목", "발생 시간과 타임존", "콘솔 오류 / HTTP 코드", "업무 영향도"]
+    },
+    "submit": "보고서 보내기",
+    "sending": "전송 중...",
+    "success": "감사합니다! 이메일 클라이언트가 열리니 내용을 확인 후 전송해 주세요.",
+    "error": "이메일 클라이언트를 열 수 없습니다. support@docuiq.ai 로 직접 메일을 보내 주세요."
+  },
+  "contactSales": {
+    "heroTitle": "DocuIQ 영업팀과 상담하세요",
+    "heroSubtitle": "데이터 소스, 보안 요구 사항, 팀 목표를 알려 주세요. 1 영업일 이내에 Enterprise 도입을 위한 맞춤형 계획과 견적을 보내드릴게요.",
+    "highlightOne": "프라이빗 클라우드 또는 온프레미스 배포 옵션",
+    "highlightTwo": "전담 기술 계정 관리자",
+    "highlightThree": "Slack·Jira·Notion·Teams 등과의 통합 지원",
+    "metaEmailLabel": "이메일 문의",
+    "metaChatLabel": "채팅이 더 편하신가요?",
+    "metaChatLink": "플랜 살펴보기",
+    "formTitle": "프로젝트 정보를 알려주세요",
+    "formSubtitle": "맞춤형 성공 플랜과 Enterprise 요금을 안내해 드립니다.",
+    "fullNameLabel": "이름",
+    "fullNamePlaceholder": "홍길동",
+    "emailLabel": "업무용 이메일",
+    "emailPlaceholder": "jane@company.com",
+    "emailPlaceholderUser": "jane",
+    "emailPlaceholderDomain": "company.com",
+    "companyLabel": "회사",
+    "companyPlaceholder": "회사명",
+    "roleLabel": "직책 / 역할",
+    "rolePlaceholder": "지식 운영 책임자",
+    "desiredPlanLabel": "관심 있는 플랜",
+    "messageLabel": "데이터와 목표를 알려주세요",
+    "messagePlaceholder": "데이터 소스, 보안 요구 사항, 팀 규모 또는 일정 등을 입력해 주세요.",
+    "submit": "문의 보내기",
+    "submitting": "전송 중...",
+    "success": "감사합니다! DocuIQ 전문가가 곧 연락드릴 예정입니다.",
+    "error": "지금은 요청을 보낼 수 없습니다. 잠시 후 다시 시도해 주세요."
+  }
 }

@@ -33,11 +33,10 @@
 
     <section class="viewer" v-if="pdfUrl">
       <h3 class="vr-title">PDF</h3>
-      <iframe
-        class="pdf-viewer"
-        :src="viewerSrc"
-        title="Document PDF"
-      ></iframe>
+      <component :is="usePdfJs ? PdfJsViewer : 'iframe'"
+                 class="pdf-viewer"
+                 v-bind="viewerBindings"
+                 title="Document PDF" />
     </section>
   </div>
   
@@ -48,6 +47,7 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { API_BASE_URL } from '../config'
 import { authFetch } from '../lib/authFetch'
+import PdfJsViewer from '../components/PdfJsViewer.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -70,12 +70,12 @@ const pdfUrl = computed(() => {
     // Highest priority: explicit url passed via query (when available)
     const urlQ = route.query?.url
     if (urlQ) return toAbs(urlQ)
-    // Prefer backend streaming endpoint (works even if storage path changed)
+    const f = doc.value?.file_url
+    if (f) return toAbs(f)
+    // Fallback: backend streaming endpoint (works even if storage path changed)
     if (doc.value?.id){
       return `${API_BASE_URL}/api/documents/${doc.value.id}/file`
     }
-    const f = doc.value?.file_url
-    if (f) return toAbs(f)
     // Fallback to source URL if it's a PDF
     const src = sourceUrl.value
     if (src && /\.pdf(\?|#|$)/i.test(src)) return src
@@ -84,6 +84,13 @@ const pdfUrl = computed(() => {
 })
 const pageParam = computed(() => {
   try { const p = parseInt(route.query?.p, 10); return Number.isFinite(p) && p>0 ? p : null } catch { return null }
+})
+// Highlight term: accept ?h=... or fallback to ?q=...
+const highlightTerm = computed(() => {
+  try {
+    const h = String(route.query?.h || route.query?.q || '').trim()
+    return h || ''
+  } catch { return '' }
 })
 const viewerSrc = computed(() => {
   const base = pdfUrl.value
@@ -94,12 +101,37 @@ const viewerSrc = computed(() => {
     if (access && base.startsWith(API_BASE_URL)){
       const sep = base.includes('?') ? '&' : '?'
       const withTok = `${base}${sep}access=${encodeURIComponent(access)}`
-      if (pageParam.value) return `${withTok}#page=${pageParam.value}`
+      // Build anchor with optional page and search (many PDF viewers support #search=...)
+      const parts = []
+      if (pageParam.value) parts.push(`page=${pageParam.value}`)
+      if (highlightTerm.value) parts.push(`search=${encodeURIComponent(highlightTerm.value)}`)
+      if (parts.length) return `${withTok}#${parts.join('&')}`
       return withTok
     }
   } catch(_) { /* ignore */ }
-  if (pageParam.value) return `${base}#page=${pageParam.value}`
+  if (pageParam.value || highlightTerm.value){
+    const parts = []
+    if (pageParam.value) parts.push(`page=${pageParam.value}`)
+    if (highlightTerm.value) parts.push(`search=${encodeURIComponent(highlightTerm.value)}`)
+    return `${base}#${parts.join('&')}`
+  }
   return base
+})
+const viewerSrcPlain = computed(() => String(viewerSrc.value || '').split('#')[0])
+const usePdfJs = computed(() => {
+  try { return viewerSrcPlain.value.startsWith(API_BASE_URL) } catch { return false }
+})
+const viewerBindings = computed(() => {
+  if (usePdfJs.value) {
+    return {
+      src: viewerSrcPlain.value,
+      page: pageParam.value || 1,
+      query: highlightTerm.value || '',
+      highlightColor: '#ff4d4f',
+      style: 'width: 100%; height: auto; display: block; border:none; border-radius:10px; overflow:auto; max-height: calc(100vh - 280px); background:#0b1022;'
+    }
+  }
+  return { src: viewerSrc.value }
 })
 
 function prettyStatus(s){ if(!s) return ''; const v=String(s).toUpperCase(); return v==='READY'?'Imported': v[0]+v.slice(1).toLowerCase() }
@@ -149,10 +181,27 @@ async function load(){
       }
     }catch(_){ /* ignore */ }
   }
+  // Last chance: load most recent document
+  if (!doc.value){
+    try {
+      const r4 = await authFetch(`${API_BASE_URL}/api/documents?limit=1&sort=-created_at`)
+      if (r4.ok){
+        const arr = await r4.json()
+        if (Array.isArray(arr) && arr.length){ doc.value = arr[0] }
+      }
+    } catch(_) { /* ignore */ }
+  }
   // If still not found, go back to listing
   if (!doc.value) {
     try { router.replace('/documents') } catch(_) {}
   }
+  // Normalize URL to the resolved doc id to avoid stale 404s
+  try {
+    if (doc.value && String(route.params?.id) !== String(doc.value.id)){
+      const q = new URLSearchParams(location.search)
+      router.replace({ path: `/documents/${doc.value.id}`, query: Object.fromEntries(q.entries()) })
+    }
+  } catch(_) { /* ignore */ }
   loading.value = false
 }
 
@@ -174,41 +223,41 @@ watch(() => route.params?.id, () => { try { load() } catch(_){} })
 </script>
 
 <style scoped>
-.page{ background:#f6f8ff; min-height:100vh; padding: 10px 12px; }
+.page{ background:var(--bg); min-height:100vh; padding: 10px 12px; }
 .page-head{ margin:12px 0; display:flex; align-items:center; justify-content:space-between; gap:12px; }
 .left{ display:flex; align-items:center; gap:10px; }
-.ghost{ border:1px solid #dbe3f3; background:#fff; color:#1f47c5; border-radius:10px; padding:8px 10px; font-weight:800; cursor:pointer; }
-.ttl{ margin:0; font-size:20px; font-weight:900; color:#25324a; }
+.ghost{ border:1px solid var(--line); background:var(--card); color:var(--blue); border-radius:10px; padding:8px 10px; font-weight:800; cursor:pointer; }
+.ttl{ margin:0; font-size:20px; font-weight:900; color:var(--txt); }
 .badge{ padding:4px 10px; border-radius:999px; font-size:12px; font-weight:800; border:1px solid transparent; }
 .badge.imported{ background:#e6fcf0; color:#067647; border-color:#98f1b7; }
 .badge.processing{ background:#eaf2ff; color:#1d4ed8; border-color:#c7dafb; }
 .badge.uploaded{ background:#fff0da; color:#9a6700; border-color:#ffd89a; }
 .badge.failed{ background:#fef3f2; color:#b42318; border-color:#f9c2bf; }
 
-.meta{ background:#fff; border:1px solid #e8eef8; border-radius:12px; padding:12px; box-shadow: var(--md-shadow-1); }
-.row{ display:grid; grid-template-columns: 140px 1fr; gap:8px; padding:6px 0; border-bottom:1px dashed #e6ecf7; }
+.meta{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; box-shadow: var(--md-shadow-1); }
+.row{ display:grid; grid-template-columns: 140px 1fr; gap:8px; padding:6px 0; border-bottom:1px dashed var(--line); }
 .row:last-child{ border-bottom:none; }
-.label{ color:#6b7280; font-weight:700; }
-.val a{ color:#1d4ed8; text-decoration:none; }
+.label{ color:var(--muted); font-weight:700; }
+.val a{ color:var(--blue); text-decoration:none; }
 .val a:hover{ text-decoration:underline; }
 
-.refs{ margin-top:12px; background:#fff; border:1px solid #e8eef8; border-radius:12px; padding:12px; box-shadow: var(--md-shadow-1); }
+.refs{ margin-top:12px; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; box-shadow: var(--md-shadow-1); }
 .refs-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
-.refs-head h3{ margin:0; font-size:16px; font-weight:900; color:#25324a; }
-.count{ background:#eef2ff; color:#1d4ed8; border:1px solid #c7dafb; border-radius:999px; padding:2px 8px; font-size:12px; font-weight:800; }
-.empty{ color:#6e7b90; padding:8px 0; }
+.refs-head h3{ margin:0; font-size:16px; font-weight:900; color:var(--txt); }
+.count{ background:#eef2ff; color:var(--blue); border:1px solid #c7dafb; border-radius:999px; padding:2px 8px; font-size:12px; font-weight:800; }
+.empty{ color:var(--muted); padding:8px 0; }
 .ref-list{ display:grid; gap:10px; }
-.ref-item{ background:#f8fbff; border:1px solid #e6ecf7; border-radius:10px; padding:10px; }
-.ref-top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; color:#6b7280; }
-.snippet{ white-space:pre-wrap; color:#2a3342; margin-bottom:8px; }
-.link{ background:transparent; border:none; color:#1d4ed8; font-weight:800; cursor:pointer; padding:0; text-decoration:none; }
+.ref-item{ background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px; }
+.ref-top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; color:var(--muted); }
+.snippet{ white-space:pre-wrap; color:var(--txt); margin-bottom:8px; }
+.link{ background:transparent; border:none; color:var(--blue); font-weight:800; cursor:pointer; padding:0; text-decoration:none; }
 .link:hover{ text-decoration:underline; }
 .sources-list{ display:grid; gap:8px; }
-.src-chip{ display:flex; align-items:center; flex-wrap:wrap; gap:8px; background:#fff; border:1px solid #e6ecf7; border-radius:10px; padding:6px 8px; }
-.src-title{ font-weight:800; color:#2a3342; }
-.src-meta{ color:#6e7b90; }
+.src-chip{ display:flex; align-items:center; flex-wrap:wrap; gap:8px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:6px 8px; }
+.src-title{ font-weight:800; color:var(--txt); }
+.src-meta{ color:var(--muted); }
 
-.viewer{ margin-top:12px; background:#fff; border:1px solid #e8eef8; border-radius:12px; padding:12px; box-shadow: var(--md-shadow-1); }
-.vr-title{ margin:0 0 8px; font-size:16px; font-weight:900; color:#25324a; }
-.pdf-viewer{ width:100%; height: calc(100vh - 280px); border:none; border-radius:10px; background:#000; }
+.viewer{ margin-top:12px; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; box-shadow: var(--md-shadow-1); }
+.vr-title{ margin:0 0 8px; font-size:16px; font-weight:900; color:var(--txt); }
+.pdf-viewer{ width:100%; max-height: calc(100vh - 280px); border:none; border-radius:10px; background:#000; overflow:auto; display:block; }
 </style>

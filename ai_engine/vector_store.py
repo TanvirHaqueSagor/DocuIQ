@@ -89,6 +89,18 @@ class VectorStore:
             cur.executemany("DELETE FROM items WHERE id = ?", [(i,) for i in ids])
         return len(ids)
 
+    def clear_all(self) -> int:
+        """Delete all items in the vector store. Returns number of rows removed."""
+        cur = self.conn.cursor()
+        try:
+            cur.execute("SELECT COUNT(*) FROM items")
+            n = int(cur.fetchone()[0] or 0)
+        except Exception:
+            n = 0
+        with self.conn:
+            self.conn.execute("DELETE FROM items")
+        return n
+
 
 def chunk_text(text: str, target_chars: int = 1200, overlap: int = 120) -> Iterable[str]:
     text = text or ""

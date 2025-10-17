@@ -172,6 +172,20 @@ def unindex_document(req: UnindexRequest):
         return JSONResponse({"ok": False, "error": "unindex_failed", "detail": str(e)}, status_code=500)
 
 
+class ClearAllResponse(BaseModel):
+    removed: int
+
+@app.post("/admin/clear_all")
+def clear_all_vectors() -> ClearAllResponse:
+    try:
+        removed = store.clear_all()
+        logger.info("admin.clear_all removed=%s", removed)
+        return {"removed": int(removed)}
+    except Exception as e:
+        logger.exception("admin.clear_all failed error=%s", e)
+        return JSONResponse({"ok": False, "error": "clear_failed", "detail": str(e)}, status_code=500)
+
+
 @app.post("/upload")
 async def upload(file: UploadFile = File(...)):
     content = await file.read()

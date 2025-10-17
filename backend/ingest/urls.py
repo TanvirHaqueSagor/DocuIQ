@@ -2,7 +2,8 @@ from django.urls import path, re_path
 from .views import (
     HealthView, SourceListCreate, SourceDetail,
     JobListCreate, JobDetail, UploadView, DocumentList, DocumentDetail,
-    ContentList, ContentStatus, ContentRetry, SyncJobCancel, DocumentFind, DocumentFile
+    ContentList, ContentStatus, ContentRetry, SyncJobCancel, DocumentFind, DocumentFile,
+    AdminCleanup
 )
 
 urlpatterns = [
@@ -28,4 +29,7 @@ urlpatterns = [
     # Sync job alias endpoints
     re_path(r'^api/sync-jobs/(?P<pk>\d+)/?$', JobDetail.as_view()),
     re_path(r'^api/sync-jobs/(?P<pk>\d+)/cancel/?$', SyncJobCancel.as_view()),
+
+    # Admin/data cleanup
+    re_path(r'^api/admin/cleanup/?$', AdminCleanup.as_view()),
 ]

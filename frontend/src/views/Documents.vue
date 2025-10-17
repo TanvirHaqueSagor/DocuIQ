@@ -3,20 +3,20 @@
     <!-- Page Header (no brand duplicate) -->
     <header class="page-head">
       <div class="left">
-        <h1>{{ $t ? $t('documents') : 'Documents' }}</h1>
+        <h1>{{ t('documents') }}</h1>
         <div class="search">
           <input
             v-model="q"
             type="text"
-            :placeholder="$t ? $t('search') : 'Search jobs, titles…'"
+            :placeholder="t('documentsPage.searchPlaceholder')"
             @keydown.enter.prevent="applySearch"
-            aria-label="Search"
+            :aria-label="t('search')"
           />
-          <button class="icon" @click="applySearch" aria-label="Search">🔎</button>
+          <button class="icon" @click="applySearch" :aria-label="t('search')">🔎</button>
         </div>
       </div>
       <div class="right">
-        <button class="ghost" @click="refreshAll" :title="$t ? $t('refresh') : 'Refresh'">⟳</button>
+        <button class="ghost" @click="refreshAll" :title="t('refresh')">⟳</button>
       </div>
     </header>
 
@@ -32,8 +32,8 @@
       
       <div class="dz-inner">
         <div class="cloud" aria-hidden="true">☁️</div>
-        <div class="dz-title">{{ $t ? $t('dropFiles') : 'Drag & drop files here or click to upload' }}</div>
-        <div class="dz-sub">{{ $t ? $t('dropHint') : 'PDF, DOCX, PPTX, XLSX, HTML, images, media' }}</div>
+        <div class="dz-title">{{ t('dropFiles') }}</div>
+        <div class="dz-sub">{{ t('dropHint') }}</div>
       </div>
     </section>
 
@@ -46,18 +46,18 @@
           <div class="table-tools">
             <label class="chk">
               <input type="checkbox" v-model="autoRefresh" />
-              <span>{{ $t ? $t('autoRefresh') : 'Auto refresh' }}</span>
+              <span>{{ t('autoRefresh') }}</span>
             </label>
           </div>
-          <div class="info-line">{{ $t ? $t('docsInfo') : 'Data from uploads and connected sources is indexed into your vector database. Use Re-run Import to refresh vectors.' }}</div>
+          <div class="info-line">{{ t('docsInfo') }}</div>
           <table class="tbl" role="table">
             <thead>
               <tr>
-                <th>{{ $t ? $t('type') : 'Type' }}</th>
-                <th>{{ $t ? $t('title') : 'Title' }}</th>
-                <th>{{ $t ? $t('status') : 'Status' }}</th>
-                <th>{{ $t ? $t('imported') : 'Imported' }}</th>
-                <th>{{ $t ? $t('actions') : 'Actions' }}</th>
+                <th>{{ t('type') }}</th>
+                <th>{{ t('title') }}</th>
+                <th>{{ t('status') }}</th>
+                <th>{{ t('imported') }}</th>
+                <th>{{ t('actions') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -75,38 +75,38 @@
                 <td>
                   <span class="badge" :class="badgeClass(row)">
                     <template v-if="isRowRunning(row)">
-                      {{ $t ? $t('running') : 'running' }}<span class="dots" aria-hidden="true"><span>.</span><span>.</span><span>.</span></span>
+                      {{ t('documentsPage.statuses.running') }}<span class="dots" aria-hidden="true"><span>.</span><span>.</span><span>.</span></span>
                     </template>
-                    <template v-else>{{ displayStatus(row) }}</template>
+                    <template v-else>{{ statusLabel(row) }}</template>
                   </span>
                 </td>
                 <td>{{ fmtDate(row.created_at) }}</td>
                 <td>
                   <template v-if="row.type==='doc'">
                     <div class="row-actions">
-                      <RouterLink class="link icon-btn" :to="`/documents/${row._raw?.id}`" :title="$t ? $t('view') : 'View'" aria-label="View">
+                      <RouterLink class="link icon-btn" :to="`/documents/${row._raw?.id}`" :title="t('view')" :aria-label="t('view')">
                         <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7Zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10Z"/></svg>
                       </RouterLink>
-                      <button class="link icon-btn" @click="editRow(row)" :title="$t ? $t('edit') : 'Edit'" aria-label="Edit">
+                      <button class="link icon-btn" @click="editRow(row)" :title="t('edit')" :aria-label="t('edit')">
                         <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25ZM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83Z"/></svg>
                       </button>
-                      <button class="link icon-btn" @click="rerunImport(row)" :disabled="isRowRunning(row) || isRowDeleting(row)" :title="$t ? $t('rerunImport') : 'Re-run Import'" aria-label="Re-run Import">
+                      <button class="link icon-btn" @click="rerunImport(row)" :disabled="isRowRunning(row) || isRowDeleting(row)" :title="t('rerunImport')" :aria-label="t('rerunImport')">
                         <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 5a7 7 0 1 1-6.9 8.2h2.1A5 5 0 1 0 12 7V3l5 4-5 4V9a3 3 0 1 1-3 3H5A7 7 0 0 1 12 5Z"/></svg>
                       </button>
-                      <button class="link danger icon-btn" @click="deleteDoc(row)" :disabled="isRowRunning(row) || isRowDeleting(row)" :title="$t ? $t('delete') : 'Delete'" aria-label="Delete">
+                      <button class="link danger icon-btn" @click="deleteDoc(row)" :disabled="isRowRunning(row) || isRowDeleting(row)" :title="t('delete')" :aria-label="t('delete')">
                         <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9Zm5 2v8h2v-8h-2Z"/></svg>
                       </button>
                     </div>
                   </template>
                   <template v-else>
                     <div class="row-actions">
-                      <button class="link icon-btn" @click="editRow(row)" :title="$t ? $t('edit') : 'Edit'" aria-label="Edit">
+                      <button class="link icon-btn" @click="editRow(row)" :title="t('edit')" :aria-label="t('edit')">
                         <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25ZM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83Z"/></svg>
                       </button>
-                      <button class="link icon-btn" @click="rerunImport(row)" :disabled="isRowRunning(row) || isRowDeleting(row)" :title="$t ? $t('rerunImport') : 'Re-run Import'" aria-label="Re-run Import">
+                      <button class="link icon-btn" @click="rerunImport(row)" :disabled="isRowRunning(row) || isRowDeleting(row)" :title="t('rerunImport')" :aria-label="t('rerunImport')">
                         <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 5a7 7 0 1 1-6.9 8.2h2.1A5 5 0 1 0 12 7V3l5 4-5 4V9a3 3 0 1 1-3 3H5A7 7 0 0 1 12 5Z"/></svg>
                       </button>
-                      <button class="link danger icon-btn" @click="deleteJob(row)" :disabled="isRowRunning(row) || isRowDeleting(row)" :title="$t ? $t('delete') : 'Delete'" aria-label="Delete">
+                      <button class="link danger icon-btn" @click="deleteJob(row)" :disabled="isRowRunning(row) || isRowDeleting(row)" :title="t('delete')" :aria-label="t('delete')">
                         <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9Zm5 2v8h2v-8h-2Z"/></svg>
                       </button>
                     </div>
@@ -114,7 +114,7 @@
                 </td>
               </tr>
               <tr v-if="!filteredCombined.length">
-                <td colspan="5" class="empty">{{ $t ? $t('noItems') : 'No items yet' }}</td>
+                <td colspan="5" class="empty">{{ t('noItems') }}</td>
               </tr>
             </tbody>
           </table>
@@ -125,22 +125,22 @@
       <aside class="side">
         <div class="kpis">
           <div class="kpi">
-            <div class="kpi-title">{{ $t ? $t('documents') : 'Documents' }}</div>
+            <div class="kpi-title">{{ t('documents') }}</div>
             <div class="kpi-val">{{ kpi.documents }}</div>
           </div>
           <div class="kpi">
-            <div class="kpi-title">{{ $t ? $t('runningJobs') : 'Running jobs' }}</div>
+            <div class="kpi-title">{{ t('runningJobs') }}</div>
             <div class="kpi-val">{{ kpi.running }}</div>
           </div>
           <div class="kpi">
-            <div class="kpi-title">{{ $t ? $t('server') : 'Server' }}</div>
-            <div class="kpi-val" :class="kpi.health ? 'ok' : 'bad'">{{ kpi.health ? 'OK' : 'Down' }}</div>
+            <div class="kpi-title">{{ t('server') }}</div>
+            <div class="kpi-val" :class="kpi.health ? 'ok' : 'bad'">{{ kpi.health ? t('ok') : t('down') }}</div>
           </div>
         </div>
 
           <div class="sources">
           <div class="sources-head">
-            <h3>{{ $t ? $t('sources') : 'Sources' }}</h3>
+            <h3>{{ t('sources') }}</h3>
           </div>
 
           <div class="src-grid">
@@ -151,20 +151,20 @@
           </div>
 
           <div class="connected" v-if="sources.length">
-            <div class="conn-title">{{ $t ? $t('connected') : 'Connected' }}</div>
+            <div class="conn-title">{{ t('connected') }}</div>
             <div class="conn-list">
               <div v-for="s in filteredSources" :key="s.id" class="conn-item">
                 <div class="ci-left">
                   <span class="dot"></span>
-                  <span class="src-ico-comp"><img class="src-ico-img" :src="iconForKind((s.kind||'').toLowerCase())" :alt="prettyKind(s.kind)" /></span>
+                  <span class="src-ico-comp"><img class="src-ico-img" :src="iconForKind(s.kind)" :alt="prettyKind(s.kind)" /></span>
                   <span class="nm">{{ s.name }}</span>
                   <span class="kind">· {{ prettyKind(s.kind) }}</span>
                 </div>
                 <div class="ci-actions">
-                  <button class="link icon-btn" @click="runSource(s)" :title="$t ? $t('run') : 'Run'" aria-label="Run">
+                  <button class="link icon-btn" @click="runSource(s)" :title="t('run')" :aria-label="t('run')">
                     <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7L8 5Z"/></svg>
                   </button>
-                  <button class="link danger icon-btn" @click="deleteSource(s)" :disabled="isSourceDeleting(s)" :title="$t ? $t('delete') : 'Delete'" aria-label="Delete">
+                  <button class="link danger icon-btn" @click="deleteSource(s)" :disabled="isSourceDeleting(s)" :title="t('delete')" :aria-label="t('delete')">
                     <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9Zm5 2v8h2v-8h-2Z"/></svg>
                   </button>
                 </div>
@@ -291,36 +291,107 @@ const fmtDate = (iso) => {
     return iso ? String(iso).split('T')[0] : ''
   }
 }
-const prettyStatus = (s)=> s ? s[0].toUpperCase()+s.slice(1) : s
-const prettyKind = (k)=> ({
-  // Storage
-  files:'File', upload:'File', file:'File', web:'Web', s3:'S3', gdrive:'Google Drive', dropbox:'Dropbox', onedrive:'OneDrive', box:'Box',
-  // Enterprise
-  sharepoint:'SharePoint', confluence:'Confluence', notion:'Notion', airtable:'Airtable',
-  // Comms
-  email:'Email', gmail:'Gmail', outlook:'Outlook', slack:'Slack', teams:'Teams', zoom:'Zoom',
-  // Dev/Project
-  github:'GitHub', gitlab:'GitLab', jira:'Jira', trello:'Trello',
-  // Databases/BI/Search
-  postgres:'PostgreSQL', mysql:'MySQL', mongodb:'MongoDB', snowflake:'Snowflake', bigquery:'BigQuery', elasticsearch:'Elasticsearch', db:'Database',
-  // Feeds/APIs
-  rss:'RSS', api:'API', bloomberg:'Bloomberg', refinitiv:'Refinitiv', esg:'ESG API',
-  // Social/Calendar/Design
-  linkedin:'LinkedIn', twitter:'Twitter (X)', gcal:'Google Calendar', figma:'Figma',
-  media:'Media', video:'Video', audio:'Audio'
-}[k] || (k ? k[0].toUpperCase()+k.slice(1) : ''))
+const translateOr = (key, params, fallback) => {
+  const value = t(key, params)
+  return value === key ? fallback : value
+}
+const capitalize = (str = '') => (str ? str.charAt(0).toUpperCase() + str.slice(1) : '')
+const KIND_ALIASES = {
+  upload: 'file',
+  files: 'file',
+  file: 'file',
+  job: 'import',
+  import: 'import',
+  postgres: 'postgres',
+  postgresql: 'postgres',
+  db: 'database'
+}
+const KIND_FALLBACKS = {
+  import: 'Import',
+  file: 'File',
+  web: 'Web',
+  s3: 'S3',
+  gdrive: 'Google Drive',
+  dropbox: 'Dropbox',
+  onedrive: 'OneDrive',
+  box: 'Box',
+  sharepoint: 'SharePoint',
+  confluence: 'Confluence',
+  notion: 'Notion',
+  airtable: 'Airtable',
+  email: 'Email',
+  gmail: 'Gmail',
+  outlook: 'Outlook',
+  slack: 'Slack',
+  teams: 'Microsoft Teams',
+  zoom: 'Zoom',
+  github: 'GitHub',
+  gitlab: 'GitLab',
+  jira: 'Jira',
+  trello: 'Trello',
+  postgres: 'PostgreSQL',
+  mysql: 'MySQL',
+  mongodb: 'MongoDB',
+  snowflake: 'Snowflake',
+  bigquery: 'BigQuery',
+  elasticsearch: 'Elasticsearch',
+  database: 'Database',
+  rss: 'RSS',
+  api: 'API',
+  bloomberg: 'Bloomberg',
+  refinitiv: 'Refinitiv',
+  esg: 'ESG API',
+  linkedin: 'LinkedIn',
+  twitter: 'Twitter (X)',
+  gcal: 'Google Calendar',
+  figma: 'Figma',
+  media: 'Media',
+  video: 'Video',
+  audio: 'Audio'
+}
+const canonicalKind = (value) => {
+  const key = String(value || '').toLowerCase()
+  return KIND_ALIASES[key] || key
+}
+const prettyKind = (value) => {
+  const raw = String(value || '').toLowerCase()
+  const canonical = canonicalKind(raw)
+  const translationKey = `documentsPage.kinds.${canonical}`
+  const localized = t(translationKey)
+  if (localized !== translationKey) return localized
+  if (raw !== canonical) {
+    const aliasKey = `documentsPage.kinds.${raw}`
+    const aliasLocalized = t(aliasKey)
+    if (aliasLocalized !== aliasKey) return aliasLocalized
+  }
+  return KIND_FALLBACKS[canonical] || KIND_FALLBACKS[raw] || capitalize(canonical || raw)
+}
 const jobTitle = (j) => {
-  const m=(j.mode||'').toUpperCase()
-  if (j.mode==='upload') {
+  const rawMode = String(j.mode || '').toLowerCase()
+  const canonical = canonicalKind(rawMode)
+  const modeLabel = prettyKind(canonical)
+  if (canonical === 'file') {
     const names = j.payload?.filenames || j.payload?.files
     if (Array.isArray(names) && names.length) {
-      return names.length === 1 ? names[0] : `${names[0]} (+${names.length-1} more)`
+      if (names.length === 1) return names[0]
+      return translateOr('documentsPage.jobTitle.uploadMultiple', { first: names[0], extra: names.length - 1 }, `${names[0]} (+${names.length - 1} more)`)
     }
-    return `${m} · ${(j.payload?.file_ids?.length||0)} files`
+    const count = j.payload?.file_ids?.length || 0
+    return translateOr('documentsPage.jobTitle.uploadCount', { mode: modeLabel, count }, `${modeLabel} · ${count} file(s)`)
   }
-  if (j.mode==='web') return `${m} · ${j.payload?.url||''}`
-  if (j.mode==='s3')  return `${m} · ${j.payload?.bucket||''}/${j.payload?.prefix||''}`
-  return m
+  if (canonical === 'web') {
+    const url = j.payload?.url || j.payload?.start_url || ''
+    return translateOr('documentsPage.jobTitle.web', { mode: modeLabel, url }, `${modeLabel} · ${url}`)
+  }
+  if (canonical === 's3') {
+    const bucket = j.payload?.bucket || ''
+    const prefix = j.payload?.prefix || ''
+    return translateOr('documentsPage.jobTitle.s3', { mode: modeLabel, bucket, prefix }, `${modeLabel} · ${bucket}/${prefix}`)
+  }
+  if (modeLabel) {
+    return translateOr('documentsPage.jobTitle.generic', { mode: modeLabel }, modeLabel)
+  }
+  return rawMode.toUpperCase()
 }
 // Deduplication key for jobs so re-run doesn't show duplicates
 const stableStr = (obj) => {
@@ -342,53 +413,46 @@ const isWebDoc = (row) => {
 }
 const rowType = (row) => {
   if (row?.type === 'job') {
-    const k = String(row?._raw?.mode || '').toLowerCase()
-    if (!k) return 'Import'
-    return prettyKind(k)
+    const rawMode = String(row?._raw?.mode || '').toLowerCase()
+    const canonical = rawMode ? canonicalKind(rawMode) : 'import'
+    return prettyKind(canonical)
   }
   // Documents: detect web-fetched items via steps_json.source_url
-  if (isWebDoc(row)) return 'Web'
+  if (isWebDoc(row)) return prettyKind('web')
   // Default to File; we can refine by extension later
-  return 'File'
+  return prettyKind('file')
 }
 
 // Map job statuses to friendly labels
 const mapDocStatus = (s) => {
   const v = String(s || '').toUpperCase()
-  if (['READY','PARTIAL_READY'].includes(v)) return 'Imported'
-  if (['FAILED','CANCELLED','DELETED'].includes(v)) return 'Failed'
-  if (['QUEUED','FETCHING','NORMALIZING','CHUNKING','EMBEDDING','INDEXING'].includes(v)) return 'Processing'
-  return 'Uploaded'
+  if (['READY','PARTIAL_READY'].includes(v)) return 'imported'
+  if (['FAILED','CANCELLED','DELETED'].includes(v)) return 'failed'
+  if (['QUEUED','FETCHING','NORMALIZING','CHUNKING','EMBEDDING','INDEXING'].includes(v)) return 'processing'
+  return 'uploaded'
 }
 const mapUnifiedStatus = (row) => {
   // Desired: Uploaded, Processing, Imported
   if (row?.type === 'job') {
     const v = String(row._raw?.status || '').toLowerCase()
-    if (v === 'queued' || v === 'running') return 'Processing'
-    if (v === 'success') return 'Imported'
-    if (v === 'failed') return 'Failed'
-    return 'Uploaded'
+    if (v === 'queued' || v === 'running') return 'processing'
+    if (v === 'success') return 'imported'
+    if (v === 'failed') return 'failed'
+    return 'uploaded'
   }
   // Documents: use backend-provided status if present
   return mapDocStatus(row?._raw?.status)
 }
-const displayStatus = (row) => mapUnifiedStatus(row)
-const statusClass = (row) => String(mapUnifiedStatus(row)).toLowerCase()
+const statusClass = (row) => mapUnifiedStatus(row) || ''
+const statusLabel = (row) => {
+  const key = mapUnifiedStatus(row)
+  if (!key) return ''
+  return translateOr(`documentsPage.statuses.${key}`, {}, capitalize(key))
+}
 const isRowRunning = (row) => !!(rerunning.value || {})[row?.id]
 const badgeClass = (row) => isRowRunning(row) ? 'processing' : statusClass(row)
 const isRowDeleting = (row) => !!(deletingRows.value || {})[row?.id]
 const isSourceDeleting = (s) => !!(deletingSources.value || {})[s?.id]
-const fileEmoji = (name='')=>{
-  const n=(name||'').toLowerCase()
-  if(n.endsWith('.pdf')) return '📕'
-  if(n.endsWith('.doc')||n.endsWith('.docx')) return '📘'
-  if(n.endsWith('.ppt')||n.endsWith('.pptx')) return '📙'
-  if(n.endsWith('.xls')||n.endsWith('.xlsx')||n.endsWith('.csv')) return '📗'
-  if(n.endsWith('.html')||n.endsWith('.htm')) return '🌐'
-  if(n.endsWith('.png')||n.endsWith('.jpg')||n.endsWith('.jpeg')) return '🖼️'
-  return '📄'
-}
-
 // Icon URLs for known kinds (fallback to file)
 const ICONS = {
   // Storage / generic
@@ -429,6 +493,7 @@ const ICONS = {
   bigquery: icBigQuery,
   elasticsearch: icElasticsearch,
   db: icPostgres,
+  database: icPostgres,
 
   // Feeds/APIs
   rss: icRss,
@@ -443,7 +508,11 @@ const ICONS = {
   gcal: icGCal,
   figma: icFigma,
 }
-const iconForKind = (k) => ICONS[k] || icFile
+const iconForKind = (k) => {
+  const key = canonicalKind(k)
+  const raw = String(k || '').toLowerCase()
+  return ICONS[key] || ICONS[raw] || icFile
+}
 
 // Icon for each row (connector kind or generic file)
 const rowIconComp = (row) => {
@@ -451,7 +520,7 @@ const rowIconComp = (row) => {
     const k = String(row?._raw?.mode || '').toLowerCase()
     return iconForKind(k)
   }
-  return isWebDoc(row) ? iconForKind('web') : icFile
+  return isWebDoc(row) ? iconForKind('web') : iconForKind('file')
 }
 
 /* ----- filters ----- */
@@ -509,7 +578,8 @@ const filteredCombined = computed(() => {
   return combinedRows.value.filter(r =>
     (r.title||'').toLowerCase().includes(s) ||
     (r.status||'').toLowerCase().includes(s) ||
-    r.type.includes(s)
+    r.type.includes(s) ||
+    statusLabel(r).toLowerCase().includes(s)
   )
 })
 const uniqueSources = computed(()=>{
@@ -583,43 +653,47 @@ const onDrop = async (e)=>{ isOver.value=false; const files=[...(e.dataTransfer?
 /* ----- Wizard logic removed in favor of /connect/:kind pages ----- */
 
 /* ----- palette ----- */
-const srcPalette = [
-  { key:'files', name:'Files', emoji:'📁' },
-  { key:'web', name:'Web', emoji:'🌐' },
-  { key:'gdrive', name:'Google Drive', emoji:'🟩' },
-  { key:'dropbox', name:'Dropbox', emoji:'🟦' },
-  { key:'onedrive', name:'OneDrive', emoji:'🟦' },
-  { key:'box', name:'Box', emoji:'📦' },
-  { key:'s3', name:'S3', emoji:'🟦' },
-  { key:'sharepoint', name:'SharePoint', emoji:'🏢' },
-  { key:'confluence', name:'Confluence', emoji:'📘' },
-  { key:'notion', name:'Notion', emoji:'⬛' },
-  { key:'airtable', name:'Airtable', emoji:'📋' },
-  { key:'gmail', name:'Gmail', emoji:'✉️' },
-  { key:'outlook', name:'Outlook', emoji:'✉️' },
-  { key:'slack', name:'Slack', emoji:'🟩' },
-  { key:'teams', name:'Teams', emoji:'🟦' },
-  { key:'zoom', name:'Zoom', emoji:'🎥' },
-  { key:'github', name:'GitHub', emoji:'💻' },
-  { key:'gitlab', name:'GitLab', emoji:'💻' },
-  { key:'jira', name:'Jira', emoji:'🟦' },
-  { key:'trello', name:'Trello', emoji:'🗂️' },
-  { key:'postgres', name:'PostgreSQL', emoji:'🗄️' },
-  { key:'mysql', name:'MySQL', emoji:'🗄️' },
-  { key:'mongodb', name:'MongoDB', emoji:'🍃' },
-  { key:'snowflake', name:'Snowflake', emoji:'❄️' },
-  { key:'bigquery', name:'BigQuery', emoji:'🟨' },
-  { key:'elasticsearch', name:'Elasticsearch', emoji:'🔍' },
-  { key:'rss', name:'RSS', emoji:'📰' },
-  { key:'api', name:'API', emoji:'🔗' },
-  { key:'bloomberg', name:'Bloomberg', emoji:'📈' },
-  { key:'refinitiv', name:'Refinitiv', emoji:'📈' },
-  { key:'esg', name:'ESG API', emoji:'🌱' },
-  { key:'linkedin', name:'LinkedIn', emoji:'🔮' },
-  { key:'twitter', name:'Twitter (X)', emoji:'🔮' },
-  { key:'gcal', name:'Google Calendar', emoji:'📆' },
-  { key:'figma', name:'Figma', emoji:'🎨' },
+const SOURCE_PALETTE = [
+  { key:'files', emoji:'📁' },
+  { key:'web', emoji:'🌐' },
+  { key:'gdrive', emoji:'🟩' },
+  { key:'dropbox', emoji:'🟦' },
+  { key:'onedrive', emoji:'🟦' },
+  { key:'box', emoji:'📦' },
+  { key:'s3', emoji:'🟦' },
+  { key:'sharepoint', emoji:'🏢' },
+  { key:'confluence', emoji:'📘' },
+  { key:'notion', emoji:'⬛' },
+  { key:'airtable', emoji:'📋' },
+  { key:'gmail', emoji:'✉️' },
+  { key:'outlook', emoji:'✉️' },
+  { key:'slack', emoji:'🟩' },
+  { key:'teams', emoji:'🟦' },
+  { key:'zoom', emoji:'🎥' },
+  { key:'github', emoji:'💻' },
+  { key:'gitlab', emoji:'💻' },
+  { key:'jira', emoji:'🟦' },
+  { key:'trello', emoji:'🗂️' },
+  { key:'postgres', emoji:'🗄️' },
+  { key:'mysql', emoji:'🗄️' },
+  { key:'mongodb', emoji:'🍃' },
+  { key:'snowflake', emoji:'❄️' },
+  { key:'bigquery', emoji:'🟨' },
+  { key:'elasticsearch', emoji:'🔍' },
+  { key:'rss', emoji:'📰' },
+  { key:'api', emoji:'🔗' },
+  { key:'bloomberg', emoji:'📈' },
+  { key:'refinitiv', emoji:'📈' },
+  { key:'esg', emoji:'🌱' },
+  { key:'linkedin', emoji:'🔮' },
+  { key:'twitter', emoji:'🔮' },
+  { key:'gcal', emoji:'📆' },
+  { key:'figma', emoji:'🎨' },
 ]
+const srcPalette = computed(() => SOURCE_PALETTE.map(item => ({
+  ...item,
+  name: prettyKind(item.key),
+})))
 
 /* ----- lifecycle ----- */
 let poll=null
@@ -725,7 +799,7 @@ const deleteUploadFiles = async (row)=>{
   const job = row?._raw
   const ids = job?.payload?.file_ids
   if (!Array.isArray(ids) || !ids.length) return
-  const label = row.title || `${ids.length} file(s)`
+  const label = row.title || translateOr('documentsPage.filesCount', { count: ids.length }, `${ids.length} file(s)`)
   const umsg = (typeof t === 'function') ? t('confirmDeleteFiles', { name: label }) : `Delete ${label}? This cannot be undone.`
   if (!confirm(umsg)) return
   try {
@@ -751,38 +825,40 @@ const deleteUploadFiles = async (row)=>{
 .page-head{ width:100%; margin:16px 0 10px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
 .page-head h1{ margin:0; font-size:22px; color:var(--txt); font-weight:800; letter-spacing:.2px; }
 .left{ display:flex; align-items:center; gap:12px; }
-.search{ display:flex; gap:6px; align-items:center; background:#fff; border:1px solid #e5e9f5; border-radius:999px; padding:4px 6px 4px 10px; box-shadow: var(--md-shadow-1); }
-.search input{ border:none; padding:8px 10px; min-width:300px; outline:none; border-radius:999px; }
-.icon{ border:none; background:#1f47c5; color:#fff; border-radius:999px; width:38px; height:32px; display:inline-flex; align-items:center; justify-content:center; box-shadow: var(--md-shadow-1); }
+.search{ display:flex; gap:6px; align-items:center; background:var(--card); border:1px solid var(--line); border-radius:999px; padding:4px 6px 4px 10px; box-shadow: var(--md-shadow-1); }
+.search input{ border:none; padding:8px 10px; min-width:300px; outline:none; border-radius:999px; background:var(--card); color:var(--txt); }
+.search input::placeholder{ color: var(--muted); }
+.icon{ border:1px solid var(--line); background:var(--card); color:var(--txt); border-radius:999px; width:38px; height:32px; display:inline-flex; align-items:center; justify-content:center; box-shadow: var(--md-shadow-1); cursor:pointer; }
+.icon:hover{ background: var(--bg); color: var(--blue); }
 .right{ display:flex; gap:8px; }
-.primary{ border:none; background:#1f47c5; color:#fff; font-weight:800; border-radius:10px; padding:9px 12px; cursor:pointer; }
-.ghost{ border:1px solid #dbe3f3; background:#fff; color:#1f47c5; border-radius:10px; padding:8px 10px; font-weight:800; cursor:pointer; }
+.primary{ border:none; background:var(--blue); color:#fff; font-weight:800; border-radius:10px; padding:9px 12px; cursor:pointer; }
+.ghost{ border:1px solid var(--line); background:var(--card); color:var(--blue); border-radius:10px; padding:8px 10px; font-weight:800; cursor:pointer; }
 
 /* dropzone */
-.dropzone{ width:100%; margin:0 0 12px; background:#fff; border:2px dashed #cfe0ff; border-radius:16px; min-height:160px; display:grid; place-items:center; cursor:pointer; box-shadow: var(--md-shadow-1); transition: box-shadow .18s ease, background .18s ease; }
-.dropzone.over{ background:#f0f6ff; border-color:#97bfff; box-shadow: var(--md-shadow-2); }
+.dropzone{ width:100%; margin:0 0 12px; background:var(--card); border:2px dashed var(--line); border-radius:16px; min-height:160px; display:grid; place-items:center; cursor:pointer; box-shadow: var(--md-shadow-1); transition: box-shadow .18s ease, background .18s ease; }
+.dropzone.over{ background: var(--bg); border-color: var(--blue); box-shadow: var(--md-shadow-2); }
 .dz-inner{ text-align:center; padding:24px; }
 .cloud{ font-size:36px; }
-.dz-title{ font-weight:800; color:#2b3a59; font-size:18px; }
-.dz-sub{ color:#6e7b90; font-size:13px; margin-top:6px; }
+.dz-title{ font-weight:800; color:var(--txt); font-size:18px; }
+.dz-sub{ color:var(--muted); font-size:13px; margin-top:6px; }
 
 /* grid */
 .grid{ width:100%; margin:0; display:grid; grid-template-columns: 1.6fr .9fr; gap:14px; }
 
 /* panel */
-.panel{ background:var(--card); border:1px solid #e8eef8; border-radius:14px; padding:12px; box-shadow: var(--md-shadow-1); }
+.panel{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px; box-shadow: var(--md-shadow-1); }
 .tabs{ display:flex; gap:10px; border-bottom:1px solid var(--line); padding-bottom:8px; }
-.tab{ border:1px solid transparent; background:#fff; color:#374151; border-radius:9px; padding:8px 12px; cursor:pointer; font-weight:800; transition: color .15s ease, background .15s ease; }
+.tab{ border:1px solid transparent; background:var(--card); color:var(--txt); border-radius:9px; padding:8px 12px; cursor:pointer; font-weight:800; transition: color .15s ease, background .15s ease; }
 .tab:hover{ background:#f4f7ff; }
-.tab.active{ background:#eaf2ff; color:#1d4ed8; border-color:#c7dafb; box-shadow: var(--md-shadow-1); }
+.tab.active{ background: rgba(96,165,250,.15); color: var(--blue); border-color:#c7dafb; box-shadow: var(--md-shadow-1); }
 
 .table-wrap{ margin-top:10px; }
 .table-tools{ display:flex; justify-content:space-between; margin-bottom:6px; }
-.chk{ display:flex; align-items:center; gap:6px; color:#41506a; font-size:14px; }
-.tbl{ width:100%; border-collapse:separate; border-spacing:0; background:#fff; border-radius:12px; overflow:hidden; box-shadow: var(--md-shadow-1); }
+.chk{ display:flex; align-items:center; gap:6px; color:var(--muted); font-size:14px; }
+.tbl{ width:100%; border-collapse:separate; border-spacing:0; background:var(--card); border-radius:12px; overflow:hidden; box-shadow: var(--md-shadow-1); color: var(--txt); }
 .tbl th,.tbl td{ text-align:left; padding:12px 10px; border-bottom:1px solid var(--line); font-size:14px; color:var(--txt); }
-.tbl th{ color:#5b6b86; font-weight:800; }
-.tbl tr:hover td{ background:#fafcff; }
+.tbl th{ color:var(--muted); font-weight:800; }
+.tbl tr:hover td{ background: var(--bg); }
 .truncate{ max-width:380px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .type-cell{ display:flex; align-items:center; gap:8px; }
 .type-ico { display:inline-flex; font-size: 18px; line-height: 1; }
@@ -797,64 +873,64 @@ const deleteUploadFiles = async (row)=>{
 .dots span:nth-child(3){ animation-delay:.4s }
 @keyframes dotblink{ 0%,20%{ opacity:0 } 50%{ opacity:1 } 100%{ opacity:0 } }
 .prog-cell{ width:190px; }
-.prog{ width:100%; height:8px; background:#edf2ff; border:1px solid #dfe8fb; border-radius:999px; overflow:hidden; }
-.prog .bar{ height:100%; width:0%; background:#4f7cff; transition:width .25s; }
-.empty{ color:#8a97ab; text-align:center; padding:12px 0; }
+.prog{ width:100%; height:8px; background: var(--bg); border:1px solid var(--line); border-radius:999px; overflow:hidden; }
+.prog .bar{ height:100%; width:0%; background: var(--blue); transition:width .25s; }
+.empty{ color:var(--muted); text-align:center; padding:12px 0; }
 
 /* docs */
 .docs-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap:10px; padding-top:10px; }
-.doc-card{ background:#fff; border:1px solid #e8eef8; border-radius:12px; padding:12px; display:grid; gap:6px; box-shadow: var(--md-shadow-1); transition: transform .15s ease, box-shadow .15s ease; }
+.doc-card{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; display:grid; gap:6px; box-shadow: var(--md-shadow-1); transition: transform .15s ease, box-shadow .15s ease; }
 .doc-card:hover{ transform: translateY(-2px); box-shadow: var(--md-shadow-2); }
 .doc-ico{ font-size:24px; }
-.doc-title{ font-weight:800; color:#2a3342; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.doc-meta{ color:#6e7b90; font-size:13px; }
+.doc-title{ font-weight:800; color:var(--txt); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.doc-meta{ color:var(--muted); font-size:13px; }
 .doc-actions{ display:flex; gap:10px; }
-.link{ background:transparent; border:none; color:#1d4ed8; font-weight:800; cursor:pointer; padding:0; }
+.link{ background:transparent; border:none; color:var(--blue); font-weight:800; cursor:pointer; padding:0; }
 .link.danger{ color:#b42318; }
 .row-actions{ display:inline-flex; gap:10px; align-items:center; }
 .link[disabled]{ opacity:.6; pointer-events:none; }
 .icon-btn{ width:28px; height:28px; display:inline-flex; align-items:center; justify-content:center; border-radius:6px; }
-.icon-btn:hover{ background:#eef3ff; }
+.icon-btn:hover{ background: rgba(148,163,184,.15); }
 .icon-svg{ width:16px; height:16px; display:block; }
 
 /* right */
 .side{ display:grid; gap:12px; }
 .kpis{ display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; }
-.kpi{ background:#fff; border:1px solid #e8eef8; border-radius:12px; padding:12px; box-shadow: var(--md-shadow-1); }
-.kpi-title{ color:#6e7b90; font-size:13px; font-weight:800; }
-.kpi-val{ font-size:22px; font-weight:900; color:#1f2a44; }
+.kpi{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; box-shadow: var(--md-shadow-1); }
+.kpi-title{ color:var(--muted); font-size:13px; font-weight:800; }
+.kpi-val{ font-size:22px; font-weight:900; color:var(--txt); }
 .kpi-val.ok{ color:#0a8d3a } .kpi-val.bad{ color:#b42318 }
 
-.sources{ background:#fff; border:1px solid #e8eef8; border-radius:12px; padding:12px; box-shadow: var(--md-shadow-1); }
+.sources{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; box-shadow: var(--md-shadow-1); }
 .sources-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
 .src-grid{ display:grid; grid-template-columns: repeat(6, 1fr); gap:10px; }
-.src-btn{ background:#fff; border:1px solid #e6ecf7; border-radius:12px; padding:12px; cursor:pointer; text-align:center; box-shadow: var(--md-shadow-1); transition: transform .15s ease, box-shadow .15s ease, background .12s ease; display:grid; gap:8px; justify-items:center; }
-.src-btn:hover{ background:#f8fbff; transform: translateY(-2px); box-shadow: var(--md-shadow-2); }
-.src-ico{ font-size:20px; } .src-name{ margin-top:6px; font-size:12.5px; font-weight:800; color:#2a3342; }
+.src-btn{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; cursor:pointer; text-align:center; box-shadow: var(--md-shadow-1); transition: transform .15s ease, box-shadow .15s ease, background .12s ease; display:grid; gap:8px; justify-items:center; }
+.src-btn:hover{ background: var(--bg); transform: translateY(-2px); box-shadow: var(--md-shadow-2); }
+.src-ico{ font-size:20px; } .src-name{ margin-top:6px; font-size:12.5px; font-weight:800; color:var(--txt); }
 .src-ico-comp{ display:inline-flex; font-size: 20px; line-height: 1; }
 .src-ico-img{ width:1em; height:1em; display:inline-block; object-fit:contain; }
-.info-line{ font-size:12.5px; color:#5b6b86; padding:8px 10px; border:1px dashed #dbe3f3; border-radius:10px; background:#fafcff; margin-bottom:8px; }
+.info-line{ font-size:12.5px; color:var(--muted); padding:8px 10px; border:1px dashed var(--line); border-radius:10px; background: var(--bg); margin-bottom:8px; }
 
 .connected{ margin-top:12px; }
-.conn-title{ font-weight:900; color:#2a3342; margin-bottom:6px; }
+.conn-title{ font-weight:900; color:var(--txt); margin-bottom:6px; }
 .conn-list{ display:grid; gap:6px; }
-.conn-item{ display:flex; align-items:center; justify-content:space-between; background:#fff; border:1px solid #e8eef8; border-radius:10px; padding:10px 12px; box-shadow: var(--md-shadow-1); }
-.ci-left{ display:flex; align-items:center; gap:8px; color:#344562; }
+.conn-item{ display:flex; align-items:center; justify-content:space-between; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 12px; box-shadow: var(--md-shadow-1); }
+.ci-left{ display:flex; align-items:center; gap:8px; color:var(--muted); }
 .dot{ width:8px; height:8px; background:#22c55e; border-radius:999px; display:inline-block; }
-.kind{ color:#8192aa; }
+.kind{ color:var(--muted); }
 
 /* modal */
 .modal{ position:fixed; inset:0; background:rgba(0,0,0,.35); display:grid; place-items:center; z-index:30; }
-.modal-box{ width:min(860px, 96vw); background:#fff; border-radius:14px; border:1px solid var(--line); box-shadow:0 18px 48px rgba(31,64,175,.18); }
+.modal-box{ width:min(860px, 96vw); background:var(--card); border-radius:14px; border:1px solid var(--line); box-shadow:0 18px 48px rgba(31,64,175,.18); }
 .modal-head{ display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border-bottom:1px solid var(--line); }
 .close{ background:transparent; border:none; font-size:18px; cursor:pointer; }
 .wizard-tabs{ display:flex; gap:8px; padding:8px 12px; border-bottom:1px solid var(--line); overflow-x:auto; }
-.wtab{ border:1px solid #dbe3f3; background:#fff; color:#1e2a44; border-radius:9px; padding:6px 10px; cursor:pointer; font-weight:800; }
-.wtab.active{ background:#eaf2ff; color:#1d4ed8; border-color:#c7dafb; }
+.wtab{ border:1px solid var(--line); background:var(--card); color:var(--txt); border-radius:9px; padding:6px 10px; cursor:pointer; font-weight:800; }
+.wtab.active{ background: rgba(96,165,250,.15); color: var(--blue); border-color:#c7dafb; }
 .wizard-body{ padding:14px; }
 .pane{ display:grid; gap:10px; }
 .row{ display:grid; gap:6px; }
-.row input{ border:1px solid #dbe3f3; border-radius:10px; padding:9px 12px; }
+.row input{ border:1px solid var(--line); border-radius:10px; padding:9px 12px; background: var(--card); color: var(--txt); }
 .actions{ display:flex; justify-content:flex-end; gap:8px; }
 .status{ color:#1e3a8a; font-weight:800; }
 

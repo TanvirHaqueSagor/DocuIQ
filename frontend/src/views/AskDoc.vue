@@ -79,14 +79,15 @@ function onAsk() {
   padding: 11px 16px;
   font-size: 1.09rem;
   border-radius: 8px;
-  border: 1.6px solid #e0e5f1;
-  background: #fff;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--txt);
   outline: none;
   box-shadow: 0 2px 7px 0 rgba(63, 81, 181, 0.03);
   transition: border .13s;
 }
 .upload-btn {
-  background: #195ebf;
+  background: var(--blue);
   color: #fff;
   border-radius: 7px;
   font-weight: 600;
@@ -96,13 +97,13 @@ function onAsk() {
   cursor: pointer;
   transition: background .14s;
 }
-.upload-btn:hover { background: #1675da; }
+.upload-btn:hover { filter: brightness(1.1); }
 .qa-area { margin-top: 22px; }
 .qa-block { margin-bottom: 24px; }
 .q-label {
   display: inline-block;
-  background: #eaf3ff;
-  color: #2788df;
+  background: rgba(96,165,250,.15);
+  color: var(--blue);
   border-radius: 4px;
   font-weight: 600;
   font-size: 1.02rem;
@@ -111,21 +112,22 @@ function onAsk() {
 }
 .question { font-weight: 600; margin-bottom: 7px; }
 .answer-card {
-  background: #f6f9fd;
+  background: var(--card);
   border-radius: 10px;
-  border: 1.2px solid #e7effc;
+  border: 1px solid var(--line);
   padding: 18px 18px 15px 18px;
   margin-top: 7px;
+  color: var(--txt);
 }
 .answer-label {
-  color: #0d8de7;
+  color: var(--blue);
   font-weight: 500;
   margin-bottom: 7px;
   font-size: 0.98rem;
 }
 .page-btn {
   margin-top: 10px;
-  background: #0d8de7;
+  background: var(--blue);
   color: #fff;
   border: none;
   border-radius: 6px;

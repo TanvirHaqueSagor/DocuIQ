@@ -1,11 +1,13 @@
 {
   "documents": "文档",
+  "home": "首页",
   "askDoc": "问答",
   "briefIntel": "简报智能",
   "settings": "设置",
   "researchAnalyst": "研究分析员",
 
   "askSomething": "请提问...",
+  "send": "发送",
   "uploadDoc": "上传文档",
   "answer": "答案",
   "page": "页",
@@ -61,6 +63,38 @@
   "imports": "导入",
   "noDocs": "还没有文档。请在右侧连接一个来源。",
   "autoRefresh": "自动刷新",
+  "dashboardTotalDocuments": "文档总数",
+  "dashboardQueries7d": "查询（7天）",
+  "dashboardAvgAnswerTime": "平均回答时间",
+  "dashboardAnswerConfidence": "回答置信度",
+  "usageActivitySpan": "活动（过去{days}天）",
+  "usagePeak": "峰值",
+  "usageTotal": "总计",
+  "usageEmpty": "暂无使用数据。",
+  "usageAria": "从 {start} 到 {end} 的上传和聊天交互总计。最新一天：{value} 次交互。",
+  "usageAriaEmpty": "使用情况图暂无数据。",
+  "recentDocumentsTitle": "最近的文档",
+  "settingsTitle": "设置",
+  "settingsBasic": "基础设置",
+  "settingsTheme": "主题",
+  "settingsThemeLight": "浅色",
+  "settingsThemeDark": "深色",
+  "settingsThemeSystem": "系统",
+  "settingsLanguage": "语言",
+  "settingsDanger": "数据管理",
+  "settingsDangerHint": "危险区域——这些操作不可撤销。",
+  "settingsClearVectors": "清除向量化数据",
+  "settingsDeleteDocs": "删除我所有的文档",
+  "settingsDeleteAll": "删除全部（文档 + 向量）",
+  "settingsConfirm": "确定执行“{action}”吗？此操作无法撤销。",
+  "settingsSummaryClearedVectors": "已清除 {count} 个向量项",
+  "settingsSummaryDeletedDocs": "已删除 {count} 个文档",
+  "settingsSummaryDeletedJobs": "已删除 {count} 个任务",
+  "settingsSummaryDeletedSources": "已删除 {count} 个来源",
+  "settingsDone": "✅ 完成：{summary}。",
+  "settingsDoneFallback": "完成",
+  "settingsError": "❌ {error}",
+  "settingsOperationFailed": "操作失败",
 
   "runningJobs": "运行中的作业",
   "server": "服务器",
@@ -83,6 +117,68 @@
   "noItems": "暂无内容",
   "docsInfo": "上传和已连接来源的数据将被索引到向量数据库。使用重新导入来刷新向量。",
   "view": "查看",
+  "documentsPage": {
+    "searchPlaceholder": "搜索任务、标题…",
+    "statuses": {
+      "uploaded": "已上传",
+      "processing": "处理中",
+      "imported": "已导入",
+      "failed": "失败",
+      "running": "运行中"
+    },
+    "kinds": {
+      "import": "导入",
+      "job": "导入",
+      "file": "文件",
+      "web": "网页",
+      "s3": "AWS S3",
+      "gdrive": "Google 云端硬盘",
+      "dropbox": "Dropbox",
+      "onedrive": "OneDrive",
+      "box": "Box",
+      "sharepoint": "SharePoint",
+      "confluence": "Confluence",
+      "notion": "Notion",
+      "airtable": "Airtable",
+      "email": "电子邮件",
+      "gmail": "Gmail",
+      "outlook": "Outlook",
+      "slack": "Slack",
+      "teams": "Microsoft Teams",
+      "zoom": "Zoom",
+      "github": "GitHub",
+      "gitlab": "GitLab",
+      "jira": "Jira",
+      "trello": "Trello",
+      "postgres": "PostgreSQL",
+      "mysql": "MySQL",
+      "mongodb": "MongoDB",
+      "snowflake": "Snowflake",
+      "bigquery": "BigQuery",
+      "elasticsearch": "Elasticsearch",
+      "database": "数据库",
+      "rss": "RSS",
+      "api": "API",
+      "bloomberg": "彭博",
+      "refinitiv": "Refinitiv",
+      "esg": "ESG API",
+      "linkedin": "LinkedIn",
+      "twitter": "Twitter (X)",
+      "gcal": "Google 日历",
+      "figma": "Figma",
+      "media": "媒体",
+      "video": "视频",
+      "audio": "音频"
+    },
+    "jobTitle": {
+      "uploadMultiple": "{first}（另有 {extra} 个）",
+      "uploadCount": "{mode} · {count} 个文件",
+      "web": "{mode} · {url}",
+      "s3": "{mode} · {bucket}/{prefix}",
+      "generic": "{mode}"
+    },
+    "filesCount": "{count} 个文件"
+  },
 
   "rename": "重命名",
   "archive": "存档",
@@ -118,5 +214,339 @@
   "enterToSend": "按 Enter 发送",
   "ctrlEnterToSend": "按 Ctrl/Cmd+Enter 发送",
   "enterToSendHint": "按 Enter 发送。Shift+Enter 换行。",
-  "ctrlEnterToSendHint": "按 Ctrl/Cmd+Enter 发送。Enter 换行。"
+  "ctrlEnterToSendHint": "按 Ctrl/Cmd+Enter 发送。Enter 换行。",
+  "upgradePage": {
+    "heroTitle": "选择能够强化文档智能的方案",
+    "heroSubtitle": "比较 DocuIQ 的订阅方案，以满足团队在规模、治理和协作方面的需求。所有方案都包含安全处理、多语种支持和 AI 驱动的洞察。",
+    "heroPrimaryCta": "查看方案",
+    "heroSecondaryCta": "比较功能",
+    "statusLabel": "当前方案",
+    "statusManaged": "由您的组织管理",
+    "planCurrentLabel": "当前方案",
+    "planUpdatingLabel": "正在更新…",
+    "planStatusUnknown": "未知方案",
+    "plans": {
+      "starter": {
+        "name": "Starter",
+        "tagline": "“个人洞察”",
+        "price": "价格：免费 / 每月 0 美元",
+        "bestFor": "适用对象：探索 AI 文档理解的个人用户。",
+        "includes": "",
+        "cta": "立即开始",
+        "features": [
+          "最多上传 10 份文档",
+          "单个文件最大 20 MB",
+          "支持页面引用的 AI 文档问答",
+          "自动摘要与关键词提取",
+          "1 个个人工作区",
+          "50 条查询历史",
+          "基础分析",
+          "多语言支持（英语、孟加拉语、日语等）",
+          "安全的加密存储（AES-256）",
+          "访问 DocuIQ 公共 LLM 模型",
+          "仅限邮件的社区支持"
+        ]
+      },
+      "pro": {
+        "name": "Pro",
+        "tagline": "“团队智能”",
+        "price": "价格：每个工作区每月 49 美元",
+        "bestFor": "适用对象：协同分析报告的团队。",
+        "includes": "包含 Starter 的全部功能，并新增：",
+        "cta": "升级",
+        "features": [
+          "最多上传 2,000 份文档（单文件 500 MB）",
+          "上下文感知的 RAG 搜索",
+          "支持多工作区（最多 10 名成员）",
+          "自定义嵌入",
+          "共享 AI 聊天工作区",
+          "自动生成摘要、表格和高亮",
+          "连接 S3、Google Drive、OneDrive",
+          "高级分析与日志",
+          "API 访问",
+          "优先处理",
+          "优先支持（24 小时 SLA）"
+        ]
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "tagline": "“私有 RAG 云”",
+        "price": "价格：定制（每月 299 美元起）",
+        "bestFor": "适用对象：需要规模、隐私与集成能力的大型组织。",
+        "includes": "包含 Pro 的全部功能，并新增：",
+        "cta": "联系销售",
+        "features": [
+          "无限量文档与存储",
+          "专用向量数据库（S3 / PostgreSQL / Pinecone / Milvus）",
+          "私有云或本地部署",
+          "使用自有 LLM API 密钥",
+          "SSO / OAuth / LDAP 集成",
+          "基于角色的访问控制（RBAC）",
+          "组织仪表盘与审计日志",
+          "自定义模型微调与管道",
+          "第三方集成（Slack、Jira、Notion、Teams 等）",
+          "99.9% 正常运行时间 SLA",
+          "专属技术客户经理",
+          "优先上线与企业级支持"
+        ]
+      }
+    },
+    "addonsTitle": "可选附加功能（适用于所有方案）",
+    "addonsSubtitle": "通过灵活的附加功能扩展存储、提高吞吐量或定制使用体验。",
+    "addonsHeaders": {
+      "name": "附加项",
+      "description": "说明",
+      "price": "价格"
+    },
+    "addons": [
+      { "name": "额外存储", "description": "+50 GB 存储", "price": "$10 / 月" },
+      { "name": "额外 AI 查询", "description": "+500 次查询", "price": "$5 / 月" },
+      { "name": "自定义品牌", "description": "自有域名与标识", "price": "$19 / 月" },
+      { "name": "API 扩展", "description": "+10,000 次请求", "price": "$0.001 / 次" },
+      { "name": "数据归档", "description": "长期保留", "price": "$9 / 月" }
+    ],
+    "comparisonTitle": "功能对比",
+    "comparisonSubtitle": "从数据摄取、协作与治理角度比较 Starter、Pro 与 Enterprise。",
+    "comparisonHeaders": {
+      "feature": "功能",
+      "starter": "Starter",
+      "pro": "Pro",
+      "enterprise": "Enterprise"
+    },
+    "comparisonRows": [
+      { "feature": "文档上传上限", "starter": "10", "pro": "2000", "enterprise": "无限" },
+      { "feature": "单个文件大小", "starter": "20 MB", "pro": "500 MB", "enterprise": "无限" },
+      { "feature": "支持的文件类型", "starter": "PDF/DOCX/XLSX/PPTX", "pro": "常见格式", "enterprise": "所有格式 + 自定义" },
+      { "feature": "AI 问答", "starter": "✅ 基础", "pro": "✅ 高级", "enterprise": "✅ 专属" },
+      { "feature": "页面引用", "starter": "✅", "pro": "✅", "enterprise": "✅" },
+      { "feature": "智能摘要", "starter": "✅", "pro": "✅ 强化", "enterprise": "✅ 深度定制" },
+      { "feature": "关键词提取", "starter": "✅", "pro": "✅", "enterprise": "✅" },
+      { "feature": "工作区数量", "starter": "1", "pro": "10", "enterprise": "无限" },
+      { "feature": "自定义嵌入", "starter": "❌", "pro": "✅", "enterprise": "✅" },
+      { "feature": "共享聊天", "starter": "❌", "pro": "✅", "enterprise": "✅" },
+      { "feature": "云端集成", "starter": "❌", "pro": "✅", "enterprise": "✅" },
+      { "feature": "API 访问", "starter": "❌", "pro": "✅", "enterprise": "✅ 扩展" },
+      { "feature": "分析能力", "starter": "基础", "pro": "高级", "enterprise": "组织级" },
+      { "feature": "查询历史", "starter": "50", "pro": "无限", "enterprise": "无限" },
+      { "feature": "安全存储", "starter": "✅", "pro": "✅", "enterprise": "✅ 专用" },
+      { "feature": "模型微调", "starter": "❌", "pro": "❌", "enterprise": "✅" },
+      { "feature": "自有 LLM 密钥", "starter": "❌", "pro": "❌", "enterprise": "✅" },
+      { "feature": "RBAC / SSO / LDAP", "starter": "❌", "pro": "❌", "enterprise": "✅" },
+      { "feature": "集成（Slack、Jira 等）", "starter": "❌", "pro": "有限", "enterprise": "全面" },
+      { "feature": "支持", "starter": "邮件", "pro": "24 小时", "enterprise": "专属" },
+      { "feature": "SLA", "starter": "—", "pro": "—", "enterprise": "99.9 %" }
+    ],
+    "faqTitle": "常见问题",
+    "faq": [
+      {
+        "q": "升级前可以体验 Pro 方案吗？",
+        "a": "可以。您可以申请 14 天试用（使用示例数据或自有数据），我们会协助完成部署。"
+      },
+      {
+        "q": "是否为教育或非营利组织提供优惠？",
+        "a": "符合条件的组织可享受 Pro 和 Enterprise 的优惠价格。详情请发送邮件至 hello@docuiq.ai。"
+      },
+      {
+        "q": "Enterprise 方案上线需要多久？",
+        "a": "取决于 SSO 和数据集成情况，一般 2–4 周即可完成上线，我们也会协助迁移计划。"
+      }
+    ],
+    "feedbackPro": "升级到 Pro 方案，立即解锁协同能力。",
+    "feedbackEnterprise": "Enterprise 包含私有部署、SSO 和专属上线指导。",
+    "feedbackUpgradeSuccess": "已成功切换到 Pro 方案，享受高级协作功能吧！",
+    "feedbackUpgradeError": "升级失败，请稍后重试。",
+    "feedbackLoadError": "无法加载方案信息。",
+    "feedbackUnknownError": "发生未知错误。",
+    "redirectDocuments": "前往文档"
+  },
+  "helpMenu": {
+    "title": "帮助与支持",
+    "footer": "我们通常在 1 个工作日内回复。",
+    "options": {
+      "helpCenter": { "title": "帮助中心", "desc": "查看指南、常见问题和入门清单。" },
+      "releaseNotes": { "title": "版本说明", "desc": "了解 DocuIQ 最新的更新和修复。" },
+      "termsPolicies": { "title": "条款与政策", "desc": "了解安全、隐私与合规要求。" },
+      "bugReport": { "title": "报告问题", "desc": "告诉我们遇到的故障以便快速修复。" }
+    }
+  },
+  "helpCenter": {
+    "heroTitle": "需要什么帮助？",
+    "heroSubtitle": "收集了关于 DocuIQ 配置、协作与治理的常见问题。",
+    "searchPlaceholder": "搜索帮助文章",
+    "quickLinksTitle": "快速链接",
+    "quickLinksSubtitle": "热门主题助你马上上手。",
+    "quickLinks": [
+      { "key": "gettingStarted", "anchor": "getting-started", "title": "入门指南", "desc": "上传文档、连接数据源并开始提问。" },
+      { "key": "workspaceAdmin", "anchor": "workspace-admin", "title": "工作区管理", "desc": "管理席位、权限、安全和账单。" },
+      { "key": "troubleshooting", "anchor": "troubleshooting", "title": "故障排查", "desc": "解决常见的摄取或搜索问题。" },
+      { "key": "bestPractices", "anchor": "best-practices", "title": "最佳实践", "desc": "让团队更高效地使用 DocuIQ。" }
+    ],
+    "sections": [
+      {
+        "id": "getting-started",
+        "title": "入门指南",
+        "summary": "构建稳定的工作区基础。",
+        "articles": [
+          { "title": "上传文档", "body": "在“文档 → 上传”拖拽 PDF、DOCX、PPTX、HTML 等文件。系统会自动排队处理并显示进度。" },
+          { "title": "连接云盘", "body": "在“文档 → 连接来源”中接入 Google Drive、OneDrive 或 S3，并可设置同步计划。" },
+          { "title": "邀请团队", "body": "前往“设置 → 工作区”，通过邮箱邀请成员并分配合适的权限角色。" }
+        ]
+      },
+      {
+        "id": "workspace-admin",
+        "title": "工作区管理",
+        "summary": "掌控安全、计费与合规。",
+        "articles": [
+          { "title": "席位管理", "body": "管理员可随时添加或移除用户，费用会在下一张账单中调整。" },
+          { "title": "配置 SSO", "body": "Enterprise 客户可在“设置 → 安全”启用 SAML/OAuth SSO；如需 SCIM 请联系支持团队。" },
+          { "title": "审计记录", "body": "在“设置 → 活动日志”查看上传、删除和权限变更的完整记录。" }
+        ]
+      },
+      {
+        "id": "troubleshooting",
+        "title": "故障排查",
+        "summary": "快速定位并解决问题。",
+        "articles": [
+          { "title": "摄取卡住了", "body": "大型文件可能需要几分钟处理，请刷新页面或查看版本说明是否有维护公告。" },
+          { "title": "搜索无结果", "body": "确认文档已完成索引，并尝试使用相关关键词或高级筛选。" },
+          { "title": "回答不准确", "body": "通过对话菜单提交反馈，并提供相关文档和问题，帮助我们优化上下文。" }
+        ]
+      },
+      {
+        "id": "best-practices",
+        "title": "最佳实践",
+        "summary": "让 DocuIQ 成为日常工作的一部分。",
+        "articles": [
+          { "title": "建立共享集合", "body": "将已批准的内容整理到共享集合，方便团队快速查找。" },
+          { "title": "追踪使用情况", "body": "使用仪表盘和版本说明规划培训与推广。" },
+          { "title": "分享提示", "body": "保存可复用的提示语，在团队频道里共享。" }
+        ]
+      }
+    ],
+    "faqTitle": "常见问题",
+    "faq": [
+      { "q": "如何限制敏感文档的访问？", "a": "使用集合级别的权限控制，仅允许授权成员查看。" },
+      { "q": "可以导出回答或引用吗？", "a": "可以。在任何保存的分析中点击 ••• → 导出，即可下载对话及参考资料。" },
+      { "q": "在哪里查看系统状态？", "a": "查看版本说明或在“设置 → 通知”中订阅状态邮件。" }
+    ],
+    "cta": {
+      "title": "还需要更多帮助？",
+      "description": "发送邮件至 support@docuiq.ai，我们将在 1 个工作日内回复。",
+      "button": "联系支持"
+    }
+  },
+  "releaseNotes": {
+    "heroTitle": "DocuIQ 最新动态",
+    "heroSubtitle": "每周更新功能改进与修复情况。",
+    "lastUpdated": "更新于 2024 年 7 月",
+    "highlightsTitle": "亮点",
+    "changesTitle": "变更记录",
+    "entries": [
+      {
+        "version": "2024.07",
+        "date": "2024 年 7 月 3 日",
+        "highlights": ["新增工作区版本说明页面", "摄取进度实时显示"],
+        "changes": ["多文件上传支持暂停/继续", "搜索结果显示文档预览", "账单页面展示预计费用"]
+      },
+      {
+        "version": "2024.06",
+        "date": "2024 年 6 月 19 日",
+        "highlights": ["基于角色的工作区模板", "集合权限进一步扩展"],
+        "changes": ["管理员可导出活动日志 CSV", "对话答案加入页面引用", "大型 HTML 支持更稳定"]
+      },
+      {
+        "version": "2024.05",
+        "date": "2024 年 5 月 28 日",
+        "highlights": ["企业级 SSO 入驻更高效"],
+        "changes": ["修复 SharePoint 连接器问题", "实时协作稳定性提升"],
+        "links": [{ "label": "查看状态页", "href": "https://status.docuiq.ai" }]
+      }
+    ],
+    "upNextTitle": "即将推出",
+    "upNext": ["团队自定义提示模板", "SOC 2 Type II 资料", "更丰富的分析导出"],
+    "feedbackPrompt": "有反馈或想提前体验？请发送邮件至"
+  },
+  "termsPolicies": {
+    "heroTitle": "条款、政策与安全",
+    "heroSubtitle": "了解 DocuIQ 如何处理数据以及我们的使用准则。",
+    "lastUpdated": "生效日期：2024 年 7 月",
+    "sections": [
+      {
+        "title": "服务条款",
+        "description": "说明使用 DocuIQ 的基本规则。",
+        "points": ["席位按用户分配，禁止共享账号。", "上传内容归您所有，我们仅为提供服务而加密存储。", "若违反法律或影响系统稳定，我们可能暂停访问。"]
+      },
+      {
+        "title": "隐私与数据处理",
+        "items": [
+          { "title": "加密", "body": "文档静态存储使用 AES-256，加密传输使用 TLS 1.2+。" },
+          { "title": "保留", "body": "删除文档后会立刻从活动存储移除，备份将在 30 天内清除。" },
+          { "title": "访问", "body": "仅经过授权的 DocuIQ 员工在经批准的支持请求下可访问生产系统。" }
+        ]
+      },
+      {
+        "title": "可接受的使用",
+        "points": ["未经许可不要上传包含敏感个人信息的内容。", "严禁自动抓取、垃圾邮件或拒绝服务攻击。", "如发现滥用，请发送邮件至 legal@docuiq.ai。"]
+      }
+    ],
+    "questionsTitle": "关于安全或合规有疑问？",
+    "questionsSubtitle": "我们可以提供审计报告、DPA 或协助完成供应商问卷。"
+  },
+  "bugReport": {
+    "heroTitle": "报告错误",
+    "heroSubtitle": "请告诉我们问题细节，方便快速定位与修复。",
+    "form": {
+      "summary": "问题概述",
+      "environment": "使用环境",
+      "steps": "复现步骤",
+      "expected": "预期结果",
+      "actual": "实际结果",
+      "contact": "联系邮箱（可选）"
+    },
+    "placeholders": {
+      "summary": "例如：无法下载 PDF 导出",
+      "environment": "工作区、浏览器、系统及集成",
+      "steps": "按顺序描述导致问题的操作",
+      "expected": "期望发生的情况",
+      "actual": "实际发生的情况（报错、截图或 ID）",
+      "contact": "name@example.com"
+    },
+    "tips": {
+      "title": "建议提供的信息",
+      "items": ["涉及的文档 ID 或名称", "出现时间与时区", "控制台报错或 HTTP 状态码", "若影响业务请说明影响范围"]
+    },
+    "submit": "发送报告",
+    "sending": "发送中...",
+    "success": "感谢反馈！我们已打开邮件草稿，请检查后发送以便继续跟进。",
+    "error": "未能打开邮件客户端，请直接发送邮件至 support@docuiq.ai。"
+  },
+  "contactSales": {
+    "heroTitle": "联系 DocuIQ 销售团队",
+    "heroSubtitle": "告诉我们您的数据来源、合规要求以及团队目标。我们将在一个工作日内提供 Enterprise 部署的专属方案和报价。",
+    "highlightOne": "支持私有云或本地部署选项",
+    "highlightTwo": "专属技术客户经理",
+    "highlightThree": "支持与 Slack、Jira、Notion、Teams 等系统集成",
+    "metaEmailLabel": "发送邮件",
+    "metaChatLabel": "想即时沟通？",
+    "metaChatLink": "查看方案",
+    "formTitle": "分享您的项目信息",
+    "formSubtitle": "我们将为您提供量身定制的成功计划和 Enterprise 价格。",
+    "fullNameLabel": "姓名",
+    "fullNamePlaceholder": "张伟",
+    "emailLabel": "工作邮箱",
+    "emailPlaceholder": "jane@company.com",
+    "emailPlaceholderUser": "jane",
+    "emailPlaceholderDomain": "company.com",
+    "companyLabel": "公司",
+    "companyPlaceholder": "公司名称",
+    "roleLabel": "职位 / 角色",
+    "rolePlaceholder": "知识运营负责人",
+    "desiredPlanLabel": "您感兴趣的方案",
+    "messageLabel": "请描述您的数据与目标",
+    "messagePlaceholder": "填写数据来源、安全需求、团队规模或上线时间等信息。",
+    "submit": "提交咨询",
+    "submitting": "提交中...",
+    "success": "感谢咨询！DocuIQ 专家将尽快与您联系。",
+    "error": "暂时无法提交，请稍后再试。"
+  }
 }

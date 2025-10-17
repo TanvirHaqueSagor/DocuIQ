@@ -5,8 +5,20 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import get_user_model, authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import RegisterSerializer
+from .serializers import (
+    RegisterSerializer,
+    SubscriptionPlanUpdateSerializer,
+    SalesInquirySerializer,
+)
 from .models import UserProfile, Organization
+from .plan import (
+    PLAN_CHOICES,
+    can_manage_plan,
+    get_effective_plan,
+    get_effective_plan_and_source,
+    normalize_plan,
+    serialize_plan,
+)
 from core.permissions import IsInTenant
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
 
@@ -59,6 +71,10 @@ class LoginView(APIView):
         else:
             name = user.username or (user.email.split('@')[0] if user.email else '')
 
+        plan_code, plan_source = get_effective_plan_and_source(user)
+        plan_payload = serialize_plan(plan_code)
+        plan_payload['source'] = plan_source
+
         return Response({
             'access': str(refresh.access_token),
             'refresh': str(refresh),
@@ -70,6 +86,7 @@ class LoginView(APIView):
             },
             'account_type': account_type,
             'org_subdomain': org_subdomain,
+            'plan': plan_payload,
         }, status=200)
 
 class MeView(APIView):
@@ -78,6 +95,9 @@ class MeView(APIView):
     def get(self, request):
         user = request.user
         profile = getattr(user, 'userprofile', None)
+        plan_code, plan_source = get_effective_plan_and_source(user)
+        plan_payload = serialize_plan(plan_code)
+        plan_payload['source'] = plan_source
         return Response({
             "id": user.id,
             "email": user.email,
@@ -86,6 +106,7 @@ class MeView(APIView):
             "last_name": getattr(user, "last_name", ""),
             "account_type": getattr(profile, "account_type", "individual") if profile else "individual",
             "org_subdomain": getattr(profile.organization, "subdomain", None) if (profile and profile.organization) else None,
+            "plan": plan_payload,
         })
 
 # --- Org employee create (Owner only) ---
@@ -129,6 +150,70 @@ class OrgEmployeeCreateView(generics.CreateAPIView):
             from rest_framework.exceptions import PermissionDenied
             raise PermissionDenied('Only organization owners can add employees.')
         serializer.save()
+
+
+class SubscriptionPlanView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        plan_code, plan_source = get_effective_plan_and_source(request.user)
+        payload = serialize_plan(plan_code)
+        payload.update({
+            'source': plan_source,
+            'can_manage': can_manage_plan(request.user),
+            'available_plans': [{'code': code, 'label': label} for code, label in PLAN_CHOICES],
+        })
+        return Response(payload)
+
+    def post(self, request):
+        if not can_manage_plan(request.user):
+            return Response({'detail': 'forbidden'}, status=status.HTTP_403_FORBIDDEN)
+
+        serializer = SubscriptionPlanUpdateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        desired_plan = normalize_plan(serializer.validated_data['plan'])
+        profile = getattr(request.user, 'userprofile', None)
+        if profile is None:
+            return Response({'detail': 'profile_not_found'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if profile.account_type == 'organization':
+            org = getattr(profile, 'organization', None)
+            if org is None:
+                return Response({'detail': 'organization_not_found'}, status=status.HTTP_400_BAD_REQUEST)
+            org.plan = desired_plan
+            org.save(update_fields=['plan'])
+        else:
+            profile.plan = desired_plan
+            profile.save(update_fields=['plan'])
+
+        plan_code, plan_source = get_effective_plan_and_source(request.user)
+        payload = serialize_plan(plan_code)
+        payload['source'] = plan_source
+        return Response(payload, status=status.HTTP_200_OK)
+
+
+class ContactSalesView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = SalesInquirySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        plan_code = get_effective_plan(request.user)
+        inquiry = serializer.save(metadata={
+            'user_id': request.user.id,
+            'plan_at_submission': serialize_plan(plan_code),
+        })
+
+        return Response({
+            'id': inquiry.id,
+            'created_at': inquiry.created_at.isoformat(),
+            'success': True,
+        }, status=status.HTTP_201_CREATED)
+
 
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]

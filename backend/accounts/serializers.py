@@ -4,7 +4,8 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
 from django.utils.text import slugify
 from rest_framework import serializers
-from .models import UserProfile, Organization
+from .models import UserProfile, Organization, SalesInquiry
+from .plan import PLAN_CHOICES
 
 User = get_user_model()
 
@@ -80,3 +81,13 @@ class RegisterSerializer(serializers.ModelSerializer):
             role=role,
         )
         return user
+
+
+class SubscriptionPlanUpdateSerializer(serializers.Serializer):
+    plan = serializers.ChoiceField(choices=PLAN_CHOICES)
+
+
+class SalesInquirySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SalesInquiry
+        fields = ('full_name', 'email', 'company', 'role', 'desired_plan', 'message')

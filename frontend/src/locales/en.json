@@ -1,10 +1,12 @@
 {
   "documents": "Documents",
+  "home": "Home",
   "askDoc": "Ask-Doc",
   "briefIntel": "Brief-Intel",
   "settings": "Settings",
   "researchAnalyst": "Research Analyst",
   "askSomething": "Ask something...",
+  "send": "Send",
   "uploadDoc": "Upload Document",
   "answer": "Answer",
   "page": "Page",
@@ -55,6 +57,38 @@
   "imports": "Imports",
   "noDocs": "No documents yet. Connect a source on the right.",
   "autoRefresh": "Auto refresh",
+  "dashboardTotalDocuments": "Total Documents",
+  "dashboardQueries7d": "Queries (7d)",
+  "dashboardAvgAnswerTime": "Avg. Answer Time",
+  "dashboardAnswerConfidence": "Answer Confidence",
+  "usageActivitySpan": "Activity (last {days} days)",
+  "usagePeak": "Peak",
+  "usageTotal": "Total",
+  "usageEmpty": "No usage data available yet.",
+  "usageAria": "Combined uploads and chat interactions from {start} to {end}. Latest day: {value} interactions.",
+  "usageAriaEmpty": "Usage chart with no data.",
+  "recentDocumentsTitle": "Recent Documents",
+  "settingsTitle": "Settings",
+  "settingsBasic": "Basic",
+  "settingsTheme": "Theme",
+  "settingsThemeLight": "Light",
+  "settingsThemeDark": "Dark",
+  "settingsThemeSystem": "System",
+  "settingsLanguage": "Language",
+  "settingsDanger": "Data Management",
+  "settingsDangerHint": "Danger zone — these actions are permanent.",
+  "settingsClearVectors": "Clear vectorized data",
+  "settingsDeleteDocs": "Delete all my documents",
+  "settingsDeleteAll": "Delete ALL (docs + vectors)",
+  "settingsConfirm": "Are you sure you want to perform “{action}”? This cannot be undone.",
+  "settingsSummaryClearedVectors": "Cleared {count} vector item(s)",
+  "settingsSummaryDeletedDocs": "Deleted {count} document(s)",
+  "settingsSummaryDeletedJobs": "Deleted {count} job(s)",
+  "settingsSummaryDeletedSources": "Deleted {count} source(s)",
+  "settingsDone": "✅ Done: {summary}.",
+  "settingsDoneFallback": "completed",
+  "settingsError": "❌ {error}",
+  "settingsOperationFailed": "Operation failed",
 
   "runningJobs": "Running jobs",
   "server": "Server",
@@ -77,6 +111,68 @@
   "noItems": "No items yet",
   "docsInfo": "Data from uploads and connected sources is indexed into your vector database. Use Re-run Import to refresh vectors.",
   "view": "View",
+  "documentsPage": {
+    "searchPlaceholder": "Search jobs, titles…",
+    "statuses": {
+      "uploaded": "Uploaded",
+      "processing": "Processing",
+      "imported": "Imported",
+      "failed": "Failed",
+      "running": "Running"
+    },
+    "kinds": {
+      "import": "Import",
+      "job": "Import",
+      "file": "File",
+      "web": "Web",
+      "s3": "AWS S3",
+      "gdrive": "Google Drive",
+      "dropbox": "Dropbox",
+      "onedrive": "OneDrive",
+      "box": "Box",
+      "sharepoint": "SharePoint",
+      "confluence": "Confluence",
+      "notion": "Notion",
+      "airtable": "Airtable",
+      "email": "Email",
+      "gmail": "Gmail",
+      "outlook": "Outlook",
+      "slack": "Slack",
+      "teams": "Microsoft Teams",
+      "zoom": "Zoom",
+      "github": "GitHub",
+      "gitlab": "GitLab",
+      "jira": "Jira",
+      "trello": "Trello",
+      "postgres": "PostgreSQL",
+      "mysql": "MySQL",
+      "mongodb": "MongoDB",
+      "snowflake": "Snowflake",
+      "bigquery": "BigQuery",
+      "elasticsearch": "Elasticsearch",
+      "database": "Database",
+      "rss": "RSS",
+      "api": "API",
+      "bloomberg": "Bloomberg",
+      "refinitiv": "Refinitiv",
+      "esg": "ESG API",
+      "linkedin": "LinkedIn",
+      "twitter": "Twitter (X)",
+      "gcal": "Google Calendar",
+      "figma": "Figma",
+      "media": "Media",
+      "video": "Video",
+      "audio": "Audio"
+    },
+    "jobTitle": {
+      "uploadMultiple": "{first} (+{extra} more)",
+      "uploadCount": "{mode} · {count} file(s)",
+      "web": "{mode} · {url}",
+      "s3": "{mode} · {bucket}/{prefix}",
+      "generic": "{mode}"
+    },
+    "filesCount": "{count} file(s)"
+  },
 
   "rename": "Rename",
   "archive": "Archive",
@@ -112,5 +208,545 @@
   "enterToSend": "Enter to send",
   "ctrlEnterToSend": "Ctrl/Cmd+Enter to send",
   "enterToSendHint": "Press Enter to send. Shift+Enter for newline.",
-  "ctrlEnterToSendHint": "Press Ctrl/Cmd+Enter to send. Enter for newline."
+  "ctrlEnterToSendHint": "Press Ctrl/Cmd+Enter to send. Enter for newline.",
+  "upgradePage": {
+    "heroTitle": "Pick the plan that powers your document intelligence",
+    "heroSubtitle": "Compare DocuIQ subscription tiers to match your team’s scale, governance, and collaboration needs. Every plan includes secure processing, multilingual coverage, and AI-assisted insights.",
+    "heroPrimaryCta": "View Plans",
+    "heroSecondaryCta": "Compare Features",
+    "statusLabel": "Current plan",
+    "statusManaged": "Managed by your organization",
+    "planCurrentLabel": "Current Plan",
+    "planUpdatingLabel": "Updating…",
+    "planStatusUnknown": "Unknown plan",
+    "plans": {
+      "starter": {
+        "name": "Starter",
+        "tagline": "“Personal Insight”",
+        "price": "Price: Free / $0 per month",
+        "bestFor": "Best for: Individuals exploring AI-powered document understanding.",
+        "includes": "",
+        "cta": "Get Started",
+        "features": [
+          "Upload up to 10 documents",
+          "Max file size: 20 MB",
+          "AI document Q&A with page references",
+          "Auto summaries & keyword extraction",
+          "1 personal workspace",
+          "History of 50 queries",
+          "Basic analytics",
+          "Multilingual support (English, Bangla, Japanese, etc.)",
+          "Secure encrypted storage (AES-256)",
+          "Access to DocuIQ public LLM model",
+          "Email-only community support"
+        ]
+      },
+      "pro": {
+        "name": "Pro",
+        "tagline": "“Team Intelligence”",
+        "price": "Price: $49 / month per workspace",
+        "bestFor": "Best for: Teams analyzing reports collaboratively.",
+        "includes": "Includes everything in Starter, plus:",
+        "cta": "Upgrade",
+        "features": [
+          "Upload up to 2 000 documents (max 500 MB each)",
+          "Context-aware RAG search",
+          "Multiple workspaces (up to 10 members)",
+          "Custom embeddings",
+          "Shared AI chat workspace",
+          "Auto-generated summaries + tables + highlights",
+          "Connect S3 / Google Drive / OneDrive",
+          "Advanced analytics & logs",
+          "API access",
+          "Priority processing",
+          "Priority support (24 h SLA)"
+        ]
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "tagline": "“Private RAG Cloud”",
+        "price": "Price: Custom pricing (from $299 / month)",
+        "bestFor": "Best for: Large organizations needing scale, privacy, and integration.",
+        "includes": "Includes everything in Pro, plus:",
+        "cta": "Contact Sales",
+        "features": [
+          "Unlimited documents & storage",
+          "Dedicated vector database (S3 / PostgreSQL / Pinecone / Milvus)",
+          "Private cloud or on-prem deployment",
+          "Use own LLM API key",
+          "SSO / OAuth / LDAP integration",
+          "Role-based access control (RBAC)",
+          "Org dashboards & audit logs",
+          "Custom model fine-tuning & pipelines",
+          "Third-party integrations (Slack, Jira, Notion, Teams, etc.)",
+          "SLA 99.9 % uptime",
+          "Dedicated technical account manager",
+          "Priority onboarding & enterprise support"
+        ]
+      }
+    },
+    "addonsTitle": "Optional Add-Ons (for any plan)",
+    "addonsSubtitle": "Expand storage, increase throughput, or tailor the experience with flexible add-ons.",
+    "addonsHeaders": {
+      "name": "Add-On",
+      "description": "Description",
+      "price": "Price"
+    },
+    "addons": [
+      { "name": "Extra Storage", "description": "+50 GB storage", "price": "$10 / month" },
+      { "name": "Extra AI Queries", "description": "+500 queries", "price": "$5 / month" },
+      { "name": "Custom Branding", "description": "Own domain & logo", "price": "$19 / month" },
+      { "name": "API Expansion", "description": "+10 K requests", "price": "$0.001 / req" },
+      { "name": "Data Archival", "description": "Long-term retention", "price": "$9 / month" }
+    ],
+    "comparisonTitle": "Feature comparison",
+    "comparisonSubtitle": "See how Starter, Pro, and Enterprise stack up across ingestion, collaboration, and governance.",
+    "comparisonHeaders": {
+      "feature": "Feature",
+      "starter": "Starter",
+      "pro": "Pro",
+      "enterprise": "Enterprise"
+    },
+    "comparisonRows": [
+      { "feature": "Document Upload Limit", "starter": "10", "pro": "2000", "enterprise": "Unlimited" },
+      { "feature": "Max File Size", "starter": "20 MB", "pro": "500 MB", "enterprise": "Unlimited" },
+      { "feature": "File Types", "starter": "PDF/DOCX/XLSX/PPTX", "pro": "All common", "enterprise": "All + custom" },
+      { "feature": "AI Q&A", "starter": "✅ Basic", "pro": "✅ Advanced", "enterprise": "✅ Private" },
+      { "feature": "Page References", "starter": "✅", "pro": "✅", "enterprise": "✅" },
+      { "feature": "Smart Summaries", "starter": "✅", "pro": "✅ Enhanced", "enterprise": "✅ Tuned" },
+      { "feature": "Keyword Extraction", "starter": "✅", "pro": "✅", "enterprise": "✅" },
+      { "feature": "Workspaces", "starter": "1", "pro": "10", "enterprise": "Unlimited" },
+      { "feature": "Custom Embeddings", "starter": "❌", "pro": "✅", "enterprise": "✅" },
+      { "feature": "Shared Chat", "starter": "❌", "pro": "✅", "enterprise": "✅" },
+      { "feature": "Cloud Integrations", "starter": "❌", "pro": "✅", "enterprise": "✅" },
+      { "feature": "API Access", "starter": "❌", "pro": "✅", "enterprise": "✅ Extended" },
+      { "feature": "Analytics", "starter": "Basic", "pro": "Advanced", "enterprise": "Org-level" },
+      { "feature": "Query History", "starter": "50", "pro": "Unlimited", "enterprise": "Unlimited" },
+      { "feature": "Secure Storage", "starter": "✅", "pro": "✅", "enterprise": "✅ Dedicated" },
+      { "feature": "Model Fine-Tuning", "starter": "❌", "pro": "❌", "enterprise": "✅" },
+      { "feature": "Own LLM Key", "starter": "❌", "pro": "❌", "enterprise": "✅" },
+      { "feature": "RBAC / SSO / LDAP", "starter": "❌", "pro": "❌", "enterprise": "✅" },
+      { "feature": "Integrations (Slack, Jira, etc.)", "starter": "❌", "pro": "Limited", "enterprise": "Full" },
+      { "feature": "Support", "starter": "Email", "pro": "24 h", "enterprise": "Dedicated" },
+      { "feature": "SLA", "starter": "—", "pro": "—", "enterprise": "99.9 %" }
+    ],
+    "faqTitle": "Frequently asked questions",
+    "faq": [
+      {
+        "q": "Can we trial Pro before upgrading?",
+        "a": "Yes. Request a 14-day pilot with sample data or bring your own dataset. Our team will help with setup."
+      },
+      {
+        "q": "Do you offer discounts for education or non-profits?",
+        "a": "We offer discounted Pro and Enterprise tiers for qualified organizations. Contact us at hello@docuiq.ai to learn more."
+      },
+      {
+        "q": "How quickly can we deploy the Enterprise plan?",
+        "a": "Typical enterprise rollouts complete within 2–4 weeks depending on SSO and data integrations. We help with migration planning."
+      }
+    ],
+    "feedbackPro": "Unlock collaboration by upgrading to the Pro plan below.",
+    "feedbackEnterprise": "Enterprise includes private deployments, SSO, and dedicated onboarding.",
+    "feedbackUpgradeSuccess": "You are now on the Pro plan. Enjoy advanced collaboration features!",
+    "feedbackUpgradeError": "Upgrade failed. Please try again.",
+    "feedbackLoadError": "Unable to load plan information.",
+    "feedbackUnknownError": "Something went wrong.",
+    "redirectDocuments": "Go to documents"
+  },
+  "helpMenu": {
+    "title": "Help & Support",
+    "footer": "We reply within one business day.",
+    "options": {
+      "helpCenter": { "title": "Help Center", "desc": "Browse FAQs, guides, and onboarding checklists." },
+      "releaseNotes": { "title": "Release notes", "desc": "See what shipped in the latest DocuIQ updates." },
+      "termsPolicies": { "title": "Terms & policies", "desc": "Review usage guidelines, security, and privacy commitments." },
+      "bugReport": { "title": "Report a bug", "desc": "Tell us about glitches so we can fix them fast." }
+    }
+  },
+  "helpCenter": {
+    "heroTitle": "How can we help?",
+    "heroSubtitle": "Answers for the questions we hear most about DocuIQ setup, collaboration, and governance.",
+    "searchPlaceholder": "Search help articles",
+    "quickLinksTitle": "Start with quick answers",
+    "quickLinksSubtitle": "Popular topics to help you move faster.",
+    "quickLinks": [
+      { "key": "gettingStarted", "anchor": "getting-started", "title": "Getting started", "desc": "Upload documents, connect data sources, and begin asking questions." },
+      { "key": "workspaceAdmin", "anchor": "workspace-admin", "title": "Workspace admin", "desc": "Manage seats, permissions, and security policies for your team." },
+      { "key": "troubleshooting", "anchor": "troubleshooting", "title": "Troubleshooting", "desc": "Resolve ingestion delays, search issues, or sync conflicts." },
+      { "key": "bestPractices", "anchor": "best-practices", "title": "Best practices", "desc": "Tips for rolling out DocuIQ across your organisation." }
+    ],
+    "sections": [
+      {
+        "id": "getting-started",
+        "title": "Getting started",
+        "summary": "Lay the foundations for a successful DocuIQ workspace.",
+        "articles": [
+          { "title": "Upload documents", "body": "Go to Documents → Upload to drag-and-drop PDFs, DOCX, PPTX, HTML, and more. We queue ingestion automatically and show progress in the activity feed." },
+          { "title": "Connect cloud drives", "body": "Open Documents → Connect sources to link Google Drive, OneDrive, or S3 buckets. Schedule sync windows to keep content fresh." },
+          { "title": "Invite teammates", "body": "Navigate to Settings → Workspace to invite teammates by email. Assign viewer or editor roles based on how they collaborate." }
+        ]
+      },
+      {
+        "id": "workspace-admin",
+        "title": "Workspace admin",
+        "summary": "Stay in control of security, billing, and compliance.",
+        "articles": [
+          { "title": "Manage seats", "body": "Workspace owners can add or remove users and reassign seats at any time. Billing updates are reflected on the next invoice." },
+          { "title": "Configure SSO", "body": "Enterprise customers can enable SAML or OAuth SSO from Settings → Security. Contact support for SCIM provisioning." },
+          { "title": "Audit activity", "body": "Use Settings → Activity log to review uploads, deletions, and permission changes across the workspace." }
+        ]
+      },
+      {
+        "id": "troubleshooting",
+        "title": "Troubleshooting",
+        "summary": "Fix the most common ingestion and search issues quickly.",
+        "articles": [
+          { "title": "Why is ingestion stuck?", "body": "Large documents may take a few minutes to index. Refresh the Documents page or check Release notes for active maintenance windows." },
+          { "title": "Search returns no results", "body": "Ensure the document finished indexing and that your query includes relevant keywords. Try the advanced filters for date or source." },
+          { "title": "Chat responses feel off", "body": "Open the thread menu and share feedback so we can improve grounding. Provide the document name and question you asked." }
+        ]
+      },
+      {
+        "id": "best-practices",
+        "title": "Best practices",
+        "summary": "Make DocuIQ part of everyday workflows.",
+        "articles": [
+          { "title": "Create shared collections", "body": "Group related documents into shared folders so teams can find approved content quickly." },
+          { "title": "Track adoption", "body": "Use the dashboard usage chart and release notes to plan enablement sessions." },
+          { "title": "Educate with snippets", "body": "Save reusable prompts and share them in team channels so everyone benefits from curated patterns." }
+        ]
+      }
+    ],
+    "faqTitle": "Frequently asked questions",
+    "faq": [
+      { "q": "How do I limit who sees sensitive documents?", "a": "Use workspace roles and per-folder permissions inside Documents → Collections. Only editors with granted access can open restricted files." },
+      { "q": "Can I export answers or references?", "a": "Yes. In any saved analysis, select the ••• menu → Export to download the transcript, references, and inline citations." },
+      { "q": "Where can I see current system status?", "a": "Visit Release notes for maintenance news or subscribe to status emails from Settings → Notifications." }
+    ],
+    "cta": {
+      "title": "Still need help?",
+      "description": "Chat with us or email support@docuiq.ai and we’ll get back to you within one business day.",
+      "button": "Contact support"
+    }
+  },
+  "releaseNotes": {
+    "heroTitle": "What’s new in DocuIQ",
+    "heroSubtitle": "Weekly updates on features, improvements, and fixes across the platform.",
+    "lastUpdated": "Updated July 2024",
+    "highlightsTitle": "Highlights",
+    "changesTitle": "Change log",
+    "entries": [
+      {
+        "version": "2024.07",
+        "date": "3 July 2024",
+        "highlights": [
+          "Added workspace-wide release notes page",
+          "Improved ingestion progress indicators with real-time status"
+        ],
+        "changes": [
+          "New multi-file upload queue with pause and resume support",
+          "Search results now surface top referenced documents with previews",
+          "Billing page shows upcoming invoice estimates"
+        ]
+      },
+      {
+        "version": "2024.06",
+        "date": "19 June 2024",
+        "highlights": [
+          "Introduced role-based workspace templates",
+          "Expanded permissions for collection-level access"
+        ],
+        "changes": [
+          "Admins can download activity logs as CSV",
+          "Chat answers include inline page callouts",
+          "Improved support for large HTML files"
+        ]
+      },
+      {
+        "version": "2024.05",
+        "date": "28 May 2024",
+        "highlights": [
+          "Faster onboarding flow for enterprise SSO"
+        ],
+        "changes": [
+          "Bug fixes for SharePoint connector",
+          "Stability improvements for real-time collaboration"
+        ],
+        "links": [
+          { "label": "View status page", "href": "https://status.docuiq.ai" }
+        ]
+      }
+    ],
+    "upNextTitle": "Up next",
+    "upNext": [
+      "Custom prompt templates for teams",
+      "SOC 2 Type II audit documentation",
+      "Expanded analytics exports"
+    ],
+    "feedbackPrompt": "Have feedback or want early access? Email"
+  },
+  "importWizard": {
+    "title": "Add data",
+    "optional": "optional",
+    "tabs": {
+      "files": "Files",
+      "web": "Web",
+      "s3": "S3",
+      "gdrive": "Google Drive",
+      "email": "Email",
+      "slack": "Slack",
+      "github": "GitHub",
+      "db": "Database",
+      "api": "API",
+      "media": "Media"
+    },
+    "files": {
+      "heading": "Upload files",
+      "hint": "PDF, DOCX, XLSX, PPTX, HTML, images, audio, video and more",
+      "collectionLabel": "Collection / folder",
+      "collectionPlaceholder": "e.g. Finance 2025",
+      "tagsLabel": "Tags",
+      "tagsPlaceholder": "comma,separated,tags",
+      "languageLabel": "Language",
+      "languagePlaceholder": "e.g. en, es, ja",
+      "fileItem": "{name} ({size})"
+    },
+    "web": {
+      "heading": "Website",
+      "labels": {
+        "url": "URL",
+        "crawl": "Crawl sub-pages",
+        "depth": "Crawl depth"
+      },
+      "placeholders": {
+        "url": "https://example.com/page"
+      }
+    },
+    "s3": {
+      "heading": "AWS S3",
+      "labels": {
+        "name": "Connection name",
+        "bucket": "Bucket",
+        "prefix": "Prefix",
+        "sync": "Keep folder in sync"
+      },
+      "placeholders": {
+        "name": "My S3 bucket",
+        "bucket": "my-bucket",
+        "prefix": "folder/path/"
+      },
+      "button": "Connect & import",
+      "hint": "Note: store access credentials securely in your backend configuration."
+    },
+    "generic": {
+      "heading": "{tab}",
+      "message": "Connector coming soon. Create the source now and attach jobs later.",
+      "nameLabel": "Connection name",
+      "namePlaceholder": "My {tab}",
+      "button": "Create source",
+      "fallbackTab": "Source"
+    },
+    "buttons": {
+      "startImport": "Start import"
+    },
+    "status": {
+      "uploading": "Uploading...",
+      "importStarted": "✅ Import started",
+      "webQueued": "✅ Website import queued",
+      "s3Queued": "✅ S3 import queued",
+      "error": "❌ {error}"
+    },
+    "errors": {
+      "uploadFailed": "Upload failed",
+      "noFileIds": "Upload succeeded but no files were returned.",
+      "jobCreateFailed": "Failed to queue the job",
+      "sourceCreateFailed": "Could not create the source"
+    }
+  },
+  "sourceSetup": {
+    "actions": {
+      "back": "← Back"
+    },
+    "optional": "optional",
+    "labels": {
+      "connectionName": "Connection name"
+    },
+    "placeholders": {
+      "connectionName": "e.g. {source}"
+    },
+    "buttons": {
+      "startImport": "Start import",
+      "saveSource": "Save source",
+      "saveAndRun": "Save & run"
+    },
+    "status": {
+      "importing": "Importing...",
+      "saving": "Saving...",
+      "importQueued": "✅ Import queued",
+      "savedAndQueued": "✅ Saved & queued",
+      "sourceSaved": "✅ Source saved",
+      "error": "❌ {error}"
+    },
+    "errors": {
+      "authRequired": "Please sign in to continue.",
+      "uploadFailed": "Upload failed",
+      "noFileIds": "Upload succeeded but the file IDs are missing.",
+      "jobCreateFailed": "Failed to queue the job",
+      "sourceCreateFailed": "Could not create the source"
+    },
+    "files": {
+      "labels": {
+        "files": "Files",
+        "title": "Title",
+        "tags": "Tags",
+        "language": "Language"
+      },
+      "placeholders": {
+        "title": "e.g. {example}",
+        "tags": "comma,separated,tags",
+        "language": "e.g. en, es, ja"
+      },
+      "fileItem": "{name} ({size}B)"
+    },
+    "hints": {
+      "commaSeparated": "Comma separated",
+      "jsonValidation": "Paste JSON; validated on save"
+    },
+    "oauth": {
+      "connect": "Connect {provider}",
+      "reconnect": "Reconnect {provider}",
+      "connected": "Connected"
+    },
+    "schemas": {
+      "web": {
+        "title": "Website",
+        "description": "Scrape and crawl website content",
+        "fields": {
+          "url": {
+            "label": "URL",
+            "placeholder": "https://example.com"
+          },
+          "crawl": {
+            "label": "Enable crawl",
+            "help": "Follow links"
+          },
+          "depth": {
+            "label": "Crawl depth"
+          },
+          "frequency": {
+            "label": "Sync frequency",
+            "options": {
+              "once": "One-time",
+              "daily": "Daily",
+              "weekly": "Weekly"
+            }
+          }
+        }
+      },
+      "s3": {
+        "title": "AWS S3",
+        "description": "Connect an S3 bucket or prefix",
+        "fields": {
+          "bucket": { "label": "Bucket" },
+          "prefix": { "label": "Prefix", "placeholder": "folder/path/" },
+          "sync": { "label": "Keep in sync", "help": "Automatically sync this folder" }
+        }
+      }
+    }
+  },
+  "termsPolicies": {
+    "heroTitle": "Terms, policies, and security",
+    "heroSubtitle": "Understand how DocuIQ handles data, privacy, and acceptable use.",
+    "lastUpdated": "Effective July 2024",
+    "sections": [
+      {
+        "title": "Terms of service",
+        "description": "These terms describe how you may use DocuIQ and your responsibilities as a customer.",
+        "points": [
+          "DocuIQ is licensed per workspace seat. Sharing accounts is not permitted.",
+          "You retain ownership of uploaded content. We store encrypted copies solely to provide the service.",
+          "We may suspend access if usage violates applicable laws or harms system stability."
+        ]
+      },
+      {
+        "title": "Privacy & data handling",
+        "items": [
+          { "title": "Encryption", "body": "All documents are encrypted at rest with AES-256 and in transit with TLS 1.2+." },
+          { "title": "Retention", "body": "Delete a document to remove it from active storage. Backups are purged within 30 days." },
+          { "title": "Access", "body": "Only vetted DocuIQ personnel can access production systems, and solely for approved support requests." }
+        ]
+      },
+      {
+        "title": "Acceptable use",
+        "points": [
+          "Do not upload content that infringes on intellectual property or includes sensitive PII without consent.",
+          "Automated scraping, spam, or denial-of-service activity is prohibited.",
+          "Report suspected abuse to legal@docuiq.ai so we can investigate." ]
+      }
+    ],
+    "questionsTitle": "Questions about security or compliance?",
+    "questionsSubtitle": "We’re happy to share audit reports, DPAs, or answer vendor questionnaires."
+  },
+  "bugReport": {
+    "heroTitle": "Report a bug",
+    "heroSubtitle": "Help us reproduce the issue so we can roll out a fix quickly.",
+    "form": {
+      "summary": "Issue summary",
+      "environment": "Environment details",
+      "steps": "Steps to reproduce",
+      "expected": "Expected result",
+      "actual": "Observed result",
+      "contact": "Contact email (optional)"
+    },
+    "placeholders": {
+      "summary": "e.g. Unable to download PDF export",
+      "environment": "Workspace, browser, OS, integrations used",
+      "steps": "List the clicks, inputs, or API calls that lead to the bug",
+      "expected": "What you expected to happen",
+      "actual": "What happened instead (errors, screenshots, IDs)",
+      "contact": "name@example.com"
+    },
+    "tips": {
+      "title": "What to include",
+      "items": [
+        "Document IDs or titles involved in the bug",
+        "Exact timestamp and time zone",
+        "Any console errors or HTTP status codes",
+        "If the bug blocks production, mention the impact"
+      ]
+    },
+    "submit": "Send report",
+    "sending": "Sending...",
+    "success": "Thanks for the details! Your email app should open with a draft—press send and we’ll follow up shortly.",
+    "error": "We couldn’t open your email client. Please email support@docuiq.ai with the details."
+  },
+  "contactSales": {
+    "heroTitle": "Talk with DocuIQ sales",
+    "heroSubtitle": "Tell us a little about your data sources, security requirements, and team goals. Our specialists respond within one business day with a tailored rollout plan and pricing for Enterprise deployments.",
+    "highlightOne": "Private cloud or on-prem deployment options",
+    "highlightTwo": "Dedicated technical account manager",
+    "highlightThree": "Integration support for Slack, Jira, Notion, Teams, and more",
+    "metaEmailLabel": "Email us",
+    "metaChatLabel": "Prefer chat?",
+    "metaChatLink": "Review plans",
+    "formTitle": "Share your project details",
+    "formSubtitle": "We will follow up with a tailored success plan and enterprise pricing.",
+    "fullNameLabel": "Full name",
+    "fullNamePlaceholder": "Jane Doe",
+    "emailLabel": "Work email",
+    "emailPlaceholder": "jane@company.com",
+    "emailPlaceholderUser": "jane",
+    "emailPlaceholderDomain": "company.com",
+    "companyLabel": "Company",
+    "companyPlaceholder": "Company name",
+    "roleLabel": "Role / title",
+    "rolePlaceholder": "Head of Knowledge Ops",
+    "desiredPlanLabel": "Which plan are you interested in?",
+    "messageLabel": "Tell us about your data and goals",
+    "messagePlaceholder": "Share data sources, security needs, team size, or timelines.",
+    "submit": "Submit inquiry",
+    "submitting": "Sending...",
+    "success": "Thanks! A DocuIQ specialist will reach out shortly.",
+    "error": "Unable to submit request right now."
+  }
 }

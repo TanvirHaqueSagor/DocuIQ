@@ -252,7 +252,7 @@ const onRegister = async () => {
   justify-content: center;
 }
 .register-container {
-  background: #fff;
+  background: var(--card);
   padding: 2.3rem 2rem 2rem 2rem;
   border-radius: 18px;
   box-shadow: 0 6px 32px 0 rgba(63, 81, 181, 0.11);
@@ -266,7 +266,7 @@ h2 {
   margin-bottom: 20px;
   font-size: 1.35rem;
   font-weight: 700;
-  color: #2788df;
+  color: var(--blue);
   letter-spacing: .4px;
 }
 .radio-group {
@@ -299,7 +299,7 @@ h2 {
 }
 .form-group input:focus {
   border: 1.7px solid #2196f3;
-  background: #fff;
+  background: var(--card);
 }
 .hint {
   margin-top: 6px;

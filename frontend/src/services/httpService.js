@@ -18,8 +18,14 @@ http.interceptors.request.use(config => {
     delete config.headers['Authorization']
   }
 
-  // language add করুন
-  config.headers['Accept-Language'] = i18n.global.locale || 'en'
+  // language header (supports both string and ref locales)
+  try {
+    const gl = i18n.global && i18n.global.locale
+    const loc = typeof gl === 'string' ? gl : (gl && gl.value) || 'en'
+    config.headers['Accept-Language'] = loc
+  } catch (_) {
+    config.headers['Accept-Language'] = 'en'
+  }
 
   return config
 })

@@ -17,5 +17,6 @@ const { locale } = useI18n()
 const currentLang = ref(locale.value)
 function changeLang() {
   locale.value = currentLang.value
+  try { localStorage.setItem('locale', currentLang.value) } catch(_) {}
 }
 </script>

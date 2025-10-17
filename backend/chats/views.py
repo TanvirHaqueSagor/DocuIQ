@@ -7,6 +7,7 @@ from django.utils import timezone
 
 from .models import ChatThread, ChatMessage
 from .serializers import ChatThreadSerializer, ChatMessageSerializer
+from accounts.plan import get_effective_plan, get_plan_limits
 
 
 class ThreadsListCreate(APIView):
@@ -71,6 +72,16 @@ class MessagesListCreate(APIView):
         if not content:
             return Response({"detail": "content required"}, status=status.HTTP_400_BAD_REQUEST)
         msg = ChatMessage.objects.create(thread=th, role=role, content=content, citations=list(citations))
+        if role == 'user':
+            limits = get_plan_limits(get_effective_plan(request.user))
+            if limits.max_user_queries is not None:
+                qs = ChatMessage.objects.filter(thread__owner=request.user, role='user').order_by('created_at')
+                total = qs.count()
+                if total > limits.max_user_queries:
+                    excess = total - limits.max_user_queries
+                    prune_ids = list(qs.values_list('id', flat=True)[:excess])
+                    if prune_ids:
+                        ChatMessage.objects.filter(id__in=prune_ids).delete()
         # If thread has no title and this is the first user message, derive a title
         if not th.title and role == 'user':
             head = ' '.join(content.split())

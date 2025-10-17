@@ -1,5 +1,79 @@
-/* frontend/src/style.css */
+/* Global styles, typography and theming */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+
+:root {
+  /* Light theme defaults */
+  --bg: #f6f8ff;
+  --card: #ffffff;
+  --line: #e6ecf7;
+  --txt: #25324a;
+  --muted: #6e7b90;
+  --blue: #1d4ed8;
+  --panel: var(--card);
+
+  /* Typography */
+  --font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Liberation Sans', sans-serif;
+  --font-size: 16px;
+  --font-size-sm: 14px;
+  --font-size-lg: 18px;
+
+  /* Surfaces */
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-pill: 999px;
+  --border-width: 1px;
+  --border: var(--border-width) solid var(--line);
+
+  /* Focus */
+  --focus-ring: 0 0 0 3px rgba(96,165,250,.25);
+}
+
+[data-theme='dark'] {
+  --bg: #0f172a !important;        /* slate-900 */
+  --card: #111827 !important;      /* gray-900 */
+  --line: #1f2937 !important;      /* gray-800 */
+  --txt: #ffffff !important;       /* pure white for contrast */
+  --muted: #94a3b8 !important;     /* slate-400 */
+  --blue: #60a5fa !important;      /* blue-400 */
+  --panel: var(--card) !important;
+}
+
 body {
   margin: 0;
-  font-family: sans-serif;
+  font-family: var(--font-family);
+  background: var(--bg);
+  color: var(--txt);
+  font-size: var(--font-size);
 }
+
+* { box-sizing: border-box; }
+
+/* Unified controls */
+button, .btn {
+  border: var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--blue);
+  font-weight: 700;
+}
+button:focus, .btn:focus, input:focus, textarea:focus, select:focus {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+input, textarea, select {
+  border: var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--txt);
+}
+
+a, .link { color: var(--blue); }
+
+/* Common card helper (components may also have local styles) */
+.card { background: var(--card); border: var(--border); border-radius: var(--radius); color: var(--txt); }
+
+h1, h2, h3 { color: var(--txt); font-weight: 800; }
+h1 { font-size: 22px; }
+h2 { font-size: 18px; }
+h3 { font-size: 16px; }

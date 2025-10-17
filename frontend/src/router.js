@@ -5,6 +5,13 @@ import Dashboard from './views/Dashboard.vue'
 import Documents from './views/Documents.vue'
 import DocumentDetail from './views/DocumentDetail.vue'
 import Home from './views/Home.vue'
+import Settings from './views/Settings.vue'
+import PricingPage from './views/PricingPage.vue'
+import ContactSales from './views/ContactSales.vue'
+import HelpCenter from './views/HelpCenter.vue'
+import ReleaseNotes from './views/ReleaseNotes.vue'
+import TermsPolicies from './views/TermsPolicies.vue'
+import BugReport from './views/BugReport.vue'
 
 import Login from './views/Login.vue'
 import Register from './views/Register.vue'
@@ -19,6 +26,13 @@ const routes = [
   { path: '/dashboard', component: Dashboard, meta: { requiresAuth: true } },
   { path: '/documents', component: Documents, meta: { requiresAuth: true } },
   { path: '/documents/:id', component: DocumentDetail, meta: { requiresAuth: true } },
+  { path: '/settings', component: Settings, meta: { requiresAuth: true } },
+  { path: '/upgrade', component: PricingPage, meta: { requiresAuth: true } },
+  { path: '/contact-sales', component: ContactSales, meta: { requiresAuth: true } },
+  { path: '/help-center', component: HelpCenter, meta: { requiresAuth: true } },
+  { path: '/release-notes', component: ReleaseNotes, meta: { requiresAuth: true } },
+  { path: '/terms-policies', component: TermsPolicies, meta: { requiresAuth: true } },
+  { path: '/bug-report', component: BugReport, meta: { requiresAuth: true } },
 
   // Chat history: reuse Home for viewing a saved chat
   { path: '/analysis/:id', component: Home, meta: { requiresAuth: true } },

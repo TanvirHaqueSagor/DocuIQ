@@ -1,12 +1,13 @@
 from datetime import timedelta, date
 from django.utils import timezone
-from django.db.models import Count
+from django.db.models import Count, Q
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import permissions
 from core.permissions import IsInTenant
 from ingest.models import IngestFile
 from accounts.models import UserProfile
+from chats.models import ChatMessage
 
 class DashboardSummaryView(APIView):
     permission_classes = [permissions.IsAuthenticated, IsInTenant]
@@ -42,15 +43,35 @@ class UsageSeriesView(APIView):
     def get(self, request):
         days = int(request.GET.get('days','14') or 14)
         tenant = getattr(request, 'tenant', None)
-        qs = IngestFile.objects.filter(organization=tenant) if tenant else IngestFile.objects.filter(organization__isnull=True)
+        doc_qs = IngestFile.objects.filter(organization=tenant) if tenant else IngestFile.objects.filter(organization__isnull=True)
         start = timezone.now().date() - timedelta(days=days-1)
-        # per-day counts
-        by_day = (qs.filter(uploaded_at__date__gte=start)
-                   .values('uploaded_at__date')
-                   .annotate(count=Count('id'))
-                   .order_by('uploaded_at__date'))
-        # normalize timeline
-        counts = { str(rec['uploaded_at__date']) : rec['count'] for rec in by_day }
+        doc_by_day = (
+            doc_qs.filter(uploaded_at__date__gte=start)
+                  .values('uploaded_at__date')
+                  .annotate(total=Count('id'))
+        )
+
+        chat_qs = ChatMessage.objects.filter(role='user', created_at__date__gte=start)
+        if tenant:
+            chat_qs = chat_qs.filter(thread__owner__userprofile__organization=tenant)
+        else:
+            chat_qs = chat_qs.filter(
+                Q(thread__owner__userprofile__organization__isnull=True)
+                | Q(thread__owner__userprofile__isnull=True)
+            )
+        chat_by_day = (
+            chat_qs.values('created_at__date')
+                   .annotate(total=Count('id'))
+        )
+
+        counts = {}
+        for rec in doc_by_day:
+            key = str(rec['uploaded_at__date'])
+            counts[key] = counts.get(key, 0) + int(rec['total'] or 0)
+        for rec in chat_by_day:
+            key = str(rec['created_at__date'])
+            counts[key] = counts.get(key, 0) + int(rec['total'] or 0)
+
         series = []
         for i in range(days):
             d = start + timedelta(days=i)

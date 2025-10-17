@@ -122,6 +122,10 @@ const onSubmit = async () => {
       if (data.user) localStorage.setItem('user', JSON.stringify(data.user))
       if (data.account_type) localStorage.setItem('account_type', data.account_type)
       if (data.org_subdomain) localStorage.setItem('org_subdomain', data.org_subdomain); else localStorage.removeItem('org_subdomain')
+      if (data.plan) {
+        localStorage.setItem('subscription_plan', JSON.stringify(data.plan))
+        try { window.dispatchEvent(new CustomEvent('docuiq-plan-changed', { detail: data.plan })) } catch (_) {}
+      }
 
       // ✅ Redirect target (query থাকলে সেটা, না থাকলে /dashboard)
       const target = (route.query.redirect ? String(route.query.redirect) : '/dashboard')
@@ -170,7 +174,7 @@ const onSubmit = async () => {
   justify-content: center;
 }
 .login-container {
-  background: #fff;
+  background: var(--card);
   padding: 2.5rem 2rem 2rem 2rem;
   border-radius: 18px;
   box-shadow: 0 6px 32px 0 rgba(63, 81, 181, 0.12);
@@ -196,7 +200,7 @@ const onSubmit = async () => {
 }
 .welcome-text {
   font-size: 1.12rem;
-  color: #2788df;
+  color: var(--blue);
   margin-bottom: 10px;
   text-align: center;
   font-weight: 600;
@@ -237,7 +241,7 @@ const onSubmit = async () => {
 }
 .form-group input:focus {
   border: 1.7px solid #2196f3;
-  background: #fff;
+  background: var(--card);
 }
 .login-btn {
   background: linear-gradient(90deg, #3f51b5 60%, #2196f3 100%);
