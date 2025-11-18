@@ -29,7 +29,10 @@
       <div class="cta-body">
         <h3>{{ t('termsPolicies.questionsTitle') }}</h3>
         <p>{{ t('termsPolicies.questionsSubtitle') }}</p>
-        <a class="cta-link" href="mailto:legal@docuiq.ai">legal@docuiq.ai</a>
+        <p class="cta-email">
+          <span>{{ t('termsPolicies.questionsEmailLabel') }}</span>
+          <a class="cta-link" href="mailto:legal@docuiq.ai">legal@docuiq.ai</a>
+        </p>
       </div>
     </section>
   </div>
@@ -157,11 +160,21 @@ const sections = computed(() => {
   margin: 0;
   font-size: 22px;
   font-weight: 800;
+  color: #f8fafc;
 }
 
 .cta-body p {
   margin: 0;
   color: rgba(226, 232, 240, 0.85);
+}
+
+.cta-email {
+  color: #facc15;
+  font-weight: 600;
+}
+
+.cta-email a {
+  margin-left: 6px;
 }
 
 .cta-link {

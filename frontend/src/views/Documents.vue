@@ -121,7 +121,7 @@
         </div>
       </section>
 
-      <!-- Right: KPIs + Connected Sources (no floating mini) -->
+      <!-- Right: KPIs + source shortcuts -->
       <aside class="side">
         <div class="kpis">
           <div class="kpi">
@@ -138,7 +138,7 @@
           </div>
         </div>
 
-          <div class="sources">
+        <div class="sources">
           <div class="sources-head">
             <h3>{{ t('sources') }}</h3>
           </div>
@@ -149,34 +149,52 @@
               <div class="src-name">{{ s.name }}</div>
             </button>
           </div>
-
-          <div class="connected" v-if="sources.length">
-            <div class="conn-title">{{ t('connected') }}</div>
-            <div class="conn-list">
-              <div v-for="s in filteredSources" :key="s.id" class="conn-item">
-                <div class="ci-left">
-                  <span class="dot"></span>
-                  <span class="src-ico-comp"><img class="src-ico-img" :src="iconForKind(s.kind)" :alt="prettyKind(s.kind)" /></span>
-                  <span class="nm">{{ s.name }}</span>
-                  <span class="kind">· {{ prettyKind(s.kind) }}</span>
-                </div>
-                <div class="ci-actions">
-                  <button class="link icon-btn" @click="runSource(s)" :title="t('run')" :aria-label="t('run')">
-                    <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7L8 5Z"/></svg>
-                  </button>
-                  <button class="link danger icon-btn" @click="deleteSource(s)" :disabled="isSourceDeleting(s)" :title="t('delete')" :aria-label="t('delete')">
-                    <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9Zm5 2v8h2v-8h-2Z"/></svg>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </aside>
     </div>
 
-    
+    <section class="connected-table card" v-if="filteredSources.length">
+      <header class="connected-head">
+        <h3>{{ t('connected') }}</h3>
+      </header>
+      <div class="table-wrap">
+        <table class="conn-table">
+          <thead>
+            <tr>
+              <th>{{ t('name') || 'Name' }}</th>
+              <th>{{ t('type') }}</th>
+              <th>{{ t('created') || 'Added' }}</th>
+              <th>{{ t('actions') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="s in filteredSources" :key="s.id">
+              <td>
+                <div class="conn-name">
+                  <span class="src-ico-comp"><img class="src-ico-img" :src="iconForKind(s.kind)" :alt="prettyKind(s.kind)" /></span>
+                  <div>
+                    <div class="nm">{{ s.name }}</div>
+                    <div class="kind">· {{ prettyKind(s.kind) }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>{{ prettyKind(s.kind) }}</td>
+              <td>{{ fmtDate(s.updated_at || s.created_at) }}</td>
+              <td class="conn-actions">
+                <button class="link icon-btn" @click="runSource(s)" :title="t('run')" :aria-label="t('run')">
+                  <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7L8 5Z"/></svg>
+                </button>
+                <button class="link danger icon-btn" @click="deleteSource(s)" :disabled="isSourceDeleting(s)" :title="t('delete')" :aria-label="t('delete')">
+                  <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9Zm5 2v8h2v-8h-2Z"/></svg>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
   </div>
+
 </template>
 
 <script setup>
@@ -243,7 +261,6 @@ const deletingSources = ref({})
 
 /* ----- wizard ----- */
 const wizard = reactive({ open:false, tab:'' })
-// Replace modal with dedicated per-source setup pages
 const openWizard = (t='gdrive') => { router.push(`/connect/${t}`) }
 
 onMounted(async () => {
@@ -595,7 +612,15 @@ const filteredSources = computed(()=>{
   const s=q.value.toLowerCase()
   return uniqueSources.value.filter(x => (x.name||'').toLowerCase().includes(s) || (x.kind||'').toLowerCase().includes(s))
 })
-const applySearch = ()=>{}
+const applySearch = ()=>{
+  const term = (q.value || '').trim()
+  const current = String(route.query?.q || '')
+  if (term === current) return
+  const nextQuery = { ...(route.query || {}) }
+  if (term) nextQuery.q = term
+  else delete nextQuery.q
+  router.replace({ query: nextQuery }).catch(()=>{})
+}
 
 /* ----- API ----- */
 const fetchJobs = async ()=>{
@@ -911,14 +936,13 @@ const deleteUploadFiles = async (row)=>{
 .src-ico-img{ width:1em; height:1em; display:inline-block; object-fit:contain; }
 .info-line{ font-size:12.5px; color:var(--muted); padding:8px 10px; border:1px dashed var(--line); border-radius:10px; background: var(--bg); margin-bottom:8px; }
 
-.connected{ margin-top:12px; }
-.conn-title{ font-weight:900; color:var(--txt); margin-bottom:6px; }
-.conn-list{ display:grid; gap:6px; }
-.conn-item{ display:flex; align-items:center; justify-content:space-between; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 12px; box-shadow: var(--md-shadow-1); }
-.ci-left{ display:flex; align-items:center; gap:8px; color:var(--muted); }
-.dot{ width:8px; height:8px; background:#22c55e; border-radius:999px; display:inline-block; }
-.kind{ color:var(--muted); }
-
+.connected-table{ margin-top:18px; }
+.connected-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.conn-table{ width:100%; border-collapse:collapse; }
+.conn-table th, .conn-table td{ text-align:left; padding:10px 8px; border-bottom:1px solid rgba(148,163,184,.3); }
+.conn-name{ display:flex; align-items:center; gap:10px; }
+.conn-actions{ display:flex; gap:8px; }
+.kind{ color:var(--muted); font-size:.9rem; }
 /* modal */
 .modal{ position:fixed; inset:0; background:rgba(0,0,0,.35); display:grid; place-items:center; z-index:30; }
 .modal-box{ width:min(860px, 96vw); background:var(--card); border-radius:14px; border:1px solid var(--line); box-shadow:0 18px 48px rgba(31,64,175,.18); }

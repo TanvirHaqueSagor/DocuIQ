@@ -431,9 +431,21 @@
     ],
     "cta": {
       "title": "আরও সাহায্য দরকার?",
-      "description": "support@docuiq.ai ঠিকানায় লিখুন, এক কর্মদিবসের মধ্যেই উত্তর পাবেন।",
+      "description": "আমাদের সঙ্গে চ্যাট করুন বা ইমেইল পাঠান, এক কর্মদিবসের মধ্যেই উত্তর দেব।",
+      "emailLabel": "ইমেইল:",
       "button": "সাপোর্টে যোগাযোগ"
     }
+  },
+  "sourceSetup": {
+    "info": {
+      "category": "বিভাগ",
+      "developer": "ডেভেলপার",
+      "website": "ওয়েবসাইট",
+      "privacy": "গোপনীয়তা নীতি",
+      "notAvailable": "প্রাপ্য নয়"
+    },
+    "infoModalTitle": "{name} সম্পর্কে",
+    "permissionsTitle": "অনুমতি"
   },
   "releaseNotes": {
     "heroTitle": "DocuIQ আপডেট",
@@ -504,7 +516,8 @@
       }
     ],
     "questionsTitle": "নিরাপত্তা বা কমপ্লায়েন্স নিয়ে প্রশ্ন?",
-    "questionsSubtitle": "আমরা অডিট রিপোর্ট, DPA বা ভেন্ডর প্রশ্নপত্রের উত্তর দিতে প্রস্তুত।"
+    "questionsSubtitle": "আমরা অডিট রিপোর্ট, DPA বা ভেন্ডর প্রশ্নপত্রের উত্তর দিতে প্রস্তুত।",
+    "questionsEmailLabel": "ইমেইল:"
   },
   "bugReport": {
     "heroTitle": "বাগ রিপোর্ট করুন",
@@ -523,7 +536,7 @@
       "steps": "বাগ পর্যন্ত পৌঁছানোর ধাপ লিখুন",
       "expected": "আপনি কী আশা করেছিলেন",
       "actual": "আসলে কী ঘটেছে (এরর, স্ক্রিনশট, আইডি)",
-      "contact": "name@example.com"
+      "contact": "name\\@example.com"
     },
     "tips": {
       "title": "সহায়ক তথ্য",

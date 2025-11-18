@@ -425,9 +425,21 @@
     ],
     "cta": {
       "title": "まだ解決しませんか？",
-      "description": "support@docuiq.ai までメールいただければ、1 営業日以内に返信します。",
+      "description": "チャットまたはメールでお問い合わせください。1 営業日以内にご返信します。",
+      "emailLabel": "メール:",
       "button": "サポートに連絡"
     }
+  },
+  "sourceSetup": {
+    "info": {
+      "category": "カテゴリ",
+      "developer": "開発元",
+      "website": "ウェブサイト",
+      "privacy": "プライバシーポリシー",
+      "notAvailable": "利用不可"
+    },
+    "infoModalTitle": "{name} について",
+    "permissionsTitle": "権限"
   },
   "releaseNotes": {
     "heroTitle": "DocuIQ の最新情報",
@@ -484,7 +496,8 @@
       }
     ],
     "questionsTitle": "セキュリティやコンプライアンスに関するご相談",
-    "questionsSubtitle": "監査報告書やDPAの共有、ベンダー質問票の対応も承ります。"
+    "questionsSubtitle": "監査報告書やDPAの共有、ベンダー質問票の対応も承ります。",
+    "questionsEmailLabel": "メール:"
   },
   "bugReport": {
     "heroTitle": "バグを報告する",
@@ -503,7 +516,7 @@
       "steps": "バグまでの操作を箇条書きで記入",
       "expected": "想定していた動作",
       "actual": "実際に発生した内容 (エラーやIDなど)",
-      "contact": "name@example.com"
+      "contact": "name\\@example.com"
     },
     "tips": {
       "title": "記載すると助かる情報",

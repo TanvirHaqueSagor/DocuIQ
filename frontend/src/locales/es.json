@@ -431,9 +431,21 @@
     ],
     "cta": {
       "title": "¿Necesitas más ayuda?",
-      "description": "Escríbenos a support@docuiq.ai y te responderemos en un día laborable.",
+      "description": "Chatea con nosotros o mándanos un correo y te responderemos en un día laborable.",
+      "emailLabel": "Correo:",
       "button": "Contactar soporte"
     }
+  },
+  "sourceSetup": {
+    "info": {
+      "category": "Categoría",
+      "developer": "Desarrollador",
+      "website": "Sitio web",
+      "privacy": "Política de privacidad",
+      "notAvailable": "No disponible"
+    },
+    "infoModalTitle": "Acerca de {name}",
+    "permissionsTitle": "Permisos"
   },
   "releaseNotes": {
     "heroTitle": "Novedades en DocuIQ",
@@ -522,7 +534,8 @@
       }
     ],
     "questionsTitle": "¿Dudas sobre seguridad o cumplimiento?",
-    "questionsSubtitle": "Podemos compartir auditorías, DPAs o responder cuestionarios de proveedores."
+    "questionsSubtitle": "Podemos compartir auditorías, DPAs o responder cuestionarios de proveedores.",
+    "questionsEmailLabel": "Correo:"
   },
   "bugReport": {
     "heroTitle": "Reportar un error",

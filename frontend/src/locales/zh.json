@@ -431,9 +431,21 @@
     ],
     "cta": {
       "title": "还需要更多帮助？",
-      "description": "发送邮件至 support@docuiq.ai，我们将在 1 个工作日内回复。",
+      "description": "通过聊天或邮件联系我们，我们将在 1 个工作日内回复。",
+      "emailLabel": "邮箱：",
       "button": "联系支持"
     }
+  },
+  "sourceSetup": {
+    "info": {
+      "category": "类别",
+      "developer": "开发者",
+      "website": "网站",
+      "privacy": "隐私政策",
+      "notAvailable": "不可用"
+    },
+    "infoModalTitle": "关于{name}",
+    "permissionsTitle": "权限"
   },
   "releaseNotes": {
     "heroTitle": "DocuIQ 最新动态",
@@ -490,7 +502,8 @@
       }
     ],
     "questionsTitle": "关于安全或合规有疑问？",
-    "questionsSubtitle": "我们可以提供审计报告、DPA 或协助完成供应商问卷。"
+    "questionsSubtitle": "我们可以提供审计报告、DPA 或协助完成供应商问卷。",
+    "questionsEmailLabel": "邮箱："
   },
   "bugReport": {
     "heroTitle": "报告错误",
@@ -509,7 +522,7 @@
       "steps": "按顺序描述导致问题的操作",
       "expected": "期望发生的情况",
       "actual": "实际发生的情况（报错、截图或 ID）",
-      "contact": "name@example.com"
+      "contact": "name\\@example.com"
     },
     "tips": {
       "title": "建议提供的信息",

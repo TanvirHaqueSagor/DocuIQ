@@ -8,6 +8,7 @@ from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
 from django.http import FileResponse, Http404
+from django.views.generic import TemplateView
 import os, requests
 import logging
 
@@ -600,3 +601,24 @@ class AdminCleanup(APIView):
             'deleted_jobs': deleted_jobs,
             'deleted_sources': deleted_sources,
         })
+
+
+class OAuthStartView(TemplateView):
+    """
+    Placeholder UI for kicking off third-party OAuth flows.
+    In a real deployment this would redirect to the provider consent URL.
+    For now we render a simple page so the browser workflow is unblocked.
+    """
+    template_name = "ingest/oauth_stub.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        kind = (self.request.GET.get('kind') or '').strip().lower() or 'files'
+        redirect_url = self.request.GET.get('redirect') or ''
+        origin = f"{self.request.scheme}://{self.request.get_host()}"
+        context.update({
+            "kind": kind,
+            "redirect": redirect_url,
+            "origin": origin,
+        })
+        return context

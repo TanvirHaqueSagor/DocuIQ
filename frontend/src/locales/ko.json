@@ -431,9 +431,21 @@
     ],
     "cta": {
       "title": "더 필요한 것이 있나요?",
-      "description": "support@docuiq.ai 로 메일을 보내주시면 영업일 기준 하루 안에 답변드리겠습니다.",
+      "description": "채팅 또는 이메일로 문의해 주세요. 영업일 기준 하루 안에 답변드립니다.",
+      "emailLabel": "이메일:",
       "button": "지원팀에 문의"
     }
+  },
+  "sourceSetup": {
+    "info": {
+      "category": "카테고리",
+      "developer": "개발사",
+      "website": "웹사이트",
+      "privacy": "개인정보 처리방침",
+      "notAvailable": "제공되지 않음"
+    },
+    "infoModalTitle": "{name} 소개",
+    "permissionsTitle": "권한"
   },
   "releaseNotes": {
     "heroTitle": "DocuIQ 최신 소식",
@@ -490,7 +502,8 @@
       }
     ],
     "questionsTitle": "보안 또는 컴플라이언스 문의",
-    "questionsSubtitle": "감사 보고서, DPA, 벤더 질문서 등도 요청하시면 공유해 드립니다."
+    "questionsSubtitle": "감사 보고서, DPA, 벤더 질문서 등도 요청하시면 공유해 드립니다.",
+    "questionsEmailLabel": "이메일:"
   },
   "bugReport": {
     "heroTitle": "버그 신고",
@@ -509,7 +522,7 @@
       "steps": "버그가 발생하는 과정을 순서대로 입력하세요",
       "expected": "예상했던 동작",
       "actual": "실제 발생한 동작 (에러 메시지 등)",
-      "contact": "name@example.com"
+      "contact": "name\\@example.com"
     },
     "tips": {
       "title": "함께 알려주시면 좋아요",

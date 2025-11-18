@@ -71,6 +71,10 @@
         <div class="cta-copy">
           <h3>{{ t('helpCenter.cta.title') }}</h3>
           <p>{{ t('helpCenter.cta.description') }}</p>
+          <p class="cta-email">
+            <span>{{ t('helpCenter.cta.emailLabel') }}</span>
+            <a href="mailto:support@docuiq.ai">support@docuiq.ai</a>
+          </p>
         </div>
         <button type="button" class="cta-button" @click="contactSupport">
           {{ t('helpCenter.cta.button') }}
@@ -377,11 +381,25 @@ function contactSupport() {
   margin: 0 0 6px;
   font-size: 22px;
   font-weight: 800;
+  color: #f8fafc;
 }
 
 .cta-copy p {
   margin: 0;
   color: rgba(226, 232, 240, 0.85);
+}
+
+.cta-email {
+  margin: 4px 0 0;
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+.cta-email a {
+  color: #93c5fd;
+  text-decoration: none;
+  margin-left: 6px;
+  font-weight: 700;
 }
 
 .cta-button {

@@ -3,7 +3,7 @@ from .views import (
     HealthView, SourceListCreate, SourceDetail,
     JobListCreate, JobDetail, UploadView, DocumentList, DocumentDetail,
     ContentList, ContentStatus, ContentRetry, SyncJobCancel, DocumentFind, DocumentFile,
-    AdminCleanup
+    AdminCleanup, OAuthStartView
 )
 
 urlpatterns = [
@@ -32,4 +32,5 @@ urlpatterns = [
 
     # Admin/data cleanup
     re_path(r'^api/admin/cleanup/?$', AdminCleanup.as_view()),
+    re_path(r'^api/ingest/oauth/start/?$', OAuthStartView.as_view(), name='ingest-oauth-start'),
 ]

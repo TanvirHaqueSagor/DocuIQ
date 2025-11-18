@@ -425,7 +425,8 @@
     ],
     "cta": {
       "title": "Still need help?",
-      "description": "Chat with us or email support@docuiq.ai and we’ll get back to you within one business day.",
+      "description": "Chat with us or email us—we’ll get back to you within one business day.",
+      "emailLabel": "Email:",
       "button": "Contact support"
     }
   },
@@ -565,7 +566,7 @@
   },
   "sourceSetup": {
     "actions": {
-      "back": "← Back"
+      "back": "Back"
     },
     "optional": "optional",
     "labels": {
@@ -617,6 +618,15 @@
       "reconnect": "Reconnect {provider}",
       "connected": "Connected"
     },
+    "info": {
+      "category": "Category",
+      "developer": "Developer",
+      "website": "Website",
+      "privacy": "Privacy Policy",
+      "notAvailable": "Not available"
+    },
+    "infoModalTitle": "About {name}",
+    "permissionsTitle": "Permissions",
     "schemas": {
       "web": {
         "title": "Website",
@@ -685,7 +695,8 @@
       }
     ],
     "questionsTitle": "Questions about security or compliance?",
-    "questionsSubtitle": "We’re happy to share audit reports, DPAs, or answer vendor questionnaires."
+    "questionsSubtitle": "We’re happy to share audit reports, DPAs, or answer vendor questionnaires.",
+    "questionsEmailLabel": "Email:"
   },
   "bugReport": {
     "heroTitle": "Report a bug",
@@ -704,7 +715,7 @@
       "steps": "List the clicks, inputs, or API calls that lead to the bug",
       "expected": "What you expected to happen",
       "actual": "What happened instead (errors, screenshots, IDs)",
-      "contact": "name@example.com"
+      "contact": "name\\@example.com"
     },
     "tips": {
       "title": "What to include",

@@ -32,7 +32,7 @@
         </label>
         <label>
           {{ t('bugReport.form.contact') }}
-          <input v-model="contact" type="email" :placeholder="t('bugReport.placeholders.contact')" />
+          <input v-model="contact" type="email" :placeholder="contactPlaceholder" />
         </label>
         <div class="actions">
           <button type="submit" :disabled="submitting">
@@ -69,6 +69,7 @@ const steps = ref('')
 const expected = ref('')
 const actual = ref('')
 const contact = ref('')
+const contactPlaceholder = 'name@example.com'
 const submitting = ref(false)
 const feedback = ref('')
 const feedbackType = ref('success')

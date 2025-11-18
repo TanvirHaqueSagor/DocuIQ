@@ -21,10 +21,46 @@ import { computed } from 'vue'
 
 const props = defineProps<{ icon?: string; title: string; value: string | number | null; delta?: number | string | null; isGoodDown?: boolean }>()
 
-const deltaNum = computed(() => typeof props.delta === 'string' ? parseFloat(props.delta) : (props.delta ?? 0))
-const isUp = computed(() => deltaNum.value >= 0)
-const signedDelta = computed(() => (isUp.value ? '+' : '') + deltaNum.value + (typeof props.delta === 'string' && props.delta.toString().includes('%') ? '' : '%'))
-const deltaClass = computed(() => ({ up: isUp.value && !props.isGoodDown, down: !isUp.value && !props.isGoodDown, goodDown: !isUp.value && props.isGoodDown, goodUp: isUp.value && props.isGoodDown }))
+const parsedDelta = computed(() => {
+  if (typeof props.delta === 'number') {
+    return Number.isFinite(props.delta) ? props.delta : null
+  }
+  if (typeof props.delta === 'string') {
+    const numericPart = props.delta.match(/-?\d+(\.\d+)?/)
+    if (!numericPart) return null
+    const parsed = parseFloat(numericPart[0])
+    return Number.isFinite(parsed) ? parsed : null
+  }
+  return null
+})
+
+const isUp = computed(() => {
+  if (parsedDelta.value === null) return true
+  return parsedDelta.value >= 0
+})
+
+const formatNumeric = (value: number) => {
+  const abs = Math.abs(value)
+  return Number.isInteger(abs) ? abs.toString() : abs.toFixed(2).replace(/\.?0+$/, '')
+}
+
+const signedDelta = computed(() => {
+  if (typeof props.delta === 'string') {
+    const trimmed = props.delta.trim()
+    if (!trimmed) return ''
+    const hasSign = /^[+-]/.test(trimmed)
+    return hasSign ? trimmed : `${isUp.value ? '+' : ''}${trimmed}`
+  }
+  if (parsedDelta.value === null) return ''
+  return `${parsedDelta.value >= 0 ? '+' : '-'}${formatNumeric(parsedDelta.value)}%`
+})
+
+const deltaClass = computed(() => ({
+  up: isUp.value && !props.isGoodDown,
+  down: !isUp.value && !props.isGoodDown,
+  goodDown: !isUp.value && props.isGoodDown,
+  goodUp: isUp.value && props.isGoodDown,
+}))
 </script>
 
 <style scoped>
