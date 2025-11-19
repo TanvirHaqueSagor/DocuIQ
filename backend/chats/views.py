@@ -67,11 +67,20 @@ class MessagesListCreate(APIView):
         # Ensure citations is a list-like
         if not isinstance(citations, (list, tuple)):
             citations = []
+        inline_refs = request.data.get('inline_refs') or {}
+        if not isinstance(inline_refs, (dict,)):
+            inline_refs = {}
         if role not in {'user', 'assistant', 'system'}:
             return Response({"detail": "invalid role"}, status=status.HTTP_400_BAD_REQUEST)
         if not content:
             return Response({"detail": "content required"}, status=status.HTTP_400_BAD_REQUEST)
-        msg = ChatMessage.objects.create(thread=th, role=role, content=content, citations=list(citations))
+        msg = ChatMessage.objects.create(
+            thread=th,
+            role=role,
+            content=content,
+            citations=list(citations),
+            inline_refs=dict(inline_refs),
+        )
         if role == 'user':
             limits = get_plan_limits(get_effective_plan(request.user))
             if limits.max_user_queries is not None:

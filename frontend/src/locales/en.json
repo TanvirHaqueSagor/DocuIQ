@@ -9,6 +9,8 @@
   "send": "Send",
   "uploadDoc": "Upload Document",
   "answer": "Answer",
+  "name": "Name",
+  "created": "Created",
   "page": "Page",
   "viewPage": "View Page",
   "dragDropDocs": "Drag and drop a PDF, DOCX, or TXT here",
