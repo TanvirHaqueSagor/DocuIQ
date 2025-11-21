@@ -18,45 +18,44 @@ const route = useRoute()
 </script>
 
 <style>
-:root{
-  /* এক জায়গা থেকে কন্ট্রোল */
-  --sb-open: 260px;   /* সাইডবার open প্রস্থ */
-  --sb-rail: 56px;    /* সাইডবার closed “রেল” প্রস্থ */
+:root {
+  /* Sidebar dimensions */
+  --sb-open: 280px;
+  --sb-rail: 72px;
 }
 
 .app-shell {
   min-height: 100vh;
   background: var(--bg);
+  display: flex;
 }
 
-/* ডিফল্ট main */
+/* Main Content Area */
 .app-main {
-  min-height: 100vh;
+  flex: 1;
   min-width: 0;
-  padding: 16px;
-  transition: margin-left .2s cubic-bezier(.4,0,.2,1);
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--bg);
 }
 
-/* সাইডবার থাকলে main বাম দিকে জায়গা ছাড়বে (Sidebar.vue body[data-sidebar] সেট করে) */
+/* Sidebar logic handled via classes/attributes */
 .app-main.with-sidebar {
   margin-left: var(--sb-open);
 }
 
-/* সাইডবার closed হলে রেল সাইজ */
 body[data-sidebar="closed"] .app-main.with-sidebar {
   margin-left: var(--sb-rail);
 }
 
-/* সাইডবার লুকানো পাতায় (login/register) full-width */
 .app-main.full {
   margin-left: 0;
-  padding: 0; /* লগইন/রেজিস্টারে padding না চাইলে রাখুন */
+  padding: 0;
 }
 
-/* মোবাইলে: সাইডবার open হলেও overlay স্টাইল—কনটেন্টকে রেলে রাখি */
-@media (max-width: 700px) {
+/* Mobile Responsiveness */
+@media (max-width: 1024px) {
   .app-main.with-sidebar {
-    margin-left: var(--sb-rail);
+    margin-left: 0 !important; /* Sidebar becomes overlay or hidden */
   }
 }
 </style>

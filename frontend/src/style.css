@@ -1,41 +1,65 @@
 /* Global styles, typography and theming */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Light theme defaults */
-  --bg: #f6f8ff;
+  /* Light theme defaults - Premium & Vibrant */
+  --bg: #f8fafc;          /* Slate 50 */
   --card: #ffffff;
-  --line: #e6ecf7;
-  --txt: #25324a;
-  --muted: #6e7b90;
-  --blue: #1d4ed8;
+  --line: #e2e8f0;        /* Slate 200 */
+  --txt: #0f172a;         /* Slate 900 */
+  --muted: #64748b;       /* Slate 500 */
+  
+  /* Brand Colors */
+  --primary: #4f46e5;     /* Indigo 600 */
+  --primary-hover: #4338ca; /* Indigo 700 */
+  --primary-light: #e0e7ff; /* Indigo 100 */
+  --secondary: #0ea5e9;   /* Sky 500 */
+  
+  /* Semantic Colors */
+  --success: #10b981;     /* Emerald 500 */
+  --warning: #f59e0b;     /* Amber 500 */
+  --danger: #ef4444;      /* Red 500 */
+  
+  /* Legacy mapping */
+  --blue: var(--primary);
   --panel: var(--card);
 
   /* Typography */
-  --font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Liberation Sans', sans-serif;
-  --font-size: 16px;
-  --font-size-sm: 14px;
+  --font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-size: 15px;
+  --font-size-sm: 13px;
   --font-size-lg: 18px;
 
   /* Surfaces */
-  --radius: 12px;
+  --radius: 16px;
   --radius-sm: 8px;
   --radius-pill: 999px;
   --border-width: 1px;
   --border: var(--border-width) solid var(--line);
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 
   /* Focus */
-  --focus-ring: 0 0 0 3px rgba(96,165,250,.25);
+  --focus-ring: 0 0 0 3px rgba(79, 70, 229, 0.25);
 }
 
 [data-theme='dark'] {
-  --bg: #0f172a !important;        /* slate-900 */
-  --card: #111827 !important;      /* gray-900 */
-  --line: #1f2937 !important;      /* gray-800 */
-  --txt: #ffffff !important;       /* pure white for contrast */
-  --muted: #94a3b8 !important;     /* slate-400 */
-  --blue: #60a5fa !important;      /* blue-400 */
-  --panel: var(--card) !important;
+  --bg: #0b1120;          /* Deep Navy */
+  --card: #1e293b;        /* Slate 800 */
+  --line: #334155;        /* Slate 700 */
+  --txt: #f8fafc;         /* Slate 50 */
+  --muted: #94a3b8;       /* Slate 400 */
+  
+  --primary: #6366f1;     /* Indigo 500 */
+  --primary-hover: #818cf8;
+  --primary-light: rgba(99, 102, 241, 0.15);
+  
+  --blue: var(--primary);
+  --panel: var(--card);
 }
 
 body {
@@ -44,6 +68,9 @@ body {
   background: var(--bg);
   color: var(--txt);
   font-size: var(--font-size);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 * { box-sizing: border-box; }
@@ -53,11 +80,19 @@ button, .btn {
   border: var(--border);
   border-radius: var(--radius-sm);
   background: var(--card);
-  color: var(--blue);
-  font-weight: 700;
+  color: var(--txt);
+  font-weight: 600;
+  font-family: var(--font-family);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+button:hover, .btn:hover {
+  border-color: var(--muted);
+  background: var(--bg);
 }
 button:focus, .btn:focus, input:focus, textarea:focus, select:focus {
   outline: none;
+  border-color: var(--primary);
   box-shadow: var(--focus-ring);
 }
 
@@ -66,14 +101,42 @@ input, textarea, select {
   border-radius: var(--radius-sm);
   background: var(--card);
   color: var(--txt);
+  padding: 8px 12px;
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  transition: border-color 0.2s;
 }
 
-a, .link { color: var(--blue); }
+a, .link { 
+  color: var(--primary); 
+  text-decoration: none;
+  transition: color 0.2s;
+}
+a:hover, .link:hover {
+  color: var(--primary-hover);
+}
 
-/* Common card helper (components may also have local styles) */
-.card { background: var(--card); border: var(--border); border-radius: var(--radius); color: var(--txt); }
+/* Common card helper */
+.card { 
+  background: var(--card); 
+  border: var(--border); 
+  border-radius: var(--radius); 
+  color: var(--txt);
+  box-shadow: var(--shadow-sm);
+}
 
-h1, h2, h3 { color: var(--txt); font-weight: 800; }
-h1 { font-size: 22px; }
-h2 { font-size: 18px; }
-h3 { font-size: 16px; }
+h1, h2, h3, h4, h5, h6 { 
+  color: var(--txt); 
+  font-weight: 700; 
+  letter-spacing: -0.025em;
+  margin-top: 0;
+}
+h1 { font-size: 28px; }
+h2 { font-size: 22px; }
+h3 { font-size: 18px; }
+
+/* Scrollbar polish */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }

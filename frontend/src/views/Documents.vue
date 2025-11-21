@@ -20,112 +20,113 @@
       </div>
     </header>
 
-    <!-- Drag & Drop hero (click opens file picker) -->
-    <section
-      class="dropzone"
-      :class="{ over: isOver }"
-      @dragover.prevent="onDragOver"
-      @dragleave.prevent="onDragLeave"
-      @drop.prevent="onDrop"
-      @click="goFiles"
-    >
-      
-      <div class="dz-inner">
-        <div class="cloud" aria-hidden="true">☁️</div>
-        <div class="dz-title">{{ t('dropFiles') }}</div>
-        <div class="dz-sub">{{ t('dropHint') }}</div>
-      </div>
-    </section>
-
     <!-- Main content grid -->
     <div class="grid">
       <!-- Left: Imports / Documents -->
-      <section class="panel">
-        <!-- Unified list: Imports + Documents -->
-        <div class="table-wrap">
-          <div class="table-tools">
-            <label class="chk">
-              <input type="checkbox" v-model="autoRefresh" />
-              <span>{{ t('autoRefresh') }}</span>
-            </label>
+      <div class="left-col">
+        <!-- Drag & Drop hero (click opens file picker) -->
+        <section
+          class="dropzone"
+          :class="{ over: isOver }"
+          @dragover.prevent="onDragOver"
+          @dragleave.prevent="onDragLeave"
+          @drop.prevent="onDrop"
+          @click="goFiles"
+        >
+          <div class="dz-inner">
+            <div class="cloud" aria-hidden="true">☁️</div>
+            <div class="dz-title">{{ t('dropFiles') }}</div>
+            <div class="dz-sub">{{ t('dropHint') }}</div>
           </div>
-          <div class="info-line">{{ t('docsInfo') }}</div>
-          <table class="tbl" role="table">
-            <thead>
-              <tr>
-                <th>{{ t('type') }}</th>
-                <th>{{ t('title') }}</th>
-                <th>{{ t('status') }}</th>
-                <th>{{ t('imported') }}</th>
-                <th>{{ t('actions') }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="row in filteredCombined" :key="row.id">
-                <td class="type-cell">
-                  <span class="type-ico"><img class="src-ico-img" :src="rowIconComp(row)" :alt="rowType(row)" /></span>
-                  <span>{{ rowType(row) }}</span>
-                </td>
-                <td class="truncate">
-                  <template v-if="row.type==='doc'">
-                    <RouterLink class="link" :to="`/documents/${row._raw?.id}`">{{ row.title }}</RouterLink>
-                  </template>
-                  <template v-else>{{ row.title }}</template>
-                </td>
-                <td>
-                  <span class="badge" :class="badgeClass(row)">
-                    <template v-if="isRowRunning(row)">
-                      {{ t('documentsPage.statuses.running') }}<span class="dots" aria-hidden="true"><span>.</span><span>.</span><span>.</span></span>
+        </section>
+
+        <section class="panel">
+          <!-- Unified list: Imports + Documents -->
+          <div class="table-wrap">
+            <div class="table-tools">
+              <label class="chk">
+                <input type="checkbox" v-model="autoRefresh" />
+                <span>{{ t('autoRefresh') }}</span>
+              </label>
+            </div>
+            <div class="info-line">{{ t('docsInfo') }}</div>
+            <table class="tbl" role="table">
+              <thead>
+                <tr>
+                  <th>{{ t('type') }}</th>
+                  <th>{{ t('title') }}</th>
+                  <th>{{ t('status') }}</th>
+                  <th>{{ t('imported') }}</th>
+                  <th>{{ t('actions') }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="row in filteredCombined" :key="row.id">
+                  <td class="type-cell">
+                    <span class="type-ico"><img class="src-ico-img" :src="rowIconComp(row)" :alt="rowType(row)" /></span>
+                    <span>{{ rowType(row) }}</span>
+                  </td>
+                  <td class="truncate">
+                    <template v-if="row.type==='doc'">
+                      <RouterLink class="link" :to="`/documents/${row._raw?.id}`">{{ row.title }}</RouterLink>
                     </template>
-                    <template v-else>{{ statusLabel(row) }}</template>
-                  </span>
-                </td>
-                <td>{{ fmtDate(row.created_at) }}</td>
-                <td>
-                  <template v-if="row.type==='doc'">
-                    <div class="row-actions">
-                      <RouterLink class="link icon-btn" :to="`/documents/${row._raw?.id}`" :title="t('view')" :aria-label="t('view')">
-                        <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7Zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10Z"/></svg>
-                      </RouterLink>
-                      <button class="link icon-btn" @click="editRow(row)" :title="t('edit')" :aria-label="t('edit')">
-                        <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25ZM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83Z"/></svg>
-                      </button>
-                      <button class="link icon-btn" @click="rerunImport(row)" :disabled="isRowRunning(row) || isRowDeleting(row)" :title="t('rerunImport')" :aria-label="t('rerunImport')">
-                        <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 5a7 7 0 1 1-6.9 8.2h2.1A5 5 0 1 0 12 7V3l5 4-5 4V9a3 3 0 1 1-3 3H5A7 7 0 0 1 12 5Z"/></svg>
-                      </button>
-                      <button class="link danger icon-btn" @click="deleteDoc(row)" :disabled="isRowRunning(row) || isRowDeleting(row)" :title="t('delete')" :aria-label="t('delete')">
-                        <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9Zm5 2v8h2v-8h-2Z"/></svg>
-                      </button>
-                    </div>
-                  </template>
-                  <template v-else>
-                    <div class="row-actions">
-                      <button class="link icon-btn" @click="editRow(row)" :title="t('edit')" :aria-label="t('edit')">
-                        <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25ZM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83Z"/></svg>
-                      </button>
-                      <button class="link icon-btn" @click="rerunImport(row)" :disabled="isRowRunning(row) || isRowDeleting(row)" :title="t('rerunImport')" :aria-label="t('rerunImport')">
-                        <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 5a7 7 0 1 1-6.9 8.2h2.1A5 5 0 1 0 12 7V3l5 4-5 4V9a3 3 0 1 1-3 3H5A7 7 0 0 1 12 5Z"/></svg>
-                      </button>
-                      <button class="link danger icon-btn" @click="deleteJob(row)" :disabled="isRowRunning(row) || isRowDeleting(row)" :title="t('delete')" :aria-label="t('delete')">
-                        <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9Zm5 2v8h2v-8h-2Z"/></svg>
-                      </button>
-                    </div>
-                  </template>
-                </td>
-              </tr>
-              <tr v-if="!filteredCombined.length">
-                <td colspan="5" class="empty">{{ t('noItems') }}</td>
-              </tr>
-            </tbody>
-          </table>
-          <div class="table-footer" v-if="canLoadMore">
-            <button class="load-more" type="button" @click="loadMoreDocs" :disabled="docsLoading">
-              <span>{{ docsLoading ? translateOr('loading', {}, 'Loading…') : translateOr('loadMore', {}, 'Load more') }}</span>
-              <span class="load-remaining" v-if="remainingDocs > 0">({{ remainingDocs }} {{ t('documents') }})</span>
-            </button>
+                    <template v-else>{{ row.title }}</template>
+                  </td>
+                  <td>
+                    <span class="badge" :class="badgeClass(row)">
+                      <template v-if="isRowRunning(row)">
+                        {{ t('documentsPage.statuses.running') }}<span class="dots" aria-hidden="true"><span>.</span><span>.</span><span>.</span></span>
+                      </template>
+                      <template v-else>{{ statusLabel(row) }}</template>
+                    </span>
+                  </td>
+                  <td>{{ fmtDate(row.created_at) }}</td>
+                  <td>
+                    <template v-if="row.type==='doc'">
+                      <div class="row-actions">
+                        <RouterLink class="link icon-btn" :to="`/documents/${row._raw?.id}`" :title="t('view')" :aria-label="t('view')">
+                          <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7Zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10Z"/></svg>
+                        </RouterLink>
+                        <button class="link icon-btn" @click="editRow(row)" :title="t('edit')" :aria-label="t('edit')">
+                          <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25ZM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83Z"/></svg>
+                        </button>
+                        <button class="link icon-btn" @click="rerunImport(row)" :disabled="isRowRunning(row) || isRowDeleting(row)" :title="t('rerunImport')" :aria-label="t('rerunImport')">
+                          <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 5a7 7 0 1 1-6.9 8.2h2.1A5 5 0 1 0 12 7V3l5 4-5 4V9a3 3 0 1 1-3 3H5A7 7 0 0 1 12 5Z"/></svg>
+                        </button>
+                        <button class="link danger icon-btn" @click="deleteDoc(row)" :disabled="isRowRunning(row) || isRowDeleting(row)" :title="t('delete')" :aria-label="t('delete')">
+                          <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9Zm5 2v8h2v-8h-2Z"/></svg>
+                        </button>
+                      </div>
+                    </template>
+                    <template v-else>
+                      <div class="row-actions">
+                        <button class="link icon-btn" @click="editRow(row)" :title="t('edit')" :aria-label="t('edit')">
+                          <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25ZM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83Z"/></svg>
+                        </button>
+                        <button class="link icon-btn" @click="rerunImport(row)" :disabled="isRowRunning(row) || isRowDeleting(row)" :title="t('rerunImport')" :aria-label="t('rerunImport')">
+                          <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 5a7 7 0 1 1-6.9 8.2h2.1A5 5 0 1 0 12 7V3l5 4-5 4V9a3 3 0 1 1-3 3H5A7 7 0 0 1 12 5Z"/></svg>
+                        </button>
+                        <button class="link danger icon-btn" @click="deleteJob(row)" :disabled="isRowRunning(row) || isRowDeleting(row)" :title="t('delete')" :aria-label="t('delete')">
+                          <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9Zm5 2v8h2v-8h-2Z"/></svg>
+                        </button>
+                      </div>
+                    </template>
+                  </td>
+                </tr>
+                <tr v-if="!filteredCombined.length">
+                  <td colspan="5" class="empty">{{ t('noItems') }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="table-footer" v-if="canLoadMore">
+              <button class="load-more" type="button" @click="loadMoreDocs" :disabled="docsLoading">
+                <span>{{ docsLoading ? translateOr('loading', {}, 'Loading…') : translateOr('loadMore', {}, 'Load more') }}</span>
+                <span class="load-remaining" v-if="remainingDocs > 0">({{ remainingDocs }} {{ t('documents') }})</span>
+              </button>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
 
       <!-- Right: KPIs + source shortcuts -->
       <aside class="side">
@@ -899,124 +900,363 @@ const deleteUploadFiles = async (row)=>{
 </script>
 
 <style scoped>
-:root{
-  --bg:#f6f8ff; --card:#ffffff; --line:#e6ecf7; --txt:#25324a; --muted:#6e7b90; --blue:#1d4ed8;
-  --md-shadow-1: 0 1px 3px rgba(16,24,40,.08), 0 1px 2px rgba(16,24,40,.06);
-  --md-shadow-2: 0 2px 6px rgba(16,24,40,.10), 0 4px 12px rgba(16,24,40,.08);
-  --md-shadow-3: 0 6px 16px rgba(16,24,40,.12), 0 8px 24px rgba(16,24,40,.10);
+.page {
+  background: var(--bg);
+  min-height: 100vh;
+  padding: 24px 32px;
+  max-width: 1600px;
+  margin: 0 auto;
 }
-.page{ background:var(--bg); min-height:100vh; padding: 0 12px; }
 
-.page-head{ width:100%; margin:16px 0 10px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
-.page-head h1{ margin:0; font-size:22px; color:var(--txt); font-weight:800; letter-spacing:.2px; }
-.left{ display:flex; align-items:center; gap:12px; }
-.search{ display:flex; gap:6px; align-items:center; background:var(--card); border:1px solid var(--line); border-radius:999px; padding:4px 6px 4px 10px; box-shadow: var(--md-shadow-1); }
-.search input{ border:none; padding:8px 10px; min-width:300px; outline:none; border-radius:999px; background:var(--card); color:var(--txt); }
-.search input::placeholder{ color: var(--muted); }
-.icon{ border:1px solid var(--line); background:var(--card); color:var(--txt); border-radius:999px; width:38px; height:32px; display:inline-flex; align-items:center; justify-content:center; box-shadow: var(--md-shadow-1); cursor:pointer; }
-.icon:hover{ background: var(--bg); color: var(--blue); }
-.right{ display:flex; gap:8px; }
-.primary{ border:none; background:var(--blue); color:#fff; font-weight:800; border-radius:10px; padding:9px 12px; cursor:pointer; }
-.ghost{ border:1px solid var(--line); background:var(--card); color:var(--blue); border-radius:10px; padding:8px 10px; font-weight:800; cursor:pointer; }
+/* Header */
+.page-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.left {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex: 1;
+}
+.page-head h1 {
+  font-size: 28px;
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: -0.03em;
+}
+.search {
+  position: relative;
+  max-width: 400px;
+  width: 100%;
+}
+.search input {
+  width: 100%;
+  padding: 12px 16px;
+  padding-right: 40px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line);
+  background: var(--card);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s;
+  font-size: 14px;
+}
+.search input:focus {
+  border-color: var(--primary);
+  box-shadow: var(--focus-ring);
+}
+.search .icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  opacity: 0.5;
+  padding: 4px;
+}
+.search .icon:hover { opacity: 1; }
 
-/* dropzone */
-.dropzone{ width:100%; margin:0 0 12px; background:var(--card); border:2px dashed var(--line); border-radius:16px; min-height:160px; display:grid; place-items:center; cursor:pointer; box-shadow: var(--md-shadow-1); transition: box-shadow .18s ease, background .18s ease; }
-.dropzone.over{ background: var(--bg); border-color: var(--blue); box-shadow: var(--md-shadow-2); }
-.dz-inner{ text-align:center; padding:24px; }
-.cloud{ font-size:36px; }
-.dz-title{ font-weight:800; color:var(--txt); font-size:18px; }
-.dz-sub{ color:var(--muted); font-size:13px; margin-top:6px; }
+.right { display: flex; gap: 12px; }
+.ghost {
+  background: var(--card);
+  border: 1px solid var(--line);
+  color: var(--txt);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: var(--shadow-sm);
+}
+.ghost:hover {
+  transform: rotate(180deg);
+  background: var(--bg);
+  border-color: var(--primary);
+  color: var(--primary);
+}
 
-/* grid */
-.grid{ width:100%; margin:0; display:grid; grid-template-columns: 1.6fr .9fr; gap:14px; align-items:flex-start; }
+/* Left Column Wrapper */
+.left-col {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
 
-/* panel */
-.panel{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px; box-shadow: var(--md-shadow-1); }
-.tabs{ display:flex; gap:10px; border-bottom:1px solid var(--line); padding-bottom:8px; }
-.tab{ border:1px solid transparent; background:var(--card); color:var(--txt); border-radius:9px; padding:8px 12px; cursor:pointer; font-weight:800; transition: color .15s ease, background .15s ease; }
-.tab:hover{ background:#f4f7ff; }
-.tab.active{ background: rgba(96,165,250,.15); color: var(--blue); border-color:#c7dafb; box-shadow: var(--md-shadow-1); }
+/* Dropzone */
+.dropzone {
+  background: var(--card);
+  border: 2px dashed var(--line);
+  border-radius: var(--radius);
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 0; /* Handled by gap in left-col */
+}
+.dropzone:hover, .dropzone.over {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+.dz-inner { pointer-events: none; }
+.cloud { font-size: 32px; margin-bottom: 8px; display: block; }
+.dz-title { font-size: 16px; font-weight: 700; color: var(--txt); margin-bottom: 4px; }
+.dz-sub { color: var(--muted); font-size: 13px; }
 
-.table-wrap{ margin-top:10px; border:1px solid var(--line); border-radius:16px; background:var(--card); box-shadow: var(--md-shadow-1); overflow:auto; position:relative; }
-.table-wrap::before{ content:''; position:absolute; inset:0; border-radius:inherit; pointer-events:none; box-shadow: inset 0 1px 0 rgba(255,255,255,.6); }
-.table-wrap > table{ min-width:720px; }
-.table-footer{ display:flex; justify-content:center; padding:12px; border-top:1px solid var(--line); background:linear-gradient(180deg, rgba(248,250,255,.6), rgba(240,245,255,.9)); }
-.load-more{ border:none; background:rgba(65,105,225,.1); color:var(--blue); border-radius:999px; padding:8px 18px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:8px; box-shadow: var(--md-shadow-1); }
-.load-more:disabled{ opacity:.6; cursor:not-allowed; }
-.load-remaining{ font-size:13px; color:var(--muted); }
-.table-tools{ display:flex; justify-content:space-between; margin-bottom:6px; }
-.chk{ display:flex; align-items:center; gap:6px; color:var(--muted); font-size:14px; }
-.tbl{ width:100%; border-collapse:separate; border-spacing:0; background:var(--card); color: var(--txt); }
-.tbl thead th{ position:sticky; top:0; background:linear-gradient(135deg, rgba(59,130,246,.08), rgba(14,165,233,.08)); color:#1f2937; font-weight:800; text-transform:uppercase; letter-spacing:.02em; }
-.tbl th,.tbl td{ text-align:left; padding:13px 14px; border-bottom:1px solid rgba(148,163,184,.35); font-size:14px; color:var(--txt); }
-.tbl tbody tr:nth-child(even) td{ background:rgba(244,247,255,.6); }
-.tbl tbody tr:hover td{ background:rgba(59,130,246,.12); transition:background .18s ease; }
-.tbl tbody tr:last-child td{ border-bottom:none; }
-.truncate{ max-width:400px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.type-cell{ align-items:center; }
-.type-ico{ display:inline-flex; align-items:center; justify-content:center; margin-right:6px; }
-.type-ico { display:inline-flex; font-size: 18px; line-height: 1; margin-right:6px; }
-.badge{ padding:3px 8px; border-radius:999px; font-size:12px; font-weight:800; border:1px solid transparent; }
-.badge.uploaded{ background:#fff0da; color:#9a6700; border-color:#ffd89a; }
-.badge.processing{ background:#eaf2ff; color:#1d4ed8; border-color:#c7dafb; }
-.badge.imported{ background:#e8f7ee; color:#047857; border-color:#b7e5c9; }
-.badge.failed{ background:#ffe8e6; color:#b42318; border-color:#f6b2ad; }
-.dots{ display:inline-flex; gap:1px; margin-left:1px; }
-.dots span{ opacity:0; animation: dotblink 1.2s infinite; }
-.dots span:nth-child(2){ animation-delay:.2s }
-.dots span:nth-child(3){ animation-delay:.4s }
-@keyframes dotblink{ 0%,20%{ opacity:0 } 50%{ opacity:1 } 100%{ opacity:0 } }
-.prog-cell{ width:190px; }
-.prog{ width:100%; height:8px; background: var(--bg); border:1px solid var(--line); border-radius:999px; overflow:hidden; }
-.prog .bar{ height:100%; width:0%; background: var(--blue); transition:width .25s; }
-.empty{ color:var(--muted); text-align:center; padding:12px 0; }
+/* Grid Layout */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 32px;
+  align-items: start;
+}
+@media (max-width: 1024px) {
+  .grid { grid-template-columns: 1fr; }
+}
 
-/* docs */
-.docs-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap:10px; padding-top:10px; }
-.doc-card{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; display:grid; gap:6px; box-shadow: var(--md-shadow-1); transition: transform .15s ease, box-shadow .15s ease; }
-.doc-card:hover{ transform: translateY(-2px); box-shadow: var(--md-shadow-2); }
-.doc-ico{ font-size:24px; }
-.doc-title{ font-weight:800; color:var(--txt); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.doc-meta{ color:var(--muted); font-size:13px; }
-.doc-actions{ display:flex; gap:10px; }
-.link{ background:transparent; border:none; color:var(--blue); font-weight:800; cursor:pointer; padding:0; }
-.link.danger{ color:#b42318; }
-.row-actions{ display:inline-flex; gap:10px; align-items:center; }
-.link[disabled]{ opacity:.6; pointer-events:none; }
-.icon-btn{ width:28px; height:28px; display:inline-flex; align-items:center; justify-content:center; border-radius:6px; }
-.icon-btn:hover{ background: rgba(148,163,184,.15); }
-.icon-svg{ width:16px; height:16px; display:block; }
+/* Panel / Table */
+.panel {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.table-wrap { padding: 0; }
+.table-tools {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg);
+}
+.chk {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+}
+.info-line {
+  padding: 12px 24px;
+  background: #fffbeb;
+  color: #b45309;
+  font-size: 13px;
+  border-bottom: 1px solid #fcd34d;
+  display: none;
+}
 
-/* right */
-.side{ display:grid; gap:12px; }
-.kpis{ display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; }
-.kpi{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; box-shadow: var(--md-shadow-1); }
-.kpi-title{ color:var(--muted); font-size:13px; font-weight:800; }
-.kpi-val{ font-size:22px; font-weight:900; color:var(--txt); }
-.kpi-val.ok{ color:#0a8d3a } .kpi-val.bad{ color:#b42318 }
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.tbl th {
+  text-align: left;
+  padding: 16px 24px;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+}
+.tbl td {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--line);
+  color: var(--txt);
+  vertical-align: middle;
+}
+.tbl tr:last-child td { border-bottom: none; }
+.tbl tr:hover td { background: var(--bg); }
 
-.sources{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; box-shadow: var(--md-shadow-1); }
-.sources-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
-.src-grid{ display:grid; grid-template-columns: repeat(6, 1fr); gap:10px; }
-.src-btn{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; cursor:pointer; text-align:center; box-shadow: var(--md-shadow-1); transition: transform .15s ease, box-shadow .15s ease, background .12s ease; display:grid; gap:8px; justify-items:center; }
-.src-btn:hover{ background: var(--bg); transform: translateY(-2px); box-shadow: var(--md-shadow-2); }
-.src-ico{ font-size:20px; } .src-name{ margin-top:6px; font-size:12.5px; font-weight:800; color:var(--txt); }
-.src-ico-comp{ display:inline-flex; font-size: 20px; line-height: 1; }
-.src-ico-img{ width:1em; height:1em; display:inline-block; object-fit:contain; }
-.info-line{ font-size:12.5px; color:var(--muted); padding:8px 10px; border:1px dashed var(--line); border-radius:10px; background: var(--bg); margin-bottom:8px; }
+.type-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 600;
+}
+.type-ico {
+  width: 36px;
+  height: 36px;
+  background: var(--bg);
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-sm);
+}
+.src-ico-img { width: 22px; height: 22px; object-fit: contain; }
 
-.connected-table{ margin-top:18px; }
-.connected-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
-.conn-table{ width:100%; border-collapse:separate; border-spacing:0; background:var(--card); }
-.conn-table thead th{ background:linear-gradient(135deg, rgba(14,165,233,.12), rgba(96,165,250,.12)); text-transform:uppercase; font-size:12px; letter-spacing:.03em; color:#1f2937; }
-.conn-table th, .conn-table td{ text-align:left; padding:12px 14px; border-bottom:1px solid rgba(148,163,184,.3); }
-.conn-table tbody tr:nth-child(even) td{ background:rgba(244,247,255,.65); }
-.conn-table tbody tr:last-child td{ border-bottom:none; }
-.conn-table tbody tr:hover td{ background:rgba(59,130,246,.12); }
-.conn-name{ display:flex; align-items:center; gap:10px; min-width:220px; overflow:hidden; }
-.conn-actions{ gap:8px; }
-.kind{ color:var(--muted); font-size:.9rem; }
-/* modal */
+.truncate {
+  max-width: 300px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+  font-size: 15px;
+}
+.truncate a { color: var(--txt); transition: color 0.2s; }
+.truncate a:hover { color: var(--primary); }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+.badge.imported { background: #dcfce7; color: #166534; }
+.badge.processing { background: #e0f2fe; color: #075985; }
+.badge.uploaded { background: #f1f5f9; color: #475569; }
+.badge.failed { background: #fee2e2; color: #991b1b; }
+.dots span { animation: blink 1.4s infinite both; }
+.dots span:nth-child(2) { animation-delay: 0.2s; }
+.dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes blink { 0% { opacity: 0.2; } 20% { opacity: 1; } 100% { opacity: 0.2; } }
+
+/* Action Icons - Improved */
+.row-actions {
+  display: flex;
+  gap: 8px;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+.tbl tr:hover .row-actions { opacity: 1; }
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.icon-btn:hover {
+  background: var(--bg);
+  color: var(--primary);
+  border-color: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+.icon-btn.danger:hover {
+  color: var(--danger);
+  background: #fef2f2;
+  border-color: var(--danger);
+}
+.icon-svg { width: 18px; height: 18px; }
+
+.table-footer {
+  padding: 16px;
+  border-top: 1px solid var(--line);
+  text-align: center;
+}
+.load-more {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  color: var(--txt);
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.load-more:hover {
+  background: var(--card);
+  border-color: var(--primary);
+  color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Sidebar / KPIs */
+.side { display: flex; flex-direction: column; gap: 32px; }
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+.kpi {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+.kpi:last-child { grid-column: span 2; }
+.kpi-title { color: var(--muted); font-size: 12px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; }
+.kpi-val { font-size: 32px; font-weight: 800; color: var(--txt); }
+.kpi-val.ok { color: var(--success); }
+.kpi-val.bad { color: var(--danger); }
+
+.sources-head { margin-bottom: 16px; }
+.sources-head h3 { font-size: 16px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+.src-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 items per row */
+  gap: 10px;
+}
+.src-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 8px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.src-btn:hover {
+  transform: translateY(-2px);
+  border-color: var(--primary);
+  box-shadow: var(--shadow);
+}
+.src-ico-comp {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+}
+.src-name { font-size: 11px; font-weight: 600; color: var(--txt); text-align: center; line-height: 1.2; }
+
+/* Connected Sources Table */
+.connected-table { margin-top: 32px; padding: 0; overflow: hidden; }
+.connected-head { padding: 16px 24px; border-bottom: 1px solid var(--line); background: var(--bg); }
+.conn-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.conn-table th { text-align: left; padding: 12px 24px; color: var(--muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--line); }
+.conn-table td { padding: 12px 24px; border-bottom: 1px solid var(--line); }
+.conn-name { display: flex; align-items: center; gap: 12px; }
+.nm { font-weight: 600; color: var(--txt); }
+.kind { font-size: 12px; color: var(--muted); }
+
+/* Modal */
 .modal{ position:fixed; inset:0; background:rgba(0,0,0,.35); display:grid; place-items:center; z-index:30; }
 .modal-box{ width:min(860px, 96vw); background:var(--card); border-radius:14px; border:1px solid var(--line); box-shadow:0 18px 48px rgba(31,64,175,.18); }
 .modal-head{ display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border-bottom:1px solid var(--line); }
