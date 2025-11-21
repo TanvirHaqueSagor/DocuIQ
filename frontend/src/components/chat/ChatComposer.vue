@@ -13,11 +13,12 @@
     <button
       class="composer-send"
       type="button"
-      :disabled="!canSend"
+      :disabled="!canSend && !loading"
       @click="emitSubmit"
-      aria-label="Send message"
+      :aria-label="loading ? 'Generating response' : 'Send message'"
     >
-      <svg viewBox="0 0 24 24" aria-hidden="true">
+      <div v-if="loading" class="spinner"></div>
+      <svg v-else viewBox="0 0 24 24" aria-hidden="true">
         <path fill="currentColor" d="M2 3.5 22 12 2 20.5l5-7-5-7.5Zm5.5 7.5L4.8 7.7 15 12 4.8 16.3 7.5 11Z" />
       </svg>
     </button>
@@ -133,5 +134,18 @@ onMounted(() => autoSize())
 .composer-send svg {
   width: 18px;
   height: 18px;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 </style>

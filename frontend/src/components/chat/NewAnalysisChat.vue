@@ -39,8 +39,7 @@
             @submit="send"
           />
           <div class="composer-meta">
-            <span>{{ loading ? t('generatingResponse') || 'Generating response…' : 'Enter to send · Shift+Enter for newline' }}</span>
-            <span class="status-dot" :class="{ online: !loading }"></span>
+            <span>Enter to send · Shift+Enter for newline</span>
           </div>
           <p v-if="error" class="error">{{ error }}</p>
         </div>
