@@ -115,6 +115,28 @@ function onOpenCitation(payload) {
 
 .docuiq-message.user .bubble :deep(.citation-chip) {
   background: rgba(255, 255, 255, 0.2);
+  border-color: transparent;
+}
+
+.docuiq-message.user .bubble :deep(.citation-ref) {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.docuiq-message.user .bubble :deep(.chip-title),
+.docuiq-message.user .bubble :deep(.chip-details),
+.docuiq-message.user .bubble :deep(.chip-snippet),
+.docuiq-message.user .bubble :deep(.chip-page) {
+  color: #fff;
+}
+
+.docuiq-message.user .bubble :deep(.chip-details) {
+  opacity: 0.9;
+}
+
+.docuiq-message.user .bubble :deep(.chip-icon) {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
 }
 
 .loading-wrapper {

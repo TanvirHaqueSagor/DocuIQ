@@ -224,16 +224,13 @@ async function load(){
   loading.value = false
 }
 
-const backLabel = computed(() => route.query?.fromThread ? 'History' : 'Documents')
+const backLabel = computed(() => 'Back')
 function goBack(){
-  const fromT = route.query?.fromThread
-  const fromM = route.query?.fromMessage
-  if (fromT) {
-    const q = fromM ? `?m=${encodeURIComponent(String(fromM))}` : ''
-    router.push(`/analysis/${fromT}${q}`)
-    return
+  if (window.history.state && window.history.state.back) {
+    router.back()
+  } else {
+    router.push('/documents')
   }
-  router.push('/documents')
 }
 
 onMounted(load)

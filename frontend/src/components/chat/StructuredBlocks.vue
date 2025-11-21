@@ -2,7 +2,16 @@
   <div class="structured-blocks">
     <template v-for="(block, idx) in blocks" :key="`block-${idx}-${block.type}`">
       <div v-if="block.type === 'text'" class="block block-text">
-        <p v-for="(paragraph, pIdx) in toParagraphs(block.content)" :key="`p-${pIdx}`">{{ paragraph }}</p>
+        <p v-for="(paragraph, pIdx) in toParagraphs(block.content)" :key="`p-${pIdx}`">
+          <template v-for="(segment, sIdx) in parseWithCitations(paragraph)" :key="`s-${sIdx}`">
+            <span v-if="segment.text">{{ segment.text }}</span>
+            <button
+              v-else-if="segment.ref"
+              class="citation-ref"
+              @click="openCitationRef(segment.ref)"
+            >[S{{ segment.ref }}]</button>
+          </template>
+        </p>
       </div>
 
       <ul v-else-if="block.type === 'bullets'" class="block block-bullets">
@@ -57,9 +66,22 @@
           type="button"
           @click="emitCitation(citation)"
         >
-          <span class="chip-title">{{ citationLabel(citation) }}</span>
-          <span class="chip-meta" v-if="citation.page">Page {{ citation.page }}</span>
-          <span class="chip-snippet" v-if="citation.snippet">{{ citation.snippet }}</span>
+          <div class="chip-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <line x1="10" y1="9" x2="8" y2="9"></line>
+            </svg>
+          </div>
+          <div class="chip-content">
+            <span class="chip-title">{{ citationLabel(citation) }}</span>
+            <div class="chip-details" v-if="citation.page || citation.snippet">
+              <span class="chip-page" v-if="citation.page">p. {{ citation.page }}</span>
+              <span class="chip-snippet" v-if="citation.snippet">{{ citation.snippet }}</span>
+            </div>
+          </div>
         </button>
       </div>
 
@@ -140,6 +162,47 @@ function prettyJson(code) {
     return JSON.stringify(code, null, 2)
   } catch {
     return ''
+  }
+}
+
+const allCitations = computed(() => {
+  const citations = []
+  if (!props.blocks) return citations
+  for (const block of props.blocks) {
+    if (block.type === 'citations' && Array.isArray(block.items)) {
+      citations.push(...block.items)
+    }
+  }
+  return citations
+})
+
+function parseWithCitations(text) {
+  if (!text) return []
+  const regex = /\[S(\d+)\]/g
+  const segments = []
+  let lastIndex = 0
+  let match
+
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      segments.push({ text: text.slice(lastIndex, match.index) })
+    }
+    const ref = parseInt(match[1], 10)
+    segments.push({ ref })
+    lastIndex = regex.lastIndex
+  }
+
+  if (lastIndex < text.length) {
+    segments.push({ text: text.slice(lastIndex) })
+  }
+  return segments
+}
+
+function openCitationRef(index) {
+  // index is 1-based
+  const citation = allCitations.value[index - 1]
+  if (citation) {
+    emit('open-citation', citation)
   }
 }
 </script>
@@ -275,39 +338,85 @@ tbody td {
 }
 
 .citation-chip {
-  border: none;
-  background: rgba(65, 105, 225, 0.1);
+  border: 1px solid rgba(65, 105, 225, 0.15);
+  background: #fff;
   color: #1b2c48;
-  border-radius: 999px;
-  padding: 8px 14px;
-  font-weight: 600;
-  display: inline-flex;
-  flex-direction: column;
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
   align-items: flex-start;
-  gap: 2px;
+  gap: 10px;
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease;
+  transition: all 0.2s ease;
+  text-align: left;
+  width: 100%;
+  max-width: 300px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.03);
 }
 
 .citation-chip:hover {
-  background: rgba(65, 105, 225, 0.2);
+  border-color: #4169e1;
+  background: #f8fbff;
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(65, 105, 225, 0.15);
 }
 
-.chip-meta {
-  font-size: 12px;
+.chip-icon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(65, 105, 225, 0.1);
+  color: #4169e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chip-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.chip-content {
+  flex: 1;
+  min-width: 0; /* text truncation */
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.chip-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1b2c48;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chip-details {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
   color: #5b6b88;
 }
 
+.chip-page {
+  background: rgba(0,0,0,0.05);
+  padding: 1px 4px;
+  border-radius: 4px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
 .chip-snippet {
-  font-size: 12px;
-  color: #1b2c48;
   opacity: 0.85;
-  text-align: left;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .block-download {
@@ -368,5 +477,22 @@ tbody td {
 .muted {
   color: #94a3b8;
   text-align: center;
+}
+
+.citation-ref {
+  display: inline;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0 1px;
+  color: #4169e1;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: inherit;
+  font-family: inherit;
+}
+
+.citation-ref:hover {
+  text-decoration: underline;
 }
 </style>
