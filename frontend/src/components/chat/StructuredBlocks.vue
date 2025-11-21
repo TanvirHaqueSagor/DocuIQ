@@ -6,7 +6,7 @@
           <template v-for="(segment, sIdx) in parseWithCitations(paragraph)" :key="`s-${sIdx}`">
             <span v-if="segment.text">{{ segment.text }}</span>
             <button
-              v-else-if="segment.ref"
+              v-else-if="segment.ref && getCitation(segment.ref)"
               class="citation-ref"
               @click="openCitationRef(segment.ref)"
             >[S{{ segment.ref }}]</button>
@@ -198,9 +198,23 @@ function parseWithCitations(text) {
   return segments
 }
 
-function openCitationRef(index) {
-  // index is 1-based
-  const citation = allCitations.value[index - 1]
+function getCitation(ref) {
+  const refStr = String(ref)
+  // 1. Try to find by exact ID match
+  let citation = allCitations.value.find(c => String(c.citationId) === refStr || String(c.id) === refStr)
+  
+  // 2. Fallback: treat ref as 1-based index
+  if (!citation) {
+    const idx = parseInt(ref, 10)
+    if (Number.isFinite(idx) && idx > 0) {
+      citation = allCitations.value[idx - 1]
+    }
+  }
+  return citation
+}
+
+function openCitationRef(ref) {
+  const citation = getCitation(ref)
   if (citation) {
     emit('open-citation', citation)
   }

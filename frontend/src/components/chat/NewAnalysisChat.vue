@@ -381,24 +381,28 @@ function normalizeCitations(data) {
         : []
   const seen = new Set()
   const normalized = []
-  for (const entry of arr) {
-    if (!entry) continue
+  
+  arr.forEach((entry, idx) => {
+    if (!entry) return
     const docId = entry.doc_id || entry.documentId || entry.document_id || entry.id || ''
-    const citationId = entry.citation_id || entry.citationId || entry.id || ''
-    if (!docId || !citationId || seen.has(citationId)) continue
+    // Use provided citation ID or fallback to index+1
+    const citationId = String(entry.citation_id || entry.citationId || entry.id || (idx + 1))
+    
+    if (seen.has(citationId)) return
     seen.add(citationId)
+    
     const page = typeof entry.page === 'number' && entry.page > 0 ? entry.page : undefined
     normalized.push({
       citationId,
       docId,
-      docTitle: entry.doc_title || entry.title || entry.label || docId,
+      docTitle: entry.doc_title || entry.title || entry.label || docId || 'Source',
       page,
       snippet: entry.snippet || entry.excerpt || '',
       url: entry.url || buildDocumentUrl(docId, page),
       sourceType: entry.source_type || entry.kind || '',
       score: typeof entry.score === 'number' ? entry.score : null
     })
-  }
+  })
   return normalized
 }
 

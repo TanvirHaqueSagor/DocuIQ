@@ -86,11 +86,17 @@ onMounted(() => autoSize())
   position: relative;
   background: #f6f8ff;
   border: 1px solid rgba(65, 105, 225, 0.2);
-  border-radius: 999px;
-  padding: 10px 56px 10px 20px;
+  border-radius: 26px;
+  padding: 14px 54px 14px 18px;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.05);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.composer:focus-within {
+  border-color: rgba(65, 105, 225, 0.5);
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.05), 0 0 0 3px rgba(65, 105, 225, 0.1);
 }
 
 .composer-input {
@@ -100,8 +106,11 @@ onMounted(() => autoSize())
   font-size: 16px;
   color: #1b2c48;
   resize: none;
-  line-height: 1.4;
-  min-height: 28px;
+  line-height: 1.5;
+  min-height: 24px;
+  max-height: 200px;
+  padding: 0;
+  margin: 0;
 }
 
 .composer-input:focus {
@@ -111,9 +120,10 @@ onMounted(() => autoSize())
 .composer-send {
   position: absolute;
   right: 8px;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+  bottom: 8px;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
   border: none;
   background: #4169e1;
   color: #fff;
@@ -121,14 +131,24 @@ onMounted(() => autoSize())
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 10px 25px rgba(65, 105, 225, 0.35);
-  transition: transform 0.15s ease, opacity 0.2s ease;
+  box-shadow: 0 4px 12px rgba(65, 105, 225, 0.25);
+  transition: transform 0.15s ease, opacity 0.2s ease, background-color 0.2s ease;
+}
+
+.composer-send:hover:not(:disabled) {
+  background: #3658c5;
+  transform: translateY(-1px);
+}
+
+.composer-send:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .composer-send:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
   box-shadow: none;
+  background: #94a3b8;
 }
 
 .composer-send svg {
