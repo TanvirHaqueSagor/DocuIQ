@@ -128,7 +128,22 @@ class JobDetail(APIView):
                     except Exception:
                         pass
             # finally delete the job itself
+            extra_deleted = 0
+            if mode == 'web':
+                url = payload.get('url') or payload.get('start_url')
+                lookup = Q()
+                if url:
+                    lookup |= Q(payload__url=url) | Q(payload__start_url=url)
+                if lookup:
+                    extras = IngestJob.objects.filter(created_by=request.user, mode=j.mode).exclude(id=j.id).filter(lookup)
+                    extra_deleted = extras.count()
+                    if extra_deleted:
+                        extras.delete()
             j.delete()
+            try:
+                logging.getLogger(__name__).info("Deleted job id=%s mode=%s extras=%s", pk, mode, extra_deleted)
+            except Exception:
+                pass
         return Response(status=204)
 
 # ---- Upload ----
@@ -178,11 +193,15 @@ class UploadView(APIView):
             doc = IngestFile.objects.create(
                 uploaded_by=request.user,
                 filename=f.name,
-                file=f,
                 size=f_size,
                 content_type=getattr(f, 'content_type', ''),
                 organization=org
             )
+            try:
+                f.seek(0)
+            except Exception:
+                pass
+            doc.file.save(f.name, f, save=True)
             # Queue processing (Celery)
             try:
                 process_item.delay(doc.id)
@@ -198,12 +217,28 @@ class DocumentList(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        limit = int(request.GET.get('limit', 20))
+        try:
+            limit = int(request.GET.get('limit', 20))
+        except (TypeError, ValueError):
+            limit = 20
+        try:
+            offset = int(request.GET.get('offset', 0))
+        except (TypeError, ValueError):
+            offset = 0
+        limit = max(1, min(limit, 500))
+        offset = max(0, offset)
         sort = request.GET.get('sort', '-created_at')
-        # Map created_at -> uploaded_at for underlying model
         mapped_sort = sort.replace('created_at', 'uploaded_at')
-        qs = IngestFile.objects.filter(uploaded_by=request.user).order_by(mapped_sort)[:limit]
-        return Response(DocumentSerializer(qs, many=True).data)
+        qs = IngestFile.objects.filter(uploaded_by=request.user).order_by(mapped_sort)
+        total = qs.count()
+        window = qs[offset: offset + limit]
+        data = DocumentSerializer(window, many=True).data
+        return Response({
+            'count': total,
+            'results': data,
+            'limit': limit,
+            'offset': offset,
+        })
 
 class DocumentDetail(APIView):
     authentication_classes = [JWTAuthentication]
@@ -253,8 +288,8 @@ class DocumentDetail(APIView):
                 cits = []
                 try:
                     for c in (m.citations or []):
-                        did = str(c.get('documentId') or c.get('document_id') or '')
-                        url = c.get('url') or ''
+                        did = str(c.get('doc_id') or c.get('documentId') or c.get('document_id') or '')
+                        url = c.get('url') or c.get('origin_url') or ''
                         if (did and did == doc_id_str) or (src_url and url and url == src_url):
                             cits.append(c)
                 except Exception:
@@ -399,6 +434,16 @@ class DocumentFile(APIView):
                     logger.info("Authenticated via query token for document file id=%s user=%s", pk, getattr(user, 'id', None))
             except Exception as e:
                 user = None
+        if not user:
+            token = request.query_params.get('access') or request.query_params.get('token')
+            if token:
+                try:
+                    backend = JWTAuthentication()
+                    validated = backend.get_validated_token(token)
+                    user = backend.get_user(validated)
+                    logging.getLogger(__name__).info("DocumentFile authenticated via query token file_id=%s user=%s", pk, getattr(user, 'id', None))
+                except Exception:
+                    user = None
         if not user:
             return Response(status=401)
         obj = IngestFile.objects.filter(id=pk, uploaded_by=user).first()

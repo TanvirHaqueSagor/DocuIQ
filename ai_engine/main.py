@@ -1,9 +1,9 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Set
 from openai import OpenAI
-import os, json, hashlib
+import os, json, hashlib, re
 from fastapi.responses import JSONResponse
 import logging
 from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
@@ -68,6 +68,138 @@ class IndexDocumentRequest(BaseModel):
     title: Optional[str] = None
     text: Optional[str] = Field(None, description="Plaintext content to index")
     pages: Optional[List[PageChunk]] = Field(None, description="Optional per-page texts for precise page mapping")
+    source_type: Optional[str] = Field(None, description="Source kind (pdf, web, drive, etc.)")
+    origin_url: Optional[str] = Field(None, description="Original URL if available for citation deep links")
+
+
+class Citation(BaseModel):
+    citation_id: str
+    doc_id: str
+    doc_title: Optional[str] = None
+    source_type: Optional[str] = None
+    page: Optional[int] = None
+    chunk_id: Optional[str] = None
+    chunk_index: Optional[int] = None
+    score: Optional[float] = None
+    snippet: str
+    url: Optional[str] = None
+
+
+def _clean_snippet(text: str, limit: int = 420) -> str:
+    raw = ' '.join((text or '').split())
+    if not raw:
+        return ''
+    parts = re.split(r'(?<=[.!?])\s+', raw)
+    snippet = ' '.join(parts[:3]) if parts and len(' '.join(parts[:3])) <= limit else raw[:limit]
+    return snippet.strip()
+
+
+def _guess_source_type(meta: Dict[str, Any]) -> Optional[str]:
+    st = meta.get("source_type") or meta.get("kind")
+    if st:
+        return str(st)
+    title = (meta.get("title") or "").lower()
+    if "web" in title:
+        return "web"
+    return None
+
+
+def _build_view_path(doc_id: str, page: Optional[int], meta: Dict[str, Any]) -> Optional[str]:
+    url = meta.get("view_url") or meta.get("url") or meta.get("origin_url") or meta.get("source_url")
+    if url:
+        return url
+    if not doc_id:
+        return None
+    if page:
+        return f"/documents/{doc_id}?p={page}"
+    return f"/documents/{doc_id}"
+
+
+def _coerce_page(meta: Dict[str, Any]) -> Optional[int]:
+    page = meta.get("page")
+    if isinstance(page, int) and page > 0:
+        return page
+    chunk = meta.get("chunk")
+    if isinstance(chunk, int):
+        return chunk + 1
+    return None
+
+
+def _build_citations(matches: List[Dict[str, Any]], limit: int) -> List[Citation]:
+    citations: List[Citation] = []
+    seen_chunks: Set[str] = set()
+    for match in matches:
+        meta = match.get("metadata") or {}
+        doc_id = str(meta.get("document_id") or meta.get("documentId") or meta.get("doc_id") or "").strip()
+        if not doc_id:
+            continue
+        chunk_idx = meta.get("chunk")
+        chunk_id = meta.get("chunk_id") or f"{doc_id}:{meta.get('page') or 0}:{chunk_idx if chunk_idx is not None else ''}"
+        if chunk_id in seen_chunks:
+            continue
+        seen_chunks.add(chunk_id)
+        page = _coerce_page(meta)
+        snippet = _clean_snippet(match.get("content") or "")
+        citation = Citation(
+            citation_id=f"S{len(citations) + 1}",
+            doc_id=doc_id,
+            doc_title=meta.get("title"),
+            source_type=_guess_source_type(meta) or (match.get("metadata") or {}).get("source_type"),
+            page=page,
+            chunk_id=str(chunk_id),
+            chunk_index=chunk_idx if isinstance(chunk_idx, int) else None,
+            score=float(match.get("score") or 0.0),
+            snippet=snippet,
+            url=_build_view_path(doc_id, page, meta),
+        )
+        citations.append(citation)
+        if len(citations) >= limit:
+            break
+    return citations
+
+
+def _render_sources_for_prompt(citations: List[Citation]) -> str:
+    lines = []
+    for c in citations:
+        lines.append(
+            f"[{c.citation_id}] Document: {c.doc_title or c.doc_id}\n"
+            f"Page: {c.page or 'unknown'} | Type: {c.source_type or 'document'}\n"
+            f"Snippet: {c.snippet}"
+        )
+    return "\n\n".join(lines)
+
+
+def _extract_json_block(text: str) -> Dict[str, Any]:
+    if not text:
+        return {}
+    snippet = text.strip()
+    fenced_match = re.search(r"```json(.*?)```", snippet, flags=re.DOTALL | re.IGNORECASE)
+    if fenced_match:
+        snippet = fenced_match.group(1).strip()
+    try:
+        return json.loads(snippet)
+    except Exception:
+        pass
+    start = snippet.find("{")
+    end = snippet.rfind("}")
+    if start != -1 and end != -1 and end > start:
+        try:
+            return json.loads(snippet[start : end + 1])
+        except Exception:
+            return {}
+    return {}
+
+
+def _extract_markers(answer: str) -> List[str]:
+    if not answer:
+        return []
+    ids = re.findall(r"\[S(\d+)]", answer)
+    out = []
+    for marker in ids:
+        cid = f"S{marker}"
+        if cid not in out:
+            out.append(cid)
+    return out
 
 
 def embed_texts(texts: List[str]) -> List[List[float]]:
@@ -84,31 +216,44 @@ def embed_texts(texts: List[str]) -> List[List[float]]:
     raise RuntimeError(f"embed_failed: {last_exc}")
 
 
-def answer_with_openai(question: str, context_chunks: List[Dict[str, Any]]) -> str:
+def answer_with_openai(question: str, citations: List[Citation]) -> Dict[str, Any]:
     if not OPENAI_API_KEY:
         raise RuntimeError("OPENAI_API_KEY not set")
-    context = []
-    for i, ch in enumerate(context_chunks, 1):
-        meta = ch.get("metadata", {})
-        doc_id = meta.get("document_id") or meta.get("documentId") or meta.get("doc_id")
-        title = meta.get("title") or ""
-        context.append(f"[Source {i}] doc={doc_id} title={title}\n{ch['content']}")
-    ctx = "\n\n".join(context)
+    if not citations:
+        return {"answer": "", "citations_used": []}
+    ctx = _render_sources_for_prompt(citations)
     sys = (
-        "You are a helpful assistant answering questions strictly using the provided context. "
-        "Cite sources inline like [1], [2] where relevant. If you are uncertain or the answer "
-        "isn't in the context, say you don't know."
+        "You are DocuIQ's enterprise research assistant. "
+        "Answer using only the supplied sources. "
+        "Every factual statement must reference a citation marker like [S1]. "
+        "If the information isn't present, state that it was not found."
     )
-    user = f"Question: {question}\n\nContext:\n{ctx}"
+    format_hint = (
+        "Respond ONLY with valid JSON using this schema:\n"
+        "{\n"
+        '  "answer": "<full narrative with [S#] markers>",\n'
+        '  "bullets": ["optional bullet list"],\n'
+        '  "table": {"headers": [], "rows": []},\n'
+        '  "citations_used": ["S1","S2"]\n'
+        "}\n"
+        "Omit bullets/table if not needed but keep the keys."
+    )
+    user = f"Question: {question}\n\nSources:\n{ctx}\n\n{format_hint}"
     resp = client.chat.completions.create(
         model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
         messages=[
             {"role": "system", "content": sys},
             {"role": "user", "content": user},
         ],
-        temperature=0.2,
+        temperature=0.1,
     )
-    return resp.choices[0].message.content.strip()
+    raw = resp.choices[0].message.content.strip()
+    parsed = _extract_json_block(raw) or {}
+    if "answer" not in parsed:
+        parsed["answer"] = raw
+    if "citations_used" not in parsed:
+        parsed["citations_used"] = _extract_markers(parsed.get("answer", ""))
+    return parsed
 
 
 @app.post("/index_document")
@@ -121,6 +266,8 @@ def index_document(req: IndexDocumentRequest):
     texts_to_embed: List[str] = []
     metas: List[Dict[str, Any]] = []
 
+    source_type = (req.source_type or "").strip().lower() or None
+    origin_url = (req.origin_url or "").strip() or None
     if req.pages:
         # Build chunks per page and preserve page number in metadata
         for p in req.pages:
@@ -131,6 +278,9 @@ def index_document(req: IndexDocumentRequest):
                     "title": req.title,
                     "chunk": j,
                     "page": int(p.page or 0) if p.page else None,
+                    "chunk_id": f"{req.document_id}:p{p.page or 0}:c{j}",
+                    "source_type": source_type,
+                    "origin_url": origin_url,
                 })
     elif req.text:
         for j, ch in enumerate(chunk_text(req.text or "", target_chars=1200)):
@@ -139,6 +289,9 @@ def index_document(req: IndexDocumentRequest):
                 "document_id": req.document_id,
                 "title": req.title,
                 "chunk": j,
+                "chunk_id": f"{req.document_id}:c{j}",
+                "source_type": source_type,
+                "origin_url": origin_url,
             })
     else:
         return JSONResponse({"ok": False, "error": "no_content", "detail": "Provide text or pages"}, status_code=400)
@@ -206,49 +359,51 @@ async def upload(file: UploadFile = File(...)):
 def ask(req: AskRequest):
     q = (req.question or "").strip()
     if not q:
-        return {"answer": "", "sources": []}
+        return {"answer": "", "citations": [], "inline_refs": {}}
     logger.info("ask len=%s top_k=%s", len(q), req.top_k)
     q_emb = embed_texts([q])[0]
-    matches = store.query(q_emb, top_k=max(1, min(25, req.top_k * 3)))
-    # Collapse citations by document (keep best score); cap to req.top_k unique
-    best_by_doc = {}
-    for m in matches:
-        meta = (m.get("metadata") or {})
-        doc_id = meta.get("document_id")
-        if not doc_id:
-            continue
-        prev = best_by_doc.get(doc_id)
-        if (not prev) or (m.get("score", 0) > prev.get("score", 0)):
-            best_by_doc[doc_id] = {
-                "title": meta.get("title"),
-                "document_id": doc_id,
-                # Expose chunk index as page-ish indicator (1-based)
-                "page": (meta.get("chunk") + 1) if isinstance(meta.get("chunk"), int) else None,
-                "url": meta.get("url") or meta.get("source_url"),
-                "score": float(m.get("score") or 0),
-                "chunk": meta.get("chunk"),
-                "excerpt": (m.get("content") or "").strip()[:220],
-            }
-    # Sort by score desc and limit to requested top_k (for chips / fallback)
-    citations = sorted(best_by_doc.values(), key=lambda x: x.get("score", 0), reverse=True)[: max(1, req.top_k)]
+    max_matches = max(3, min(40, req.top_k * 4))
+    matches = store.query(q_emb, top_k=max_matches)
+    if not matches:
+        return {"answer": "", "citations": [], "inline_refs": {}}
+    context_limit = max(1, min(len(matches), max(3, req.top_k * 2)))
+    context_matches = matches[:context_limit]
+    citations = _build_citations(context_matches, limit=context_limit)
+    if not citations:
+        citations = _build_citations(matches, limit=max(1, req.top_k))
+    for c in citations:
+        try:
+            logger.info("ask.retrieval doc=%s page=%s score=%.3f chunk=%s", c.doc_id, c.page, c.score or 0.0, c.chunk_id)
+        except Exception:
+            pass
     try:
-        answer = answer_with_openai(q, matches)
+        llm = answer_with_openai(q, citations)
     except Exception as e:
         logger.exception("ask openai_failed error=%s", e)
         return JSONResponse({"ok": False, "error": "openai_failed", "detail": str(e)}, status_code=502)
-    # Build inline refs map aligned to [n] citations used by the model
-    inline_refs = {}
-    for i, m in enumerate(matches, 1):
-        meta = (m.get("metadata") or {})
-        inline_refs[str(i)] = {
-            "title": meta.get("title"),
-            "document_id": meta.get("document_id"),
-            "page": (meta.get("page") if isinstance(meta.get("page"), int) else ((meta.get("chunk") + 1) if isinstance(meta.get("chunk"), int) else None)),
-            "url": meta.get("url") or meta.get("source_url"),
-        }
-    out = {"answer": answer, "inline_refs": inline_refs}
+    answer_text = (llm.get("answer") or "").strip()
+    cited_ids = llm.get("citations_used") or _extract_markers(answer_text) or []
+    cite_map = {c.citation_id: c.dict() for c in citations}
+    ordered_used = [cid for cid in cited_ids if cid in cite_map]
+    if not ordered_used:
+        ordered_used = [c.citation_id for c in citations[: req.top_k]]
+    used_citations = [cite_map[cid] for cid in ordered_used if cid in cite_map]
+    inline_refs = cite_map
+    blocks = []
+    bullets = llm.get("bullets") or []
+    if isinstance(bullets, list) and bullets:
+        blocks.append({"type": "bullets", "items": bullets})
+    table = llm.get("table")
+    if isinstance(table, dict) and table.get("headers") and table.get("rows"):
+        blocks.append({"type": "table", "headers": table.get("headers"), "rows": table.get("rows")})
+    out = {
+        "answer": answer_text,
+        "citations": used_citations if req.with_sources else [],
+        "inline_refs": inline_refs,
+        "blocks": blocks,
+    }
     if req.with_sources:
-        out["sources"] = citations
+        out["all_citations"] = list(cite_map.values())
     return out
 @app.get("/health")
 def health():

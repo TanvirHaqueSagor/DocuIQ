@@ -118,6 +118,12 @@
               </tr>
             </tbody>
           </table>
+          <div class="table-footer" v-if="canLoadMore">
+            <button class="load-more" type="button" @click="loadMoreDocs" :disabled="docsLoading">
+              <span>{{ docsLoading ? translateOr('loading', {}, 'Loading…') : translateOr('loadMore', {}, 'Load more') }}</span>
+              <span class="load-remaining" v-if="remainingDocs > 0">({{ remainingDocs }} {{ t('documents') }})</span>
+            </button>
+          </div>
         </div>
       </section>
 
@@ -251,6 +257,10 @@ const isOver = ref(false); let overTimer=null
 const autoRefresh = ref(true)
 const jobs = ref([]); const docs = ref([]); const sources = ref([])
 const kpi = reactive({ documents: 0, running: 0, health: true })
+const DOC_PAGE_SIZE = 20
+const docsLimit = ref(DOC_PAGE_SIZE)
+const docsTotal = ref(0)
+const docsLoading = ref(false)
 const fileInput = ref(null)
 // Track rows set to re-run; key by row.id
 const rerunning = ref({})
@@ -642,6 +652,15 @@ const filteredSources = computed(()=>{
   const s=q.value.toLowerCase()
   return uniqueSources.value.filter(x => (x.name||'').toLowerCase().includes(s) || (x.kind||'').toLowerCase().includes(s))
 })
+const remainingDocs = computed(() => Math.max(0, (docsTotal.value || 0) - (docs.value?.length || 0)))
+const canLoadMore = computed(() => remainingDocs.value > 0)
+
+const loadMoreDocs = async () => {
+  if (!canLoadMore.value) return
+  const nextLimit = docsLimit.value + DOC_PAGE_SIZE
+  docsLimit.value = docsTotal.value ? Math.min(nextLimit, docsTotal.value) : nextLimit
+  await fetchDocs()
+}
 const applySearch = ()=>{
   const term = (q.value || '').trim()
   const current = String(route.query?.q || '')
@@ -659,9 +678,20 @@ const fetchJobs = async ()=>{
   kpi.running = jobs.value.filter(j=>['queued','running'].includes(String(j.status||'').toLowerCase())).length
 }
 const fetchDocs = async ()=>{
-  const r = await authFetch(`${API}/api/documents?limit=20&sort=-created_at`, { headers: authHeaders() })
-  if(r.ok) docs.value = await r.json()
-  kpi.documents = docs.value.length
+  docsLoading.value = true
+  try{
+    const url = `${API}/api/documents?limit=${docsLimit.value}&sort=-created_at`
+    const r = await authFetch(url, { headers: authHeaders() })
+    if(r.ok){
+      const payload = await r.json()
+      const list = Array.isArray(payload?.results) ? payload.results : Array.isArray(payload) ? payload : []
+      docs.value = list
+      docsTotal.value = typeof payload?.count === 'number' ? payload.count : list.length
+      kpi.documents = docsTotal.value || list.length
+    }
+  }finally{
+    docsLoading.value = false
+  }
 }
 const fetchSources = async ()=>{
   const r = await authFetch(`${API}/api/ingest/sources/`, { headers: authHeaders() })
@@ -898,7 +928,7 @@ const deleteUploadFiles = async (row)=>{
 .dz-sub{ color:var(--muted); font-size:13px; margin-top:6px; }
 
 /* grid */
-.grid{ width:100%; margin:0; display:grid; grid-template-columns: 1.6fr .9fr; gap:14px; }
+.grid{ width:100%; margin:0; display:grid; grid-template-columns: 1.6fr .9fr; gap:14px; align-items:flex-start; }
 
 /* panel */
 .panel{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px; box-shadow: var(--md-shadow-1); }
@@ -910,6 +940,10 @@ const deleteUploadFiles = async (row)=>{
 .table-wrap{ margin-top:10px; border:1px solid var(--line); border-radius:16px; background:var(--card); box-shadow: var(--md-shadow-1); overflow:auto; position:relative; }
 .table-wrap::before{ content:''; position:absolute; inset:0; border-radius:inherit; pointer-events:none; box-shadow: inset 0 1px 0 rgba(255,255,255,.6); }
 .table-wrap > table{ min-width:720px; }
+.table-footer{ display:flex; justify-content:center; padding:12px; border-top:1px solid var(--line); background:linear-gradient(180deg, rgba(248,250,255,.6), rgba(240,245,255,.9)); }
+.load-more{ border:none; background:rgba(65,105,225,.1); color:var(--blue); border-radius:999px; padding:8px 18px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:8px; box-shadow: var(--md-shadow-1); }
+.load-more:disabled{ opacity:.6; cursor:not-allowed; }
+.load-remaining{ font-size:13px; color:var(--muted); }
 .table-tools{ display:flex; justify-content:space-between; margin-bottom:6px; }
 .chk{ display:flex; align-items:center; gap:6px; color:var(--muted); font-size:14px; }
 .tbl{ width:100%; border-collapse:separate; border-spacing:0; background:var(--card); color: var(--txt); }
@@ -919,8 +953,9 @@ const deleteUploadFiles = async (row)=>{
 .tbl tbody tr:hover td{ background:rgba(59,130,246,.12); transition:background .18s ease; }
 .tbl tbody tr:last-child td{ border-bottom:none; }
 .truncate{ max-width:400px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.type-cell{ align-items:center; gap:8px; }
-.type-ico { display:inline-flex; font-size: 18px; line-height: 1; }
+.type-cell{ align-items:center; }
+.type-ico{ display:inline-flex; align-items:center; justify-content:center; margin-right:6px; }
+.type-ico { display:inline-flex; font-size: 18px; line-height: 1; margin-right:6px; }
 .badge{ padding:3px 8px; border-radius:999px; font-size:12px; font-weight:800; border:1px solid transparent; }
 .badge.uploaded{ background:#fff0da; color:#9a6700; border-color:#ffd89a; }
 .badge.processing{ background:#eaf2ff; color:#1d4ed8; border-color:#c7dafb; }

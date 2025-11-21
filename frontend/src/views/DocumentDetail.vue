@@ -59,6 +59,15 @@ const loading = ref(true)
 const sourceUrl = computed(() => {
   try { return (doc.value?.steps_json || {}).source_url || '' } catch { return '' }
 })
+const isUploadedDoc = computed(() => !sourceUrl.value)
+const documentFileUrl = computed(() => {
+  try {
+    return doc.value?.id ? `${API_BASE_URL}/api/documents/${doc.value.id}/file` : ''
+  } catch {
+    return ''
+  }
+})
+
 const pdfUrl = computed(() => {
   try{
     const toAbs = (u) => {
@@ -67,16 +76,16 @@ const pdfUrl = computed(() => {
       if (u.startsWith('/')) return `${API_BASE_URL}${u}`
       return `${API_BASE_URL}/${u}`
     }
-    // Highest priority: explicit url passed via query (when available)
     const urlQ = route.query?.url
     if (urlQ) return toAbs(urlQ)
+    if (isUploadedDoc.value && documentFileUrl.value) {
+      return documentFileUrl.value
+    }
     const f = doc.value?.file_url
     if (f) return toAbs(f)
-    // Fallback: backend streaming endpoint (works even if storage path changed)
-    if (doc.value?.id){
-      return `${API_BASE_URL}/api/documents/${doc.value.id}/file`
+    if (doc.value?.id && documentFileUrl.value) {
+      return documentFileUrl.value
     }
-    // Fallback to source URL if it's a PDF
     const src = sourceUrl.value
     if (src && /\.pdf(\?|#|$)/i.test(src)) return src
   }catch(_){ }
@@ -119,7 +128,10 @@ const viewerSrc = computed(() => {
 })
 const viewerSrcPlain = computed(() => String(viewerSrc.value || '').split('#')[0])
 const usePdfJs = computed(() => {
-  try { return viewerSrcPlain.value.startsWith(API_BASE_URL) } catch { return false }
+  try {
+    if (isUploadedDoc.value) return false
+    return viewerSrcPlain.value.startsWith(API_BASE_URL)
+  } catch { return false }
 })
 const viewerBindings = computed(() => {
   if (usePdfJs.value) {
@@ -138,6 +150,13 @@ function prettyStatus(s){ if(!s) return ''; const v=String(s).toUpperCase(); ret
 function statusClass(s){ const v=String(s||'').toLowerCase(); if(['queued','running','processing'].includes(v)) return 'processing'; if(['ready','partial_ready','success','imported'].includes(v)) return 'imported'; if(['failed','cancelled','deleted','error'].includes(v)) return 'failed'; return 'uploaded' }
 function fmtDate(iso){ try{ return new Date(iso).toLocaleDateString() }catch{ return '' } }
 function fmtDateTime(iso){ try{ const d=new Date(iso); return d.toLocaleString() }catch{ return iso } }
+function asDocList(payload){
+  if (!payload) return []
+  if (Array.isArray(payload?.results)) return payload.results
+  if (Array.isArray(payload)) return payload
+  if (Array.isArray(payload?.documents)) return payload.documents
+  return []
+}
 
 async function load(){
   let r
@@ -165,7 +184,7 @@ async function load(){
     try{
       const r2 = await authFetch(`${API_BASE_URL}/api/documents?limit=500&sort=-created_at`)
       if (r2.ok){
-        const arr = await r2.json()
+        const arr = asDocList(await r2.json())
         const hit = (arr||[]).find(d => String(d.title||d.filename||'').toLowerCase().includes(titleQ))
         if (hit){ doc.value = hit; references.value = [] }
       }
@@ -186,7 +205,7 @@ async function load(){
     try {
       const r4 = await authFetch(`${API_BASE_URL}/api/documents?limit=1&sort=-created_at`)
       if (r4.ok){
-        const arr = await r4.json()
+        const arr = asDocList(await r4.json())
         if (Array.isArray(arr) && arr.length){ doc.value = arr[0] }
       }
     } catch(_) { /* ignore */ }

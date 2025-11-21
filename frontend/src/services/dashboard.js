@@ -23,7 +23,10 @@ export async function fetchUsage(days = 14){
 export async function fetchRecentDocuments(limit = 8){
   const r = await fetch(`${baseUrl}/api/documents?limit=${limit}&sort=-created_at`, { headers: auth() })
   if(!r.ok) throw new Error('Failed recent docs')
-  return r.json()
+  const data = await r.json()
+  if (Array.isArray(data?.results)) return data.results
+  if (Array.isArray(data)) return data
+  return []
 }
 
 export async function deleteDocument(id){

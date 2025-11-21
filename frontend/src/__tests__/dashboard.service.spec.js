@@ -33,7 +33,7 @@ describe('dashboard service', () => {
   it('fetches recent documents with the provided limit', async () => {
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => [{ id: 1 }],
+      json: async () => ({ count: 5, results: [{ id: 1 }] }),
     })
     const list = await fetchRecentDocuments(2)
     expect(global.fetch).toHaveBeenCalledWith(

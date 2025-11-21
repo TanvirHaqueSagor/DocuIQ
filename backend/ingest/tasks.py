@@ -107,6 +107,13 @@ def process_item(self, file_id: int, job_id: int = None):
         logger.warning("process_item missing file_id=%s", file_id)
         return
 
+    job = None
+    if job_id:
+        try:
+            job = IngestJob.objects.filter(id=job_id).first()
+        except Exception:
+            job = None
+
     # FETCHING
     set_status(item, 'FETCHING', patch={ 'fetching': { 'started_at': timezone.now().isoformat() } })
     content = b''
@@ -178,6 +185,32 @@ def process_item(self, file_id: int, job_id: int = None):
             'document_id': str(item.id),
             'title': item.filename,
         }
+        # Source type inference (prefer explicit sync mode/source kind)
+        source_type = None
+        try:
+            if job and job.mode:
+                source_type = str(job.mode or '').lower()
+            elif getattr(item, 'content_type', ''):
+                if 'pdf' in (item.content_type or '').lower():
+                    source_type = 'pdf'
+            if not source_type and item.filename.lower().endswith('.pdf'):
+                source_type = 'pdf'
+        except Exception:
+            source_type = None
+        if not source_type:
+            source_type = 'document'
+        payload['source_type'] = source_type
+        # Origin URL (if imported from web/source)
+        origin_url = None
+        try:
+            if job and isinstance(job.payload, dict):
+                origin_url = job.payload.get('url') or job.payload.get('start_url') or job.payload.get('source_url')
+            if not origin_url:
+                origin_url = (getattr(item, 'steps_json', {}) or {}).get('source_url')
+        except Exception:
+            origin_url = None
+        if origin_url:
+            payload['origin_url'] = origin_url
         if pages_payload:
             payload['pages'] = pages_payload
         else:
