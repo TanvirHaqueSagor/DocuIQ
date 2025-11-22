@@ -59,30 +59,12 @@
       </div>
 
       <div v-else-if="block.type === 'citations'" class="block block-citations">
-        <button
-          class="citation-chip"
+        <CitationChip
           v-for="(citation, cIdx) in block.items"
           :key="`citation-${cIdx}`"
-          type="button"
-          @click="emitCitation(citation)"
-        >
-          <div class="chip-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-              <polyline points="14 2 14 8 20 8"></polyline>
-              <line x1="16" y1="13" x2="8" y2="13"></line>
-              <line x1="16" y1="17" x2="8" y2="17"></line>
-              <line x1="10" y1="9" x2="8" y2="9"></line>
-            </svg>
-          </div>
-          <div class="chip-content">
-            <span class="chip-title">{{ citationLabel(citation) }}</span>
-            <div class="chip-details" v-if="citation.page || citation.snippet">
-              <span class="chip-page" v-if="citation.page">p. {{ citation.page }}</span>
-              <span class="chip-snippet" v-if="citation.snippet">{{ citation.snippet }}</span>
-            </div>
-          </div>
-        </button>
+          :citation="citation"
+          @open="emitCitation"
+        />
       </div>
 
       <div v-else-if="block.type === 'download'" class="block block-download">
@@ -116,6 +98,7 @@
 
 <script setup>
 import { reactive, computed } from 'vue'
+import CitationChip from '../citations/CitationChip.vue'
 
 const props = defineProps({
   blocks: {
@@ -133,12 +116,11 @@ function toParagraphs(text) {
   return text.split(/\n+/).map(p => p.trim()).filter(Boolean)
 }
 
-function emitCitation(citation) {
-  emit('open-citation', citation)
-}
-
-function citationLabel(citation) {
-  return citation?.docTitle || citation?.title || citation?.label || citation?.document || 'Source'
+function emitCitation(payload) {
+  const citation = payload?.citation || payload
+  if (!citation) return
+  const href = payload?.href || buildCitationHref(citation)
+  emit('open-citation', { ...citation, href })
 }
 
 function trendLabel(trend, delta) {
@@ -200,8 +182,16 @@ function parseWithCitations(text) {
 
 function getCitation(ref) {
   const refStr = String(ref)
+  const normalized = refStr.startsWith('S') ? refStr : `S${refStr}`
   // 1. Try to find by exact ID match
-  let citation = allCitations.value.find(c => String(c.citationId) === refStr || String(c.id) === refStr)
+  let citation = allCitations.value.find(c =>
+    String(c.citationId) === refStr ||
+    String(c.citationId) === normalized ||
+    String(c.citation_id || '') === refStr ||
+    String(c.citation_id || '') === normalized ||
+    String(c.id) === refStr ||
+    String(c.id) === normalized
+  )
   
   // 2. Fallback: treat ref as 1-based index
   if (!citation) {
@@ -216,8 +206,18 @@ function getCitation(ref) {
 function openCitationRef(ref) {
   const citation = getCitation(ref)
   if (citation) {
-    emit('open-citation', citation)
+    emitCitation({ citation })
   }
+}
+
+function buildCitationHref(citation) {
+  if (!citation) return ''
+  const url = citation.url || citation.origin_url
+  const docId = citation.docId || citation.doc_id
+  const page = citation.page
+  if (url) return url
+  if (docId) return page ? `/documents/${docId}?p=${page}` : `/documents/${docId}`
+  return ''
 }
 </script>
 
@@ -349,88 +349,6 @@ tbody td {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-}
-
-.citation-chip {
-  border: 1px solid rgba(65, 105, 225, 0.15);
-  background: #fff;
-  color: #1b2c48;
-  border-radius: 12px;
-  padding: 10px 12px;
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: left;
-  width: 100%;
-  max-width: 300px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.03);
-}
-
-.citation-chip:hover {
-  border-color: #4169e1;
-  background: #f8fbff;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(65, 105, 225, 0.15);
-}
-
-.chip-icon {
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: rgba(65, 105, 225, 0.1);
-  color: #4169e1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.chip-icon svg {
-  width: 18px;
-  height: 18px;
-}
-
-.chip-content {
-  flex: 1;
-  min-width: 0; /* text truncation */
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.chip-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: #1b2c48;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.chip-details {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  color: #5b6b88;
-}
-
-.chip-page {
-  background: rgba(0,0,0,0.05);
-  padding: 1px 4px;
-  border-radius: 4px;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.chip-snippet {
-  opacity: 0.85;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
 }
 
 .block-download {

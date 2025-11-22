@@ -1,62 +1,62 @@
-# DocuIQ Citation Pipeline
+# Universal Citation Model
 
-DocuIQ now uses a single canonical citation schema through ingestion, retrieval,
-API responses and the frontend UI. Every citation object contains:
+DocuIQ now uses one canonical schema across ingestion, retrieval, prompting,
+backend responses, and the Vue UI. Every citation object is shaped as:
 
 | Field | Description |
 | --- | --- |
-| `citation_id` | Stable ID such as `S1`, assigned per answer. |
-| `doc_id` | Internal `IngestFile` identifier for the document. |
-| `doc_title` | Human-friendly title/filename used in pills. |
-| `source_type` | Origin of the content (`pdf`, `web`, etc.). |
-| `page` | 1-based page number captured at ingestion time. |
-| `chunk_id` / `chunk_index` | Exact chunk reference for logging/debugging. |
-| `score` | Cosine similarity from the vector search. |
-| `snippet` | 1–3 sentences of the chunk text rendered in the UI tooltip. |
-| `url` | Link to open the PDF viewer at the cited page. |
+| `id` / `citation_id` | Stable ID like `S1`, assigned per answer. |
+| `source_type` | `pdf`, `web`, `email`, `slack`, `teams`, `gdrive`, `db`, … |
+| `doc_id` | Internal document identifier. |
+| `doc_title` | Human-readable title (filename, page title, subject, etc.). |
+| `snippet` | Direct substring from the original text used as evidence. |
+| `score` | Retrieval score from the vector search. |
+| `page` | 1-based page number (present only when provided by ingestion). |
+| `url` | Deep link to the original source or viewer. |
+| `message_id` / `thread_id` / `ts` | Email/chat metadata. |
+| `table` / `row_id` / `column` | Database location metadata. |
+| `chunk_id` / `chunk_index` | Chunk tracking for debugging. |
+| `extra` | Provider-specific metadata (channel, sender, workspace, etc.). |
 
 ## Ingestion
 
-`backend/ingest/tasks.py` passes `source_type` and `origin_url` to the AI
-engine, and `ai_engine/index_document` stores `doc_id`, `page`, `chunk_id` and
-origin metadata for every chunk. Page numbers are persisted directly from the
-PDF extraction; there are no heuristics later in the pipeline.
+- `backend/ingest/tasks.py` forwards `source_type`, `origin_url`, and captured
+  connector metadata (`message_id`, `thread_id`, `table`, etc.) via the
+  `metadata` field to `ai_engine/index_document`.
+- PDFs store real page numbers straight from extraction; no downstream guesses.
+- Web captures include `source_url` and parsed `<title>` as `doc_title`.
+- Email/Slack/Teams/GDrive/DB connectors can pass fragments or `metadata`
+  directly so every chunk is tagged before embedding.
+- `ai_engine/index_document` writes `doc_id`, `doc_title`, `source_type`, page,
+  and all location metadata onto each chunk.
 
-## Retrieval & LLM Prompting
+## Retrieval & Prompting
 
-The AI engine (`ai_engine/main.py`) converts top search matches into structured
-citations before calling the LLM. The model receives enumerated snippets:
+- `ai_engine/_build_citations` converts vector matches into the canonical model,
+  keeping only metadata provided at ingestion time.
+- Prompt context lists sources as:
 
-```
-[S1] Document: Climate Report 2023
-Page: 48 | Type: pdf
-Snippet: Scope 1 emissions declined 10% year over year...
-```
+  ```
+  [S1] PDF – "Climate Report 2023"
+  Location: Page 48
+  Snippet: "Scope 1 emissions declined 10% year over year..."
+  ```
 
-The prompt instructs the model to reference only these IDs and to return JSON:
+- The LLM is instructed to cite only provided IDs, avoid inventing titles/pages,
+  and return JSON with `citations_used`. `<citations> S1 S3 </citations>` blocks
+  are also parsed for redundancy.
 
-```
-{
-  "answer": "Scope 1 emissions fell 10% [S1].",
-  "citations_used": ["S1"]
-}
-```
+## Backend Responses
 
-If JSON parsing fails we fall back to scanning for `[S#]` markers. The final API
-response always includes `citations`, `all_citations` (debug), and
-`inline_refs`.
-
-## Backend APIs
-
-Chat history (`backend/chats/views.py`) stores the canonical citation JSON
-directly, so Document Detail references can match `doc_id` and `url` reliably.
-Any new API responses should forward the `citations` and `inline_refs` payloads
-from the AI engine verbatim.
+- The AI engine returns `answer`, `citations`, `all_citations` (debug), and
+  `inline_refs` keyed by `S#`. Django chat history stores these payloads
+  unchanged for replay.
 
 ## Frontend Rendering
 
-`frontend/src/components/chat/NewAnalysisChat.vue` consumes the canonical
-`citations` array and feeds it into `StructuredBlocks.vue`. Citation pills show
-“Page N — Title” with the snippet underneath, and clicking a pill opens the PDF
-viewer (`/documents/:id?p=page`). The same structure is stored in chat history
-so future UIs can reuse `<StructuredBlocks>` directly.
+- `frontend/src/components/citations/CitationChip.vue` renders every citation
+  with a source-type icon, normalized label, and a tooltip snippet. Clicks open
+  the supplied URL or the internal document viewer.
+- `StructuredBlocks.vue` and `NewAnalysisChat.vue` consume the canonical fields
+  (`id`, `sourceType`, `docTitle`, `page`, `snippet`, `url`, etc.) and
+  propagate the `href` to the router or external window.

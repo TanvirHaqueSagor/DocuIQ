@@ -1,0 +1,1703 @@
+[2025-11-21 18:44:12,908] INFO ingest.tasks: process_item start file_id=106 job_id=None
+[2025-11-21 18:44:13,198] INFO ingest.tasks: process_item fetched bytes file_id=106 bytes=16635837
+[2025-11-21 18:44:49,519] INFO ingest.tasks: process_item pdf extracted file_id=106 pages=116 text_len=199604
+[2025-11-21 18:44:49,548] ERROR ingest.tasks: process_item AI error file_id=106 error=HTTPConnectionPool(host='ai', port=9000): Max retries exceeded with url: /index_document (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffffb7009900>: Failed to establish a new connection: [Errno 111] Connection refused'))
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/urllib3/connection.py", line 198, in _new_conn
+    sock = connection.create_connection(
+  File "/usr/local/lib/python3.10/site-packages/urllib3/util/connection.py", line 85, in create_connection
+    raise err
+  File "/usr/local/lib/python3.10/site-packages/urllib3/util/connection.py", line 73, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/urllib3/connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+  File "/usr/local/lib/python3.10/site-packages/urllib3/connectionpool.py", line 493, in _make_request
+    conn.request(
+  File "/usr/local/lib/python3.10/site-packages/urllib3/connection.py", line 494, in request
+    self.endheaders()
+  File "/usr/local/lib/python3.10/http/client.py", line 1278, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/usr/local/lib/python3.10/http/client.py", line 1038, in _send_output
+    self.send(msg)
+  File "/usr/local/lib/python3.10/http/client.py", line 976, in send
+    self.connect()
+  File "/usr/local/lib/python3.10/site-packages/urllib3/connection.py", line 325, in connect
+    self.sock = self._new_conn()
+  File "/usr/local/lib/python3.10/site-packages/urllib3/connection.py", line 213, in _new_conn
+    raise NewConnectionError(
+urllib3.exceptions.NewConnectionError: <urllib3.connection.HTTPConnection object at 0xffffb7009900>: Failed to establish a new connection: [Errno 111] Connection refused
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/requests/adapters.py", line 644, in send
+    resp = conn.urlopen(
+  File "/usr/local/lib/python3.10/site-packages/urllib3/connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+  File "/usr/local/lib/python3.10/site-packages/urllib3/util/retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+urllib3.exceptions.MaxRetryError: HTTPConnectionPool(host='ai', port=9000): Max retries exceeded with url: /index_document (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffffb7009900>: Failed to establish a new connection: [Errno 111] Connection refused'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/ingest/tasks.py", line 218, in process_item
+    r = requests.post(f"{AI_URL}/index_document", json=payload, timeout=30)
+  File "/usr/local/lib/python3.10/site-packages/requests/api.py", line 115, in post
+    return request("post", url, data=data, json=json, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/requests/api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/requests/sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/usr/local/lib/python3.10/site-packages/requests/sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/requests/adapters.py", line 677, in send
+    raise ConnectionError(e, request=request)
+requests.exceptions.ConnectionError: HTTPConnectionPool(host='ai', port=9000): Max retries exceeded with url: /index_document (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffffb7009900>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-11-21 18:47:53,342] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-11-21 18:47:54,833] INFO django.server: "GET /api/accounts/plan/ HTTP/1.1" 200 274
+[2025-11-21 18:47:54,843] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:47:54,844] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:47:54,882] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1248
+[2025-11-21 18:47:54,859] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 18:47:54,844] INFO django.server: "GET /api/accounts/me/ HTTP/1.1" 200 300
+[2025-11-21 18:47:55,034] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 57844
+[2025-11-21 18:47:55,125] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 57844
+[2025-11-21 18:47:59,935] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:48:00,104] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:48:00,116] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 18:48:00,125] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1248
+[2025-11-21 18:48:04,400] INFO ingest.views: Job created id=197 mode=upload by user=1
+[2025-11-21 18:48:04,410] INFO django.server: "POST /api/ingest/jobs/ HTTP/1.1" 201 245
+[2025-11-21 18:48:04,448] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 18:48:04,899] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:48:04,906] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 18:48:04,932] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:48:04,958] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1248
+[2025-11-21 18:48:09,929] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:48:10,001] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:48:10,011] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 18:48:10,022] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1248
+[2025-11-21 18:48:15,023] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:48:15,134] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:48:15,156] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 18:48:15,159] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1248
+[2025-11-21 18:48:19,941] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:48:20,043] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 18:48:20,049] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:48:20,054] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1248
+[2025-11-21 18:48:25,637] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:48:25,761] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:48:25,779] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 18:48:25,833] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1248
+[2025-11-21 18:48:31,125] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:48:31,181] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 18:48:31,195] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1248
+[2025-11-21 18:48:31,239] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:48:35,686] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:48:36,018] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:48:36,038] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 18:48:36,063] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1248
+[2025-11-21 18:48:39,945] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:48:40,104] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:48:40,121] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1248
+[2025-11-21 18:48:40,128] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 18:48:45,038] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:48:45,349] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:48:45,372] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 18:48:45,401] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1248
+[2025-11-21 18:48:49,961] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:48:50,024] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:48:50,032] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 18:48:50,052] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1248
+[2025-11-21 18:48:55,011] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:48:55,098] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:48:55,115] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1248
+[2025-11-21 18:48:55,117] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 18:48:59,944] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:49:00,201] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:49:00,201] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 18:49:00,219] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1248
+[2025-11-21 18:49:04,956] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:49:05,048] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:49:05,048] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 18:49:05,060] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1248
+[2025-11-21 18:49:09,974] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:49:10,094] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 18:49:10,156] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:49:10,165] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1248
+[2025-11-21 18:49:11,213] INFO django.server: "GET /api/accounts/plan/ HTTP/1.1" 200 274
+[2025-11-21 18:49:11,222] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 18:49:11,222] INFO django.server: "GET /api/accounts/me/ HTTP/1.1" 200 300
+[2025-11-21 18:49:11,236] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:49:11,300] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1248
+[2025-11-21 18:49:11,312] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:49:11,415] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 57844
+[2025-11-21 18:49:11,532] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 57844
+[2025-11-21 18:49:16,594] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:49:16,743] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 18:49:16,794] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:49:16,802] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1248
+[2025-11-21 18:49:21,417] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:49:21,438] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:49:21,456] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 18:49:21,467] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1248
+[2025-11-21 18:49:26,339] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:49:26,343] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:49:26,345] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 18:49:26,347] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1248
+[2025-11-21 18:49:31,333] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:49:31,451] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:49:31,452] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 18:49:31,469] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1248
+[2025-11-21 18:49:36,364] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:49:36,386] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:49:36,427] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 18:49:36,429] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1248
+[2025-11-21 18:49:41,331] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 18:49:41,331] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:49:41,333] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1248
+[2025-11-21 18:49:41,353] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:49:46,319] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:49:46,338] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:49:46,347] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 18:49:46,356] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1248
+[2025-11-21 18:49:51,366] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:49:51,529] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:49:51,531] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 18:49:51,534] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1248
+[2025-11-21 18:49:56,364] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:49:56,369] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:49:56,378] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 18:49:56,381] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1248
+[2025-11-21 18:49:57,179] INFO ingest.views: Job created id=198 mode=upload by user=1
+[2025-11-21 18:49:57,181] INFO django.server: "POST /api/ingest/jobs/ HTTP/1.1" 201 245
+[2025-11-21 18:49:57,189] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1969
+[2025-11-21 18:50:01,318] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:50:01,322] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1969
+[2025-11-21 18:50:01,334] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:50:01,339] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1248
+[2025-11-21 18:50:06,336] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:50:06,386] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:50:06,400] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1969
+[2025-11-21 18:50:06,401] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1248
+[2025-11-21 18:50:11,332] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:50:11,337] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1969
+[2025-11-21 18:50:11,342] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1248
+[2025-11-21 18:50:11,354] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:50:16,308] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:50:16,324] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:50:16,325] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1969
+[2025-11-21 18:50:16,328] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1248
+[2025-11-21 18:50:21,313] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:50:21,325] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1248
+[2025-11-21 18:50:21,325] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1969
+[2025-11-21 18:50:21,337] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:50:23,350] INFO django.server: "OPTIONS /api/documents/106 HTTP/1.1" 200 0
+[2025-11-21 18:50:23,588] INFO ingest.views: Unindex requested for file_id=106
+[2025-11-21 18:50:23,592] INFO ingest.views: Deleted document id=106; cascade jobs=3 sources=0
+[2025-11-21 18:50:23,595] INFO django.server: "DELETE /api/documents/106 HTTP/1.1" 204 0
+[2025-11-21 18:50:23,606] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 525
+[2025-11-21 18:50:26,319] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:50:26,350] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1148
+[2025-11-21 18:50:26,363] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:50:26,382] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 525
+[2025-11-21 18:50:28,252] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 57844
+[2025-11-21 18:50:35,187] INFO ingest.views: Upload received count=1 by user=1
+[2025-11-21 18:50:35,427] INFO ingest.views: Queued process_item file_id=107 name=sbkk_integrated_report_2023.pdf size=16635837
+[2025-11-21 18:50:35,428] INFO django.server: "POST /api/ingest/upload/ HTTP/1.1" 201 53
+[2025-11-21 18:50:35,441] INFO ingest.views: Job created id=199 mode=upload by user=1
+[2025-11-21 18:50:35,443] INFO django.server: "POST /api/ingest/jobs/ HTTP/1.1" 201 328
+[2025-11-21 18:50:35,522] INFO ingest.tasks: process_item start file_id=107 job_id=None
+[2025-11-21 18:50:35,731] INFO ingest.tasks: process_item fetched bytes file_id=107 bytes=16635837
+[2025-11-21 18:50:36,425] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:50:36,456] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 18:50:36,463] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1003
+[2025-11-21 18:50:36,503] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:50:36,526] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 57844
+[2025-11-21 18:50:41,563] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:50:41,614] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:50:41,614] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 18:50:41,621] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1003
+[2025-11-21 18:50:46,547] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:50:46,594] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 18:50:46,597] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1003
+[2025-11-21 18:50:46,598] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:50:51,552] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:50:51,598] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:50:51,598] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 18:50:51,608] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1003
+[2025-11-21 18:50:56,532] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:50:56,629] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:50:56,629] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 18:50:56,644] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1003
+[2025-11-21 18:51:01,575] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:51:01,660] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:51:01,663] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 18:51:01,675] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1003
+[2025-11-21 18:51:06,534] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:51:06,576] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1003
+[2025-11-21 18:51:06,582] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 18:51:06,582] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:51:10,521] INFO ingest.tasks: process_item pdf extracted file_id=107 pages=116 text_len=199604
+[2025-11-21 18:51:11,576] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:51:11,624] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:51:11,624] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 18:51:11,673] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1045
+[2025-11-21 18:51:16,550] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:51:16,566] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 18:51:16,573] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:51:16,593] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1045
+[2025-11-21 18:51:19,445] INFO ingest.tasks: process_item indexed file_id=107 chunks=238
+[2025-11-21 18:51:19,449] INFO ingest.tasks: process_item success file_id=107
+[2025-11-21 18:51:21,546] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:51:21,556] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:51:21,561] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 18:51:21,567] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 18:51:26,550] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:51:26,626] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 18:51:26,627] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:51:26,651] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 18:51:31,543] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:51:31,562] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:51:31,581] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 18:51:31,587] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 18:51:36,547] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:51:36,567] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 18:51:36,583] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 18:51:36,590] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:51:41,542] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:51:41,579] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:51:41,579] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 18:51:41,589] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 18:51:46,545] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:51:46,552] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:51:46,559] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 18:51:46,565] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 18:51:51,611] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:51:51,759] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:51:51,778] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 18:51:51,784] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 18:51:54,144] INFO django.server: "OPTIONS /api/documents/107 HTTP/1.1" 200 0
+[2025-11-21 18:51:54,159] INFO ingest.views: DocumentDetail requested id=107 user=1
+[2025-11-21 18:51:54,175] INFO ingest.views: DocumentDetail found id=107 filename=sbkk_integrated_report_2023.pdf status=READY
+[2025-11-21 18:51:54,463] INFO django.server: "GET /api/documents/107 HTTP/1.1" 200 594
+[2025-11-21 18:51:54,540] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 57844
+[2025-11-21 18:51:54,544] INFO ingest.views: Authenticated via query token for document file id=107 user=1
+[2025-11-21 18:51:54,558] INFO ingest.views: Serving file download id=107 path=ingest/2025/11/21/sbkk_integrated_report_2023.pdf
+[2025-11-21 18:54:09,911] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:54:10,006] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:54:10,007] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 18:54:10,015] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 18:54:10,048] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 57844
+[2025-11-21 18:54:11,088] INFO django.utils.autoreload: /app/core/settings.py changed, reloading.
+[2025-11-21 18:54:11,785] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-11-21 18:54:20,412] INFO ingest.views: DocumentDetail requested id=107 user=1
+[2025-11-21 18:54:20,418] INFO ingest.views: DocumentDetail found id=107 filename=sbkk_integrated_report_2023.pdf status=READY
+[2025-11-21 18:54:20,444] INFO django.server: "GET /api/documents/107 HTTP/1.1" 200 594
+[2025-11-21 18:54:20,485] INFO ingest.views: Authenticated via query token for document file id=107 user=1
+[2025-11-21 18:54:20,497] INFO ingest.views: Serving file download id=107 path=ingest/2025/11/21/sbkk_integrated_report_2023.pdf
+[2025-11-21 18:54:20,497] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 57844
+[2025-11-21 18:54:21,536] INFO django.server: "GET /api/documents/107/file?access=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNzUyMDc2LCJpYXQiOjE3NjM3NTAyNzcsImp0aSI6ImM5YWNkMzNiNjk3ODQ3ZjZhMmRjN2E4MDFjMjA2ODg3IiwidXNlcl9pZCI6IjEifQ.SZwjJFrpswebTDL4-1PXSkpij2nD9T2m6enXzf_tsow HTTP/1.1" 200 16635837
+[2025-11-21 18:57:03,126] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 18:57:03,228] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 18:57:03,234] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 18:57:03,241] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 18:57:03,325] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 57844
+[2025-11-21 18:57:05,628] INFO ingest.views: DocumentDetail requested id=107 user=1
+[2025-11-21 18:57:05,632] INFO ingest.views: DocumentDetail found id=107 filename=sbkk_integrated_report_2023.pdf status=READY
+[2025-11-21 18:57:05,655] INFO django.server: "GET /api/documents/107 HTTP/1.1" 200 594
+[2025-11-21 18:57:05,691] INFO ingest.views: Authenticated via query token for document file id=107 user=1
+[2025-11-21 18:57:05,697] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 57844
+[2025-11-21 18:57:05,701] INFO ingest.views: Serving file download id=107 path=ingest/2025/11/21/sbkk_integrated_report_2023.pdf
+[2025-11-21 18:57:06,292] INFO django.server: "GET /api/documents/107/file?access=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNzUyMDc2LCJpYXQiOjE3NjM3NTAyNzcsImp0aSI6ImM5YWNkMzNiNjk3ODQ3ZjZhMmRjN2E4MDFjMjA2ODg3IiwidXNlcl9pZCI6IjEifQ.SZwjJFrpswebTDL4-1PXSkpij2nD9T2m6enXzf_tsow HTTP/1.1" 200 16635837
+[2025-11-21 19:00:02,736] INFO django.server: "GET /api/dashboard/summary HTTP/1.1" 200 187
+[2025-11-21 19:00:02,819] INFO django.server: "GET /api/analytics/usage?days=30 HTTP/1.1" 200 963
+[2025-11-21 19:00:02,956] INFO django.server: "GET /api/documents?limit=8&sort=-created_at HTTP/1.1" 200 1090
+[2025-11-21 19:00:02,972] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 57844
+[2025-11-21 19:00:06,246] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:00:06,298] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:00:06,305] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:00:06,305] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:00:06,327] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 57844
+[2025-11-21 19:00:11,370] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:00:11,389] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:00:11,396] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:00:11,396] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:00:16,353] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:00:16,366] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:00:16,368] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:00:16,390] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:00:21,326] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:00:21,359] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:00:21,365] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:00:21,367] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:00:23,904] INFO ingest.views: DocumentDetail requested id=107 user=1
+[2025-11-21 19:00:23,908] INFO ingest.views: DocumentDetail found id=107 filename=sbkk_integrated_report_2023.pdf status=READY
+[2025-11-21 19:00:23,939] INFO django.server: "GET /api/documents/107 HTTP/1.1" 200 594
+[2025-11-21 19:00:23,967] INFO ingest.views: Authenticated via query token for document file id=107 user=1
+[2025-11-21 19:00:23,971] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 57844
+[2025-11-21 19:00:23,973] INFO ingest.views: Serving file download id=107 path=ingest/2025/11/21/sbkk_integrated_report_2023.pdf
+[2025-11-21 19:00:24,518] INFO django.server: "GET /api/documents/107/file?access=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNzUyMDc2LCJpYXQiOjE3NjM3NTAyNzcsImp0aSI6ImM5YWNkMzNiNjk3ODQ3ZjZhMmRjN2E4MDFjMjA2ODg3IiwidXNlcl9pZCI6IjEifQ.SZwjJFrpswebTDL4-1PXSkpij2nD9T2m6enXzf_tsow HTTP/1.1" 200 16635837
+[2025-11-21 19:04:00,001] INFO ingest.views: DocumentDetail requested id=107 user=1
+[2025-11-21 19:04:00,073] INFO django.server: "GET /api/accounts/plan/ HTTP/1.1" 200 274
+[2025-11-21 19:04:00,096] INFO django.server: "GET /api/accounts/me/ HTTP/1.1" 200 300
+[2025-11-21 19:04:00,106] INFO ingest.views: DocumentDetail found id=107 filename=sbkk_integrated_report_2023.pdf status=READY
+[2025-11-21 19:04:00,127] INFO django.server: "GET /api/documents/107 HTTP/1.1" 200 594
+[2025-11-21 19:04:00,208] INFO ingest.views: Authenticated via query token for document file id=107 user=1
+[2025-11-21 19:04:00,245] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 57844
+[2025-11-21 19:04:00,324] INFO ingest.views: Serving file download id=107 path=ingest/2025/11/21/sbkk_integrated_report_2023.pdf
+[2025-11-21 19:04:00,487] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 57844
+[2025-11-21 19:04:01,601] INFO django.server: "GET /api/documents/107/file?access=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNzUyMDc2LCJpYXQiOjE3NjM3NTAyNzcsImp0aSI6ImM5YWNkMzNiNjk3ODQ3ZjZhMmRjN2E4MDFjMjA2ODg3IiwidXNlcl9pZCI6IjEifQ.SZwjJFrpswebTDL4-1PXSkpij2nD9T2m6enXzf_tsow HTTP/1.1" 200 16635837
+[2025-11-21 19:04:17,307] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 57844
+[2025-11-21 19:04:18,628] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 57844
+[2025-11-21 19:04:18,643] INFO django.server: "GET /api/chats/threads/74/messages/ HTTP/1.1" 200 3736
+[2025-11-21 19:04:21,220] INFO django.server: "GET /api/dashboard/summary HTTP/1.1" 200 187
+[2025-11-21 19:04:21,260] INFO django.server: "GET /api/analytics/usage?days=30 HTTP/1.1" 200 963
+[2025-11-21 19:04:21,284] INFO django.server: "GET /api/documents?limit=8&sort=-created_at HTTP/1.1" 200 1090
+[2025-11-21 19:04:21,285] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 57844
+[2025-11-21 19:04:23,251] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:04:23,251] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:04:23,369] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:04:23,386] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:04:23,416] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 57844
+[2025-11-21 19:04:28,426] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:04:28,436] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:04:28,448] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:04:28,456] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:04:33,462] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:04:33,506] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:04:33,513] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:04:33,519] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:04:38,414] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:04:38,422] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:04:38,422] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:04:38,434] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:04:43,397] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:04:43,412] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:04:43,413] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:04:43,416] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:04:48,421] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:04:48,447] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:04:48,466] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:04:48,473] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:04:53,393] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:04:53,406] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:04:53,406] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:04:53,416] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:04:58,404] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:04:58,419] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:04:58,425] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:04:58,429] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:05:03,400] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:05:03,444] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:05:03,445] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:05:03,454] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:05:08,388] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:05:08,399] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:05:08,399] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:05:08,404] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:05:13,412] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:05:13,423] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:05:13,430] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:05:13,431] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:05:18,430] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:05:18,446] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:05:18,447] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:05:18,449] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:05:23,430] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:05:23,443] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:05:23,443] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:05:23,461] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:05:28,423] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:05:28,436] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:05:28,456] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:05:28,460] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:05:33,412] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:05:33,449] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:05:33,462] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:05:33,465] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:05:38,433] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:05:38,471] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:05:38,471] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:05:38,472] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:05:43,428] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:05:43,442] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:05:43,448] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:05:43,458] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:05:48,421] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:05:48,439] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:05:48,440] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:05:48,446] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:05:53,428] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:05:53,452] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:05:53,457] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:05:53,464] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:05:58,418] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:05:58,441] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:05:58,453] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:05:58,457] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:06:03,417] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:06:03,469] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:06:03,485] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:06:03,498] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:06:08,437] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:06:08,456] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:06:08,456] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:06:08,458] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:06:13,427] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:06:13,437] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:06:13,438] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:06:13,439] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:06:18,422] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:06:18,451] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:06:18,454] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:06:18,458] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:06:23,437] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:06:23,458] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:06:23,459] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:06:23,464] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:06:28,421] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:06:28,440] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:06:28,450] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:06:28,454] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:06:33,414] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:06:33,454] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:06:33,465] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:06:33,466] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:06:38,432] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:06:38,454] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:06:38,454] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:06:38,458] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:06:43,430] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:06:43,441] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:06:43,442] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:06:43,446] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:06:48,415] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:06:48,448] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:06:48,448] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:06:48,464] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:06:53,424] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:06:53,461] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:06:53,463] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:06:53,463] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:06:58,412] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:06:58,429] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:06:58,434] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:06:58,440] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:07:03,421] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:07:03,470] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:07:03,470] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:07:03,491] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:07:08,425] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:07:08,442] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:07:08,448] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:07:08,448] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:07:13,415] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:07:13,426] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:07:13,426] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:07:13,434] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:07:18,425] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:07:18,441] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:07:18,442] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:07:18,443] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:07:23,423] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:07:23,435] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:07:23,437] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:07:23,442] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:07:28,425] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:07:28,445] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:07:28,445] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:07:28,449] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:07:33,439] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:07:33,447] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:07:33,453] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:07:33,456] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:07:38,426] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:07:38,434] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:07:38,437] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:07:38,437] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:07:43,410] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:07:43,418] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:07:43,425] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:07:43,426] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:07:48,425] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:07:48,442] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:07:48,443] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:07:48,444] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:07:53,432] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:07:53,455] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:07:53,458] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:07:53,463] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:07:58,414] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:07:58,417] WARNING django.request: Unauthorized: /api/documents
+[2025-11-21 19:07:58,418] WARNING django.request: Unauthorized: /api/ingest/jobs/
+[2025-11-21 19:07:58,418] WARNING django.request: Unauthorized: /api/ingest/sources/
+[2025-11-21 19:07:58,418] WARNING django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 401 172
+[2025-11-21 19:07:58,419] WARNING django.server: "GET /api/ingest/jobs/ HTTP/1.1" 401 172
+[2025-11-21 19:07:58,419] WARNING django.server: "GET /api/ingest/sources/ HTTP/1.1" 401 172
+[2025-11-21 19:07:58,516] INFO django.server: "POST /api/accounts/refresh/ HTTP/1.1" 200 489
+[2025-11-21 19:07:58,517] INFO django.server: "POST /api/accounts/refresh/ HTTP/1.1" 200 489
+[2025-11-21 19:07:58,517] INFO django.server: "POST /api/accounts/refresh/ HTTP/1.1" 200 489
+[2025-11-21 19:07:58,528] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:07:58,530] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:07:58,535] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:08:03,417] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:08:03,433] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:08:03,438] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:08:03,438] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:08:08,406] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:08:08,417] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:08:08,418] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:08:08,427] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:08:13,423] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:08:13,433] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:08:13,437] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:08:13,437] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:08:18,415] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:08:18,433] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:08:18,441] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:08:18,443] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:08:23,413] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:08:23,422] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:08:23,423] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:08:23,428] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:08:28,440] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:08:28,459] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:08:28,460] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:08:28,461] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:08:33,415] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:08:33,432] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:08:33,436] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:08:33,441] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:08:38,415] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:08:38,442] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:08:38,449] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:08:38,455] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:08:43,421] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:08:43,437] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:08:43,442] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:08:43,446] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:08:48,407] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:08:48,423] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:08:48,428] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:08:48,429] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:08:53,416] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:08:53,473] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:08:53,473] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:08:53,477] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:08:58,437] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:08:58,472] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:08:58,486] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:08:58,492] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:09:03,418] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:09:03,431] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:09:03,431] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:09:03,433] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:09:08,589] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:09:08,739] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:10:41,240] INFO django.server: "GET /api/accounts/me/ HTTP/1.1" 200 300
+[2025-11-21 19:10:41,253] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:10:41,257] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:10:41,263] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:10:41,264] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:10:41,264] INFO django.server: "GET /api/accounts/plan/ HTTP/1.1" 200 274
+[2025-11-21 19:10:41,401] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 57844
+[2025-11-21 19:10:41,452] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 57844
+[2025-11-21 19:10:46,300] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:10:46,323] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:10:46,338] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:10:46,339] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:10:51,340] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:10:51,379] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:10:51,381] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:10:51,385] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:10:56,286] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:10:56,300] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:10:56,318] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:10:56,321] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:11:01,338] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:11:01,399] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:11:01,400] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:11:01,404] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:11:06,312] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:11:06,335] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:11:06,335] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:11:06,337] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:11:11,328] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:11:11,366] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:11:11,373] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:11:11,380] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:11:16,333] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:11:16,374] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:11:16,375] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:11:16,381] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:11:21,303] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:11:21,325] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:11:21,325] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:11:21,329] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:11:26,290] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:11:26,312] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:11:26,317] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:11:26,322] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:11:31,336] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:11:31,415] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:11:31,422] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:11:31,431] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:11:36,310] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:11:36,317] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:11:36,319] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:11:36,327] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:11:41,288] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:11:41,296] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:11:41,299] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:11:41,306] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:11:46,290] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:11:46,307] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:11:46,316] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:11:46,321] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:11:51,292] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:11:51,313] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:11:51,314] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:11:51,326] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:11:56,295] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:11:56,350] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:11:56,350] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:11:56,359] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:12:01,311] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:12:01,322] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:12:01,330] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:12:01,335] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:12:06,329] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:12:06,397] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:12:06,398] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:12:06,399] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:12:11,286] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:12:11,303] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:12:11,308] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:12:11,310] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:12:16,300] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:12:16,313] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:12:16,314] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:12:16,322] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:12:21,295] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:12:21,318] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:12:21,318] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:12:21,323] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:12:26,302] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:12:26,310] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:12:26,329] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:12:26,340] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:12:31,323] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:12:31,405] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:12:31,405] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:12:31,412] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:12:36,289] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:12:36,298] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:12:36,301] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:12:36,308] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:12:41,303] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:12:41,314] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:12:41,323] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:12:41,328] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:12:46,308] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:12:46,328] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:12:46,331] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:12:46,347] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:12:51,283] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:12:51,297] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:12:51,300] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:12:51,319] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:12:56,310] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:12:56,321] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:12:56,321] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:12:56,326] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:13:01,297] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:13:01,317] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:13:01,327] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:13:01,335] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:13:06,298] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:13:06,310] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:13:06,319] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:13:06,326] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:13:11,320] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:13:11,359] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:13:11,362] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:13:11,369] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:13:16,356] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:13:16,430] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:13:16,436] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:13:16,446] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:13:21,281] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:13:21,291] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:13:21,301] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:13:21,306] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:13:26,306] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:13:26,313] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:13:26,319] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:13:26,321] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:13:31,313] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:13:31,375] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:13:31,379] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:13:31,383] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:13:36,297] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:13:36,312] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:13:36,313] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:13:36,319] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:13:41,299] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:13:41,307] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:13:41,312] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:13:41,312] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:13:46,286] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:13:46,313] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:13:46,314] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:13:46,322] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:13:51,288] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:13:51,298] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:13:51,299] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:13:51,301] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:13:56,314] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:13:56,370] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:13:56,376] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:13:56,381] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:14:01,300] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:14:01,310] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:14:01,314] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:14:01,315] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:14:06,298] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:14:06,315] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:14:06,321] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:14:06,323] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:14:11,293] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:14:11,314] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:14:11,315] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:14:11,322] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:14:16,289] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:14:16,315] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:14:16,319] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:14:16,326] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:14:21,302] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:14:21,311] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:14:21,312] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:14:21,318] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:14:26,284] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:14:26,299] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:14:26,305] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:14:26,312] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:14:31,304] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:14:31,371] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:14:31,371] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:14:31,376] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:14:36,297] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:14:36,312] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:14:36,324] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:14:36,324] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:14:41,310] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:14:41,323] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:14:41,323] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:14:41,324] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:14:46,287] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:14:46,311] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:14:46,314] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:14:46,321] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:14:51,286] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:14:51,302] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:14:51,302] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:14:51,310] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:14:56,286] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:14:56,327] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:14:56,332] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:14:56,334] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:15:01,308] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:15:01,332] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:15:01,333] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:15:01,337] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:15:06,284] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:15:06,297] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:15:06,300] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:15:06,305] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:15:11,282] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:15:11,305] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:15:11,305] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:15:11,311] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:15:16,292] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:15:16,305] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:15:16,319] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:15:16,319] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:15:21,288] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:15:21,308] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:15:21,309] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:15:21,338] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:15:26,292] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:15:26,311] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:15:26,311] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:15:26,314] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:15:31,298] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:15:31,440] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:15:31,441] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:15:31,590] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:15:36,293] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:15:36,313] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:15:36,316] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:15:36,330] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:15:41,292] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:15:41,302] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:15:41,311] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:15:41,314] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:15:46,292] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:15:46,300] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:15:46,304] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:15:46,307] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:15:51,304] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:15:51,316] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:15:51,323] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:15:51,328] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:15:56,308] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:15:56,397] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:15:56,403] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:15:56,408] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:16:01,321] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:16:01,411] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:16:01,412] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:16:01,424] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:16:06,299] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:16:06,311] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:16:06,320] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:16:06,332] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:16:11,303] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:16:11,318] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:16:11,318] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:16:11,320] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:16:16,342] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:16:16,427] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:16:16,427] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:16:16,432] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:16:21,298] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:16:21,308] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:16:21,313] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:16:21,321] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:16:26,303] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:16:26,312] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:16:26,314] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:16:26,315] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:16:31,290] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:16:31,337] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:16:31,338] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:16:31,352] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:16:36,302] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:16:36,311] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:16:36,315] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:16:36,319] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:16:41,291] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:16:41,300] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:16:41,302] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:16:41,307] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:16:46,285] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:16:46,293] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:16:46,297] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:16:46,301] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:16:51,300] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:16:51,312] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:16:51,317] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:16:51,324] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:16:56,295] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:16:56,315] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:16:56,317] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:16:56,318] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:17:01,291] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:17:01,305] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:17:01,330] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:17:01,337] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:17:06,290] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:17:06,302] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:17:06,305] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:17:06,310] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:17:11,292] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:17:11,313] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:17:11,314] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:17:11,326] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:17:16,287] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:17:16,315] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:17:16,316] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:17:16,318] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:17:21,287] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:17:21,320] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:17:21,328] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:17:21,328] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:17:26,279] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:17:26,292] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:17:26,296] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:17:26,297] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:17:31,315] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:17:31,326] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:17:31,335] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:17:31,336] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:17:36,288] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:17:36,305] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:17:36,305] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:17:36,306] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:17:41,299] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:17:41,318] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:17:41,326] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:17:41,328] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:17:46,301] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:17:46,317] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:17:46,323] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:17:46,335] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:17:51,288] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:17:51,295] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:17:51,302] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:17:51,304] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:17:56,317] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:17:56,359] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:17:56,361] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:17:56,363] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:18:01,288] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:18:01,333] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:18:01,342] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:18:01,342] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:18:06,288] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:18:06,301] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:18:06,306] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:18:06,312] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:18:11,294] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:18:11,315] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:18:11,317] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:18:11,326] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:18:16,308] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:18:16,329] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:18:16,331] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:18:16,337] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:18:21,288] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:18:21,306] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:18:21,318] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:18:21,324] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:18:26,292] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:18:26,317] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:18:26,324] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:18:26,328] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:18:31,298] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:18:31,333] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:18:31,355] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:18:31,361] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:18:36,322] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:18:36,360] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:18:36,361] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:18:36,362] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:18:41,292] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:18:41,319] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:18:41,319] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:18:41,321] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:18:46,296] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:18:46,317] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:18:46,322] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:18:46,328] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:18:51,314] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:18:51,324] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:18:51,326] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:18:51,332] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:18:56,345] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:18:56,397] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:18:56,398] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:18:56,398] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:19:01,298] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:19:01,332] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:19:01,336] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:19:01,355] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:19:06,293] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:19:06,412] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:19:06,423] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:19:06,426] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:19:11,323] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:19:11,374] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:19:11,374] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:19:11,377] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:19:16,287] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:19:16,301] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:19:16,307] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:19:16,308] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:19:21,299] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:19:21,310] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:19:21,313] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:19:21,315] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:19:26,308] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:19:26,315] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:19:26,320] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:19:26,324] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:19:31,290] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:19:31,343] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:19:31,344] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:19:31,350] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:19:36,307] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:19:36,326] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:19:36,326] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:19:36,327] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:19:41,290] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:19:41,303] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:19:41,308] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:19:41,309] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:19:46,292] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:19:46,325] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:19:46,325] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:19:46,326] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:19:51,297] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:19:51,315] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:19:51,315] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:19:51,323] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:19:56,290] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:19:56,314] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:19:56,318] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:19:56,322] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:20:01,345] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:20:01,363] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:20:01,364] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:20:01,368] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:20:06,306] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:20:06,335] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:20:06,335] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:20:06,341] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:20:11,286] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:20:11,296] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:20:11,297] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:20:11,303] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:20:16,319] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:20:16,344] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:20:16,345] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:20:16,351] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:20:21,296] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:20:21,311] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:20:21,317] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:20:21,326] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:20:26,288] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:20:26,312] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:20:26,313] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:20:26,314] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:20:31,304] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:20:31,337] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:20:31,340] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:20:31,345] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:20:36,305] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:20:36,346] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:20:36,347] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:20:36,350] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:20:41,287] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:20:41,298] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:20:41,316] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:20:41,317] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:20:46,291] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:20:46,307] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:20:46,315] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:20:46,317] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:20:51,318] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:20:51,358] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:20:51,359] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:20:51,367] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:20:56,290] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:20:56,311] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:20:56,311] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:20:56,314] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:21:01,306] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:21:01,397] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:21:01,397] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:21:01,404] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:21:06,299] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:21:06,316] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:21:06,320] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:21:06,321] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:21:11,290] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:21:11,310] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:21:11,314] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:21:11,320] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:21:16,292] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:21:16,328] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:21:16,330] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:21:16,334] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:21:21,296] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:21:21,310] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:21:21,315] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:21:21,318] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:21:26,306] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:21:26,339] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:21:26,340] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:21:26,342] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:21:31,312] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:21:31,313] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:21:31,330] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:21:31,335] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:21:36,289] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:21:36,299] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:21:36,302] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:21:36,304] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:21:41,298] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:21:41,309] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:21:41,313] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:21:41,313] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:21:46,374] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:21:46,421] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:21:46,430] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:21:46,436] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:21:51,286] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:21:51,294] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:21:51,297] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:21:51,313] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:21:56,328] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:21:56,380] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:21:56,382] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:21:56,391] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:22:01,296] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:22:01,339] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:22:01,348] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:22:01,350] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:22:06,290] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:22:06,301] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:22:06,303] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:22:06,309] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:22:11,296] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:22:11,307] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:22:11,316] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:22:11,318] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:22:16,306] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:22:16,321] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:22:16,321] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:22:16,323] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:22:21,288] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:22:21,313] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:22:21,315] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:22:21,316] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:22:26,286] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:22:26,294] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:22:26,298] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:22:26,301] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:22:31,283] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:22:31,313] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:22:31,327] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:22:31,330] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:22:36,325] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:22:36,383] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:22:36,383] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:22:36,387] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:22:41,295] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:22:41,318] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:22:41,318] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:22:41,320] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:22:46,298] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:22:46,317] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:22:46,319] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:22:46,320] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:22:51,385] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:22:51,412] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:22:51,418] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:22:51,419] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:22:56,296] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:22:56,315] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:22:56,321] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:22:56,326] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:23:01,287] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:23:01,316] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:23:01,319] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:23:01,324] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:23:06,294] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:23:06,309] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:23:06,313] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:23:06,318] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:23:11,300] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:23:11,347] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:23:11,347] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:23:11,348] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:23:16,303] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:23:16,349] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:23:16,355] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:23:16,361] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:23:21,298] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:23:21,308] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:23:21,310] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:23:21,312] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:23:22,918] INFO ingest.views: DocumentDetail requested id=107 user=1
+[2025-11-21 19:23:22,933] INFO ingest.views: DocumentDetail found id=107 filename=sbkk_integrated_report_2023.pdf status=READY
+[2025-11-21 19:23:22,964] INFO django.server: "GET /api/documents/107 HTTP/1.1" 200 594
+[2025-11-21 19:23:23,101] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 57844
+[2025-11-21 19:23:23,135] INFO ingest.views: Authenticated via query token for document file id=107 user=1
+[2025-11-21 19:23:23,148] INFO ingest.views: Serving file download id=107 path=ingest/2025/11/21/sbkk_integrated_report_2023.pdf
+[2025-11-21 19:23:24,303] INFO django.server: "GET /api/documents/107/file?access=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNzUzODc4LCJpYXQiOjE3NjM3NTIwNzgsImp0aSI6ImVkOGFkMzRjOTQwYjRmZjhiZDZlMzUwOGU1NTlhZjJmIiwidXNlcl9pZCI6IjEifQ.mt3mbHpPRUjInfv_AVyQckZD4ImHT-GJdDPT-e9azDM HTTP/1.1" 200 16635837
+[2025-11-21 19:23:27,342] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:23:27,437] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:23:27,437] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:23:27,439] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:23:27,481] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 57844
+[2025-11-21 19:23:29,056] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 57844
+[2025-11-21 19:23:35,384] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:23:35,491] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:23:35,492] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1477
+[2025-11-21 19:23:35,511] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:23:35,545] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 57844
+[2025-11-21 19:23:37,370] INFO ingest.views: Job created id=200 mode=upload by user=1
+[2025-11-21 19:23:37,379] INFO django.server: "POST /api/ingest/jobs/ HTTP/1.1" 201 245
+[2025-11-21 19:23:37,386] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 19:23:40,527] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:23:40,540] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 19:23:40,543] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:23:40,551] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:23:45,591] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:23:45,661] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:23:45,670] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 19:23:45,676] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:23:50,540] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:23:50,552] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:23:50,553] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:23:50,563] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 19:23:55,527] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:23:55,549] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:23:55,549] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 19:23:55,562] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:24:00,565] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:24:00,618] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:24:00,619] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 19:24:00,623] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:24:05,533] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:24:05,556] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:24:05,556] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 19:24:05,558] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:24:10,524] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:24:10,554] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:24:10,555] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:24:10,555] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 19:24:15,541] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:24:15,558] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:24:15,559] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 19:24:15,562] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:24:20,551] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:24:20,571] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:24:20,577] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 19:24:20,585] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:24:25,534] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:24:25,553] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 19:24:25,556] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:24:25,578] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:24:30,531] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:24:30,566] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 19:24:30,567] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:24:30,572] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:24:35,562] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:24:35,640] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:24:35,640] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 19:24:35,649] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:24:37,750] INFO django.server: "GET /api/dashboard/summary HTTP/1.1" 200 187
+[2025-11-21 19:24:37,772] INFO django.server: "GET /api/analytics/usage?days=30 HTTP/1.1" 200 963
+[2025-11-21 19:24:37,788] INFO django.server: "GET /api/documents?limit=8&sort=-created_at HTTP/1.1" 200 1090
+[2025-11-21 19:24:37,791] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 57844
+[2025-11-21 19:24:39,115] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 57844
+[2025-11-21 19:24:45,164] INFO django.server: "GET /api/chats/threads/74/messages/ HTTP/1.1" 200 3736
+[2025-11-21 19:24:45,222] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 57844
+[2025-11-21 19:24:48,925] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 57844
+[2025-11-21 19:25:05,318] INFO django.server: "POST /api/chats/threads/ HTTP/1.1" 201 167
+[2025-11-21 19:25:05,362] INFO django.server: "OPTIONS /api/chats/threads/75/messages/ HTTP/1.1" 200 0
+[2025-11-21 19:25:05,439] INFO django.server: "POST /api/chats/threads/75/messages/ HTTP/1.1" 201 136
+[2025-11-21 19:25:05,481] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 58012
+[2025-11-21 19:25:11,476] INFO django.server: "POST /api/chats/threads/75/messages/ HTTP/1.1" 201 14712
+[2025-11-21 19:25:20,330] INFO ingest.views: DocumentDetail requested id=107 user=1
+[2025-11-21 19:25:20,338] INFO ingest.views: DocumentDetail found id=107 filename=sbkk_integrated_report_2023.pdf status=READY
+[2025-11-21 19:25:20,358] INFO django.server: "GET /api/documents/107 HTTP/1.1" 200 594
+[2025-11-21 19:25:20,420] INFO ingest.views: Authenticated via query token for document file id=107 user=1
+[2025-11-21 19:25:20,420] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 72720
+[2025-11-21 19:25:20,431] INFO ingest.views: Serving file download id=107 path=ingest/2025/11/21/sbkk_integrated_report_2023.pdf
+[2025-11-21 19:25:21,112] INFO django.server: "GET /api/documents/107/file?access=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNzUzODc4LCJpYXQiOjE3NjM3NTIwNzgsImp0aSI6ImVkOGFkMzRjOTQwYjRmZjhiZDZlMzUwOGU1NTlhZjJmIiwidXNlcl9pZCI6IjEifQ.mt3mbHpPRUjInfv_AVyQckZD4ImHT-GJdDPT-e9azDM HTTP/1.1" 200 16635837
+[2025-11-21 19:25:29,191] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:25:29,286] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 19:25:29,292] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:25:29,306] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:25:29,340] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 72720
+[2025-11-21 19:25:31,229] INFO django.server: "GET /api/chats/threads/75/messages/ HTTP/1.1" 200 14851
+[2025-11-21 19:25:31,253] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 72720
+[2025-11-21 19:32:44,080] INFO ingest.views: DocumentDetail requested id=107 user=1
+[2025-11-21 19:32:44,163] INFO ingest.views: DocumentDetail found id=107 filename=sbkk_integrated_report_2023.pdf status=READY
+[2025-11-21 19:32:44,198] INFO django.server: "GET /api/documents/107 HTTP/1.1" 200 594
+[2025-11-21 19:32:44,257] INFO ingest.views: Authenticated via query token for document file id=107 user=1
+[2025-11-21 19:32:44,271] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 72720
+[2025-11-21 19:32:44,272] INFO ingest.views: Serving file download id=107 path=ingest/2025/11/21/sbkk_integrated_report_2023.pdf
+[2025-11-21 19:32:45,016] INFO django.server: "GET /api/documents/107/file?access=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNzUzODc4LCJpYXQiOjE3NjM3NTIwNzgsImp0aSI6ImVkOGFkMzRjOTQwYjRmZjhiZDZlMzUwOGU1NTlhZjJmIiwidXNlcl9pZCI6IjEifQ.mt3mbHpPRUjInfv_AVyQckZD4ImHT-GJdDPT-e9azDM HTTP/1.1" 200 16635837
+[2025-11-21 19:32:55,838] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:32:55,911] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:32:55,911] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:32:55,928] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 19:32:55,976] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 72720
+[2025-11-21 19:33:00,433] INFO django.server: "GET /api/chats/threads/75/messages/ HTTP/1.1" 200 14851
+[2025-11-21 19:33:00,462] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 72720
+[2025-11-21 19:33:02,219] INFO ingest.views: DocumentDetail requested id=107 user=1
+[2025-11-21 19:33:02,234] INFO ingest.views: DocumentDetail found id=107 filename=sbkk_integrated_report_2023.pdf status=READY
+[2025-11-21 19:33:02,249] INFO django.server: "GET /api/documents/107 HTTP/1.1" 200 594
+[2025-11-21 19:33:02,280] INFO ingest.views: Authenticated via query token for document file id=107 user=1
+[2025-11-21 19:33:02,290] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 72720
+[2025-11-21 19:33:02,295] INFO ingest.views: Serving file download id=107 path=ingest/2025/11/21/sbkk_integrated_report_2023.pdf
+[2025-11-21 19:33:02,898] INFO django.server: "GET /api/documents/107/file?access=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNzUzODc4LCJpYXQiOjE3NjM3NTIwNzgsImp0aSI6ImVkOGFkMzRjOTQwYjRmZjhiZDZlMzUwOGU1NTlhZjJmIiwidXNlcl9pZCI6IjEifQ.mt3mbHpPRUjInfv_AVyQckZD4ImHT-GJdDPT-e9azDM HTTP/1.1" 200 16635837
+[2025-11-21 19:33:14,929] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:33:14,980] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 19:33:14,980] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:33:14,988] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:33:15,013] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 72720
+[2025-11-21 19:33:16,715] INFO django.server: "GET /api/chats/threads/75/messages/ HTTP/1.1" 200 14851
+[2025-11-21 19:33:16,772] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 72720
+[2025-11-21 19:37:07,656] INFO django.server: "POST /api/chats/threads/75/messages/ HTTP/1.1" 201 139
+[2025-11-21 19:37:13,337] INFO django.server: "POST /api/chats/threads/75/messages/ HTTP/1.1" 201 12265
+[2025-11-21 19:37:31,602] INFO ingest.views: DocumentDetail requested id=107 user=1
+[2025-11-21 19:37:31,625] INFO ingest.views: DocumentDetail found id=107 filename=sbkk_integrated_report_2023.pdf status=READY
+[2025-11-21 19:37:31,669] INFO django.server: "GET /api/documents/107 HTTP/1.1" 200 594
+[2025-11-21 19:37:31,709] INFO ingest.views: Authenticated via query token for document file id=107 user=1
+[2025-11-21 19:37:31,714] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 70273
+[2025-11-21 19:37:31,724] INFO ingest.views: Serving file download id=107 path=ingest/2025/11/21/sbkk_integrated_report_2023.pdf
+[2025-11-21 19:37:32,465] INFO django.server: "GET /api/documents/107/file?access=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNzUzODc4LCJpYXQiOjE3NjM3NTIwNzgsImp0aSI6ImVkOGFkMzRjOTQwYjRmZjhiZDZlMzUwOGU1NTlhZjJmIiwidXNlcl9pZCI6IjEifQ.mt3mbHpPRUjInfv_AVyQckZD4ImHT-GJdDPT-e9azDM HTTP/1.1" 200 16635837
+[2025-11-21 19:37:44,419] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:37:44,511] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:37:44,513] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 19:37:44,532] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:37:44,571] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 70273
+[2025-11-21 19:37:48,978] INFO ingest.views: DocumentDetail requested id=107 user=1
+[2025-11-21 19:37:48,991] INFO ingest.views: DocumentDetail found id=107 filename=sbkk_integrated_report_2023.pdf status=READY
+[2025-11-21 19:37:49,028] INFO django.server: "GET /api/documents/107 HTTP/1.1" 200 594
+[2025-11-21 19:37:49,103] INFO ingest.views: Authenticated via query token for document file id=107 user=1
+[2025-11-21 19:37:49,122] INFO ingest.views: Serving file download id=107 path=ingest/2025/11/21/sbkk_integrated_report_2023.pdf
+[2025-11-21 19:37:49,123] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 70273
+[2025-11-21 19:37:49,720] INFO django.server: "GET /api/documents/107/file?access=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNzUzODc4LCJpYXQiOjE3NjM3NTIwNzgsImp0aSI6ImVkOGFkMzRjOTQwYjRmZjhiZDZlMzUwOGU1NTlhZjJmIiwidXNlcl9pZCI6IjEifQ.mt3mbHpPRUjInfv_AVyQckZD4ImHT-GJdDPT-e9azDM HTTP/1.1" 200 16635837
+[2025-11-21 19:42:59,723] WARNING django.request: Unauthorized: /api/documents/107
+[2025-11-21 19:42:59,743] WARNING django.server: "GET /api/documents/107 HTTP/1.1" 401 172
+[2025-11-21 19:42:59,834] INFO django.server: "POST /api/accounts/refresh/ HTTP/1.1" 200 489
+[2025-11-21 19:42:59,839] INFO ingest.views: DocumentDetail requested id=107 user=1
+[2025-11-21 19:42:59,843] INFO ingest.views: DocumentDetail found id=107 filename=sbkk_integrated_report_2023.pdf status=READY
+[2025-11-21 19:42:59,865] INFO django.server: "GET /api/documents/107 HTTP/1.1" 200 594
+[2025-11-21 19:42:59,900] INFO ingest.views: Authenticated via query token for document file id=107 user=1
+[2025-11-21 19:42:59,909] INFO ingest.views: Serving file download id=107 path=ingest/2025/11/21/sbkk_integrated_report_2023.pdf
+[2025-11-21 19:43:00,810] INFO django.server: "GET /api/documents/107/file?access=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNzU1OTc5LCJpYXQiOjE3NjM3NTQxNzksImp0aSI6ImM5NWFjN2ZmZmZmOTQ5YjY4ODZmNDM3MTJiMjQzOTY1IiwidXNlcl9pZCI6IjEifQ.FeIe6LBgOKp98ZjhqxMKCko634psNRUC_FitY4IOUEk HTTP/1.1" 200 16635837
+[2025-11-21 19:44:15,345] INFO django.server: "GET /api/chats/threads/75/messages/ HTTP/1.1" 200 27257
+[2025-11-21 19:44:15,401] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 70273
+[2025-11-21 19:44:17,310] INFO ingest.views: DocumentDetail requested id=107 user=1
+[2025-11-21 19:44:17,316] INFO ingest.views: DocumentDetail found id=107 filename=sbkk_integrated_report_2023.pdf status=READY
+[2025-11-21 19:44:17,332] INFO django.server: "GET /api/documents/107 HTTP/1.1" 200 594
+[2025-11-21 19:44:17,365] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 70273
+[2025-11-21 19:44:17,369] INFO ingest.views: Authenticated via query token for document file id=107 user=1
+[2025-11-21 19:44:17,380] INFO ingest.views: Serving file download id=107 path=ingest/2025/11/21/sbkk_integrated_report_2023.pdf
+[2025-11-21 19:44:18,060] INFO django.server: "GET /api/documents/107/file?access=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNzU1OTc5LCJpYXQiOjE3NjM3NTQxNzksImp0aSI6ImM5NWFjN2ZmZmZmOTQ5YjY4ODZmNDM3MTJiMjQzOTY1IiwidXNlcl9pZCI6IjEifQ.FeIe6LBgOKp98ZjhqxMKCko634psNRUC_FitY4IOUEk HTTP/1.1" 200 16635837
+[2025-11-21 19:44:19,183] INFO django.server: "GET /api/chats/threads/75/messages/ HTTP/1.1" 200 27257
+[2025-11-21 19:44:19,241] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 70273
+[2025-11-21 19:44:20,896] INFO django.server: "GET /api/chats/threads/74/messages/ HTTP/1.1" 200 3736
+[2025-11-21 19:44:20,925] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 70273
+[2025-11-21 19:44:25,141] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 70273
+[2025-11-21 19:44:32,495] INFO django.server: "POST /api/chats/threads/ HTTP/1.1" 201 146
+[2025-11-21 19:44:32,544] INFO django.server: "OPTIONS /api/chats/threads/76/messages/ HTTP/1.1" 200 0
+[2025-11-21 19:44:32,600] INFO django.server: "POST /api/chats/threads/76/messages/ HTTP/1.1" 201 115
+[2025-11-21 19:44:32,639] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 70531
+[2025-11-21 19:44:36,409] INFO django.server: "POST /api/chats/threads/76/messages/ HTTP/1.1" 201 14903
+[2025-11-21 19:44:48,699] INFO ingest.views: DocumentDetail requested id=107 user=1
+[2025-11-21 19:44:48,703] INFO ingest.views: DocumentDetail found id=107 filename=sbkk_integrated_report_2023.pdf status=READY
+[2025-11-21 19:44:48,724] INFO django.server: "GET /api/documents/107 HTTP/1.1" 200 594
+[2025-11-21 19:44:48,748] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 85319
+[2025-11-21 19:44:48,751] INFO ingest.views: Authenticated via query token for document file id=107 user=1
+[2025-11-21 19:44:48,763] INFO ingest.views: Serving file download id=107 path=ingest/2025/11/21/sbkk_integrated_report_2023.pdf
+[2025-11-21 19:44:49,413] INFO django.server: "GET /api/documents/107/file?access=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNzU1OTc5LCJpYXQiOjE3NjM3NTQxNzksImp0aSI6ImM5NWFjN2ZmZmZmOTQ5YjY4ODZmNDM3MTJiMjQzOTY1IiwidXNlcl9pZCI6IjEifQ.FeIe6LBgOKp98ZjhqxMKCko634psNRUC_FitY4IOUEk HTTP/1.1" 200 16635837
+[2025-11-21 19:44:52,858] INFO django.server: "GET /api/chats/threads/76/messages/ HTTP/1.1" 200 15021
+[2025-11-21 19:44:52,890] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 85319
+[2025-11-21 19:44:59,958] INFO django.server: "GET /api/dashboard/summary HTTP/1.1" 200 187
+[2025-11-21 19:45:00,036] INFO django.server: "GET /api/analytics/usage?days=30 HTTP/1.1" 200 963
+[2025-11-21 19:45:00,069] INFO django.server: "GET /api/documents?limit=8&sort=-created_at HTTP/1.1" 200 1090
+[2025-11-21 19:45:00,077] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 85319
+[2025-11-21 19:45:01,896] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:45:01,897] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 19:45:01,939] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:45:01,942] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:45:01,958] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 85319
+[2025-11-21 19:45:04,185] INFO ingest.views: DocumentDetail requested id=107 user=1
+[2025-11-21 19:45:04,196] INFO ingest.views: DocumentDetail found id=107 filename=sbkk_integrated_report_2023.pdf status=READY
+[2025-11-21 19:45:04,210] INFO django.server: "GET /api/documents/107 HTTP/1.1" 200 594
+[2025-11-21 19:45:04,253] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 85319
+[2025-11-21 19:45:04,262] INFO ingest.views: Authenticated via query token for document file id=107 user=1
+[2025-11-21 19:45:04,269] INFO ingest.views: Serving file download id=107 path=ingest/2025/11/21/sbkk_integrated_report_2023.pdf
+[2025-11-21 19:45:04,896] INFO django.server: "GET /api/documents/107/file?access=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNzU1OTc5LCJpYXQiOjE3NjM3NTQxNzksImp0aSI6ImM5NWFjN2ZmZmZmOTQ5YjY4ODZmNDM3MTJiMjQzOTY1IiwidXNlcl9pZCI6IjEifQ.FeIe6LBgOKp98ZjhqxMKCko634psNRUC_FitY4IOUEk HTTP/1.1" 200 16635837
+[2025-11-21 19:45:06,716] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:45:06,740] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 19:45:06,745] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:45:06,750] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:45:06,769] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 85319
+[2025-11-21 19:45:11,775] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:45:11,812] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:45:11,820] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 19:45:11,824] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:45:16,778] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 19:45:16,799] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 19:45:16,806] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 19:45:16,807] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 19:45:21,126] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 85319
+[2025-11-21 19:45:24,688] INFO django.server: "POST /api/chats/threads/ HTTP/1.1" 201 194
+[2025-11-21 19:45:24,704] INFO django.server: "OPTIONS /api/chats/threads/77/messages/ HTTP/1.1" 200 0
+[2025-11-21 19:45:24,745] INFO django.server: "POST /api/chats/threads/77/messages/ HTTP/1.1" 201 172
+[2025-11-21 19:45:24,786] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 85514
+[2025-11-21 19:45:31,640] INFO django.server: "POST /api/chats/threads/77/messages/ HTTP/1.1" 201 16744
+[2025-11-21 19:49:48,798] INFO django.server: "GET /api/accounts/plan/ HTTP/1.1" 200 274
+[2025-11-21 19:49:48,803] INFO django.server: "GET /api/accounts/me/ HTTP/1.1" 200 300
+[2025-11-21 19:49:48,803] INFO django.server: "GET /api/chats/threads/77/messages/ HTTP/1.1" 200 16919
+[2025-11-21 19:49:48,869] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 102254
+[2025-11-21 19:49:48,915] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 102254
+[2025-11-21 19:50:06,984] INFO django.server: "POST /api/chats/threads/77/messages/ HTTP/1.1" 201 121
+[2025-11-21 19:50:12,398] INFO django.server: "POST /api/chats/threads/77/messages/ HTTP/1.1" 201 15773
+[2025-11-21 19:50:42,083] INFO ingest.views: DocumentDetail requested id=107 user=1
+[2025-11-21 19:50:42,093] INFO ingest.views: DocumentDetail found id=107 filename=sbkk_integrated_report_2023.pdf status=READY
+[2025-11-21 19:50:42,128] INFO django.server: "GET /api/documents/107 HTTP/1.1" 200 594
+[2025-11-21 19:50:42,159] INFO ingest.views: Authenticated via query token for document file id=107 user=1
+[2025-11-21 19:50:42,170] INFO ingest.views: Serving file download id=107 path=ingest/2025/11/21/sbkk_integrated_report_2023.pdf
+[2025-11-21 19:50:42,170] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 101283
+[2025-11-21 19:50:42,771] INFO django.server: "GET /api/documents/107/file?access=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNzU1OTc5LCJpYXQiOjE3NjM3NTQxNzksImp0aSI6ImM5NWFjN2ZmZmZmOTQ5YjY4ODZmNDM3MTJiMjQzOTY1IiwidXNlcl9pZCI6IjEifQ.FeIe6LBgOKp98ZjhqxMKCko634psNRUC_FitY4IOUEk HTTP/1.1" 200 16635837
+[2025-11-21 19:50:43,734] INFO django.server: "GET /api/chats/threads/77/messages/ HTTP/1.1" 200 32815
+[2025-11-21 19:50:43,772] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 101283
+[2025-11-21 20:01:29,418] INFO django.server: "GET /api/chats/threads/77/messages/ HTTP/1.1" 200 32815
+[2025-11-21 20:01:49,836] INFO django.server: "GET /api/accounts/me/ HTTP/1.1" 200 300
+[2025-11-21 20:01:49,845] INFO django.server: "GET /api/chats/threads/77/messages/ HTTP/1.1" 200 32815
+[2025-11-21 20:01:49,845] INFO django.server: "GET /api/accounts/plan/ HTTP/1.1" 200 274
+[2025-11-21 20:01:49,923] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 101283
+[2025-11-21 20:01:50,035] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 101283
+[2025-11-21 20:01:54,321] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 101283
+[2025-11-21 20:02:06,646] INFO django.server: "GET /api/dashboard/summary HTTP/1.1" 200 187
+[2025-11-21 20:02:06,678] INFO django.server: "GET /api/analytics/usage?days=30 HTTP/1.1" 200 963
+[2025-11-21 20:02:06,770] INFO django.server: "GET /api/documents?limit=8&sort=-created_at HTTP/1.1" 200 1090
+[2025-11-21 20:02:06,779] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 101283
+[2025-11-21 20:02:08,013] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 20:02:08,017] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 20:02:08,075] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 20:02:08,083] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 20:02:08,118] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 101283
+[2025-11-21 20:02:09,334] INFO ingest.views: DocumentDetail requested id=105 user=1
+[2025-11-21 20:02:09,341] INFO ingest.views: DocumentDetail found id=105 filename=2002_SR_2024.pdf status=READY
+[2025-11-21 20:02:09,355] INFO django.server: "GET /api/documents/105 HTTP/1.1" 200 508
+[2025-11-21 20:02:09,400] INFO ingest.views: Authenticated via query token for document file id=105 user=1
+[2025-11-21 20:02:09,420] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 101283
+[2025-11-21 20:02:09,423] ERROR django.request: Internal Server Error: /api/documents/105/file
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/usr/local/lib/python3.10/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/django/views/generic/base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/rest_framework/views.py", line 515, in dispatch
+    response = self.handle_exception(exc)
+  File "/usr/local/lib/python3.10/site-packages/rest_framework/views.py", line 475, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "/usr/local/lib/python3.10/site-packages/rest_framework/views.py", line 486, in raise_uncaught_exception
+    raise exc
+  File "/usr/local/lib/python3.10/site-packages/rest_framework/views.py", line 512, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "/app/ingest/views.py", line 458, in get
+    fh = obj.file.open('rb')
+  File "/usr/local/lib/python3.10/site-packages/django/db/models/fields/files.py", line 82, in open
+    self.file = self.storage.open(self.name, mode)
+  File "/usr/local/lib/python3.10/site-packages/django/core/files/storage/base.py", line 22, in open
+    return self._open(name, mode)
+  File "/usr/local/lib/python3.10/site-packages/django/core/files/storage/filesystem.py", line 81, in _open
+    return File(open(self.path(name), mode))
+FileNotFoundError: [Errno 2] No such file or directory: '/app/media/ingest/2025/11/19/2002_SR_2024.pdf'
+[2025-11-21 20:02:09,429] ERROR django.server: "GET /api/documents/105/file?access=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNzU1OTc5LCJpYXQiOjE3NjM3NTQxNzksImp0aSI6ImM5NWFjN2ZmZmZmOTQ5YjY4ODZmNDM3MTJiMjQzOTY1IiwidXNlcl9pZCI6IjEifQ.FeIe6LBgOKp98ZjhqxMKCko634psNRUC_FitY4IOUEk HTTP/1.1" 500 145
+[2025-11-21 20:02:29,161] INFO django.server: "GET /api/dashboard/summary HTTP/1.1" 200 187
+[2025-11-21 20:02:29,180] INFO django.server: "GET /api/analytics/usage?days=30 HTTP/1.1" 200 963
+[2025-11-21 20:02:29,220] INFO django.server: "GET /api/documents?limit=8&sort=-created_at HTTP/1.1" 200 1090
+[2025-11-21 20:02:29,240] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 101283
+[2025-11-21 20:02:30,453] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 20:02:30,474] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 20:02:30,486] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 20:02:30,486] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1091
+[2025-11-21 20:02:30,513] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 101283
+[2025-11-21 20:02:34,494] INFO ingest.views: Unindex requested for file_id=105
+[2025-11-21 20:02:34,498] INFO ingest.views: Deleted document id=105; cascade jobs=1 sources=0
+[2025-11-21 20:02:34,498] INFO django.server: "DELETE /api/documents/105 HTTP/1.1" 204 0
+[2025-11-21 20:02:34,507] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 611
+[2025-11-21 20:02:35,503] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 20:02:35,542] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1409
+[2025-11-21 20:02:35,550] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 611
+[2025-11-21 20:02:35,552] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 20:02:35,962] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 101283
+[2025-11-21 20:02:43,677] INFO ingest.views: Upload received count=1 by user=1
+[2025-11-21 20:02:43,841] INFO ingest.views: Queued process_item file_id=108 name=2002_SR_2024.pdf size=896588
+[2025-11-21 20:02:43,843] INFO django.server: "POST /api/ingest/upload/ HTTP/1.1" 201 38
+[2025-11-21 20:02:43,863] INFO ingest.views: Job created id=201 mode=upload by user=1
+[2025-11-21 20:02:43,867] INFO django.server: "POST /api/ingest/jobs/ HTTP/1.1" 201 313
+[2025-11-21 20:02:43,873] INFO ingest.tasks: process_item start file_id=108 job_id=None
+[2025-11-21 20:02:43,917] INFO ingest.tasks: process_item fetched bytes file_id=108 bytes=896588
+[2025-11-21 20:02:44,898] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 20:02:44,914] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 20:02:44,934] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 20:02:44,934] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1042
+[2025-11-21 20:02:45,012] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 101283
+[2025-11-21 20:02:49,958] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 20:02:49,989] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 20:02:49,989] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 20:02:49,996] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1042
+[2025-11-21 20:02:54,957] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 20:02:54,968] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 20:02:54,970] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 20:02:54,972] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1042
+[2025-11-21 20:02:55,467] INFO ingest.tasks: process_item pdf extracted file_id=108 pages=142 text_len=181623
+[2025-11-21 20:02:59,961] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 20:02:59,972] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 20:02:59,976] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1084
+[2025-11-21 20:02:59,987] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 20:03:02,458] INFO ingest.tasks: process_item indexed file_id=108 chunks=229
+[2025-11-21 20:03:02,460] INFO ingest.tasks: process_item success file_id=108
+[2025-11-21 20:03:04,975] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 20:03:05,001] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 20:03:05,002] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1130
+[2025-11-21 20:03:05,003] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 20:03:07,033] INFO django.server: "OPTIONS /api/documents/108 HTTP/1.1" 200 0
+[2025-11-21 20:03:07,073] INFO ingest.views: DocumentDetail requested id=108 user=1
+[2025-11-21 20:03:07,087] INFO ingest.views: DocumentDetail found id=108 filename=2002_SR_2024.pdf status=READY
+[2025-11-21 20:03:07,119] INFO django.server: "GET /api/documents/108 HTTP/1.1" 200 547
+[2025-11-21 20:03:07,155] INFO ingest.views: Authenticated via query token for document file id=108 user=1
+[2025-11-21 20:03:07,159] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 101283
+[2025-11-21 20:03:07,162] INFO ingest.views: Serving file download id=108 path=ingest/2025/11/21/2002_SR_2024.pdf
+[2025-11-21 20:03:07,195] INFO django.server: "GET /api/documents/108/file?access=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNzU1OTc5LCJpYXQiOjE3NjM3NTQxNzksImp0aSI6ImM5NWFjN2ZmZmZmOTQ5YjY4ODZmNDM3MTJiMjQzOTY1IiwidXNlcl9pZCI6IjEifQ.FeIe6LBgOKp98ZjhqxMKCko634psNRUC_FitY4IOUEk HTTP/1.1" 200 896588
+[2025-11-21 20:03:32,391] INFO django.server: "GET /api/accounts/plan/ HTTP/1.1" 200 274
+[2025-11-21 20:03:32,399] INFO django.server: "GET /api/accounts/me/ HTTP/1.1" 200 300
+[2025-11-21 20:03:32,451] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 101283
+[2025-11-21 20:05:45,458] INFO django.server: "POST /api/chats/threads/ HTTP/1.1" 201 167
+[2025-11-21 20:05:45,463] INFO django.server: "OPTIONS /api/chats/threads/78/messages/ HTTP/1.1" 200 0
+[2025-11-21 20:05:45,601] INFO django.server: "POST /api/chats/threads/78/messages/ HTTP/1.1" 201 136
+[2025-11-21 20:05:45,634] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 101451
+[2025-11-21 20:05:49,909] INFO django.server: "POST /api/chats/threads/78/messages/ HTTP/1.1" 201 15563
+[2025-11-21 20:06:01,743] INFO ingest.views: DocumentDetail requested id=108 user=1
+[2025-11-21 20:06:01,757] INFO ingest.views: DocumentDetail found id=108 filename=2002_SR_2024.pdf status=READY
+[2025-11-21 20:06:01,795] INFO django.server: "GET /api/documents/108 HTTP/1.1" 200 547
+[2025-11-21 20:06:01,822] INFO ingest.views: Authenticated via query token for document file id=108 user=1
+[2025-11-21 20:06:01,832] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 117010
+[2025-11-21 20:06:01,834] INFO ingest.views: Serving file download id=108 path=ingest/2025/11/21/2002_SR_2024.pdf
+[2025-11-21 20:06:01,859] INFO django.server: "GET /api/documents/108/file?access=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNzU1OTc5LCJpYXQiOjE3NjM3NTQxNzksImp0aSI6ImM5NWFjN2ZmZmZmOTQ5YjY4ODZmNDM3MTJiMjQzOTY1IiwidXNlcl9pZCI6IjEifQ.FeIe6LBgOKp98ZjhqxMKCko634psNRUC_FitY4IOUEk HTTP/1.1" 200 896588
+[2025-11-21 20:06:14,824] INFO django.server: "GET /api/chats/threads/78/messages/ HTTP/1.1" 200 15702
+[2025-11-21 20:06:14,879] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 117010
+[2025-11-21 20:06:32,983] INFO django.server: "POST /api/chats/threads/78/messages/ HTTP/1.1" 201 137
+[2025-11-21 20:06:37,625] INFO django.server: "POST /api/chats/threads/78/messages/ HTTP/1.1" 201 12148
+[2025-11-21 20:06:41,982] INFO ingest.views: DocumentDetail requested id=107 user=1
+[2025-11-21 20:06:41,987] INFO ingest.views: DocumentDetail found id=107 filename=sbkk_integrated_report_2023.pdf status=READY
+[2025-11-21 20:06:42,003] INFO django.server: "GET /api/documents/107 HTTP/1.1" 200 594
+[2025-11-21 20:06:42,049] INFO ingest.views: Authenticated via query token for document file id=107 user=1
+[2025-11-21 20:06:42,056] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 113595
+[2025-11-21 20:06:42,061] INFO ingest.views: Serving file download id=107 path=ingest/2025/11/21/sbkk_integrated_report_2023.pdf
+[2025-11-21 20:06:42,518] INFO django.server: "GET /api/documents/107/file?access=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNzU1OTc5LCJpYXQiOjE3NjM3NTQxNzksImp0aSI6ImM5NWFjN2ZmZmZmOTQ5YjY4ODZmNDM3MTJiMjQzOTY1IiwidXNlcl9pZCI6IjEifQ.FeIe6LBgOKp98ZjhqxMKCko634psNRUC_FitY4IOUEk HTTP/1.1" 200 16635837
+[2025-11-21 20:07:57,115] INFO django.server: "GET /api/chats/threads/78/messages/ HTTP/1.1" 200 27989
+[2025-11-21 20:07:57,331] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 113595
+[2025-11-21 20:08:20,818] INFO django.server: "POST /api/chats/threads/78/messages/ HTTP/1.1" 201 548
+[2025-11-21 20:08:23,346] INFO django.server: "POST /api/chats/threads/78/messages/ HTTP/1.1" 201 16905
+[2025-11-21 20:08:44,155] INFO ingest.views: DocumentDetail requested id=107 user=1
+[2025-11-21 20:08:44,170] INFO ingest.views: DocumentDetail found id=107 filename=sbkk_integrated_report_2023.pdf status=READY
+[2025-11-21 20:08:44,260] INFO django.server: "GET /api/documents/107 HTTP/1.1" 200 594
+[2025-11-21 20:08:44,362] INFO ingest.views: Authenticated via query token for document file id=107 user=1
+[2025-11-21 20:08:44,373] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 118352
+[2025-11-21 20:08:44,374] INFO ingest.views: Serving file download id=107 path=ingest/2025/11/21/sbkk_integrated_report_2023.pdf
+[2025-11-21 20:08:44,926] INFO django.server: "GET /api/documents/107/file?access=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNzU1OTc5LCJpYXQiOjE3NjM3NTQxNzksImp0aSI6ImM5NWFjN2ZmZmZmOTQ5YjY4ODZmNDM3MTJiMjQzOTY1IiwidXNlcl9pZCI6IjEifQ.FeIe6LBgOKp98ZjhqxMKCko634psNRUC_FitY4IOUEk HTTP/1.1" 200 16635837
+[2025-11-21 20:08:51,306] INFO django.server: "GET /api/chats/threads/78/messages/ HTTP/1.1" 200 45444
+[2025-11-21 20:08:51,363] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 118352
+[2025-11-21 20:09:13,361] INFO django.server: "POST /api/chats/threads/78/messages/ HTTP/1.1" 201 145
+[2025-11-21 20:09:19,079] INFO django.server: "POST /api/chats/threads/78/messages/ HTTP/1.1" 201 15533
+[2025-11-21 20:16:43,799] WARNING django.request: Unauthorized: /api/accounts/me/
+[2025-11-21 20:16:43,808] WARNING django.request: Unauthorized: /api/chats/threads/
+[2025-11-21 20:16:43,815] WARNING django.request: Unauthorized: /api/accounts/plan/
+[2025-11-21 20:16:43,823] WARNING django.request: Unauthorized: /api/chats/threads/78/messages/
+[2025-11-21 20:16:43,824] WARNING django.server: "GET /api/accounts/me/ HTTP/1.1" 401 172
+[2025-11-21 20:16:43,824] WARNING django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 401 172
+[2025-11-21 20:16:43,825] WARNING django.server: "GET /api/accounts/plan/ HTTP/1.1" 401 172
+[2025-11-21 20:16:43,830] WARNING django.server: "GET /api/chats/threads/78/messages/ HTTP/1.1" 401 172
+[2025-11-21 20:16:43,836] WARNING django.request: Unauthorized: /api/chats/threads/
+[2025-11-21 20:16:43,855] WARNING django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 401 172
+[2025-11-21 20:16:43,912] INFO django.server: "POST /api/accounts/refresh/ HTTP/1.1" 200 489
+[2025-11-21 20:16:43,913] INFO django.server: "POST /api/accounts/refresh/ HTTP/1.1" 200 489
+[2025-11-21 20:16:43,913] INFO django.server: "POST /api/accounts/refresh/ HTTP/1.1" 200 489
+[2025-11-21 20:16:43,914] INFO django.server: "POST /api/accounts/refresh/ HTTP/1.1" 200 489
+[2025-11-21 20:16:43,930] INFO django.server: "GET /api/accounts/plan/ HTTP/1.1" 200 274
+[2025-11-21 20:16:43,945] INFO django.server: "GET /api/chats/threads/78/messages/ HTTP/1.1" 200 61124
+[2025-11-21 20:16:43,973] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 116980
+[2025-11-21 20:16:44,015] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 116980
+[2025-11-21 20:17:15,223] INFO django.server: "POST /api/chats/threads/78/messages/ HTTP/1.1" 201 145
+[2025-11-21 20:17:24,888] INFO django.server: "POST /api/chats/threads/78/messages/ HTTP/1.1" 201 15628
+[2025-11-21 20:29:59,217] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 117075
+[2025-11-21 20:48:24,546] INFO django.server: "OPTIONS /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 0
+[2025-11-21 20:48:24,563] INFO django.server: "OPTIONS /api/ingest/jobs/ HTTP/1.1" 200 0
+[2025-11-21 20:48:24,564] INFO django.server: "OPTIONS /api/chats/threads/?archived=0 HTTP/1.1" 200 0
+[2025-11-21 20:48:24,643] WARNING django.request: Unauthorized: /api/chats/threads/
+[2025-11-21 20:48:24,643] WARNING django.request: Unauthorized: /api/documents
+[2025-11-21 20:48:24,644] WARNING django.request: Unauthorized: /api/ingest/jobs/
+[2025-11-21 20:48:24,647] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 20:48:24,648] WARNING django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 401 172
+[2025-11-21 20:48:24,648] INFO django.server: "OPTIONS /api/ingest/sources/ HTTP/1.1" 200 0
+[2025-11-21 20:48:24,656] WARNING django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 401 172
+[2025-11-21 20:48:24,673] WARNING django.request: Unauthorized: /api/ingest/sources/
+[2025-11-21 20:48:24,682] WARNING django.server: "GET /api/ingest/sources/ HTTP/1.1" 401 172
+[2025-11-21 20:48:24,680] INFO django.server: "OPTIONS /api/accounts/refresh/ HTTP/1.1" 200 0
+[2025-11-21 20:48:24,681] WARNING django.server: "GET /api/ingest/jobs/ HTTP/1.1" 401 172
+[2025-11-21 20:48:24,677] INFO django.server: "OPTIONS /api/accounts/refresh/ HTTP/1.1" 200 0
+[2025-11-21 20:48:24,800] INFO django.server: "POST /api/accounts/refresh/ HTTP/1.1" 200 489
+[2025-11-21 20:48:24,801] INFO django.server: "POST /api/accounts/refresh/ HTTP/1.1" 200 489
+[2025-11-21 20:48:24,801] INFO django.server: "POST /api/accounts/refresh/ HTTP/1.1" 200 489
+[2025-11-21 20:48:24,806] INFO django.server: "POST /api/accounts/refresh/ HTTP/1.1" 200 489
+[2025-11-21 20:48:24,821] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 20:48:24,841] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 20:48:24,849] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1130
+[2025-11-21 20:48:24,893] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 117075
+[2025-11-21 20:48:27,416] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 117075
+[2025-11-21 20:48:38,595] INFO django.server: "OPTIONS /api/dashboard/summary HTTP/1.1" 200 0
+[2025-11-21 20:48:38,681] INFO django.server: "GET /api/dashboard/summary HTTP/1.1" 200 187
+[2025-11-21 20:48:38,686] INFO django.server: "OPTIONS /api/analytics/usage?days=30 HTTP/1.1" 200 0
+[2025-11-21 20:48:38,703] INFO django.server: "GET /api/analytics/usage?days=30 HTTP/1.1" 200 964
+[2025-11-21 20:48:38,710] INFO django.server: "OPTIONS /api/documents?limit=8&sort=-created_at HTTP/1.1" 200 0
+[2025-11-21 20:48:38,753] INFO django.server: "GET /api/documents?limit=8&sort=-created_at HTTP/1.1" 200 1129
+[2025-11-21 20:48:38,753] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 117075
+[2025-11-21 20:48:40,219] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 1723
+[2025-11-21 20:48:40,219] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 20:48:40,238] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 2
+[2025-11-21 20:48:40,244] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1130
+[2025-11-21 20:48:40,275] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 117075
+[2025-11-21 20:48:42,974] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 117075
+[2025-11-21 20:49:57,386] INFO django.server: "POST /api/ingest/sources/ HTTP/1.1" 201 120
+[2025-11-21 20:49:57,400] INFO ingest.views: Job created id=202 mode=web by user=1
+[2025-11-21 20:49:57,445] INFO ingest.views: process_web_job queued job_id=202
+[2025-11-21 20:49:57,447] INFO django.server: "POST /api/ingest/jobs/ HTTP/1.1" 201 251
+[2025-11-21 20:49:57,591] INFO ingest.tasks: process_web_job start job_id=202
+[2025-11-21 20:49:59,450] INFO ingest.tasks: process_web_job fetched url=https://suslab.net/ bytes=287810 ct=text/html; charset=UTF-8
+[2025-11-21 20:49:59,481] INFO ingest.tasks: process_web_job created file id=109 for url=https://suslab.net/
+[2025-11-21 20:49:59,502] INFO ingest.tasks: process_web_job saved file blob id=109 path=ingest/2025/11/21/page.html
+[2025-11-21 20:49:59,556] INFO ingest.tasks: process_web_job queued process_item file_id=109 job_id=202
+[2025-11-21 20:49:59,633] INFO ingest.tasks: process_item start file_id=109 job_id=202
+[2025-11-21 20:49:59,848] INFO ingest.tasks: process_item fetched bytes file_id=109 bytes=287810
+[2025-11-21 20:49:59,852] INFO ingest.tasks: process_item text extracted file_id=109 text_len=281586
+[2025-11-21 20:50:06,198] INFO ingest.tasks: process_item indexed file_id=109 chunks=261
+[2025-11-21 20:50:06,206] INFO ingest.tasks: process_item success file_id=109
+[2025-11-21 20:50:07,360] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 20:50:07,417] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 122
+[2025-11-21 20:50:07,418] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 2065
+[2025-11-21 20:50:07,430] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1689
+[2025-11-21 20:50:07,467] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 117075
+[2025-11-21 20:50:12,454] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 20:50:12,471] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 2065
+[2025-11-21 20:50:12,488] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1689
+[2025-11-21 20:50:12,491] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 122
+[2025-11-21 20:50:17,446] INFO django.server: "GET /health/ HTTP/1.1" 200 11
+[2025-11-21 20:50:17,468] INFO django.server: "GET /api/ingest/sources/ HTTP/1.1" 200 122
+[2025-11-21 20:50:17,475] INFO django.server: "GET /api/ingest/jobs/ HTTP/1.1" 200 2065
+[2025-11-21 20:50:17,482] INFO django.server: "GET /api/documents?limit=20&sort=-created_at HTTP/1.1" 200 1689
+[2025-11-21 20:50:17,737] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 117075
+[2025-11-21 20:50:30,146] INFO django.server: "OPTIONS /api/chats/threads/ HTTP/1.1" 200 0
+[2025-11-21 20:50:30,243] INFO django.server: "POST /api/chats/threads/ HTTP/1.1" 201 158
+[2025-11-21 20:50:30,273] INFO django.server: "OPTIONS /api/chats/threads/79/messages/ HTTP/1.1" 200 0
+[2025-11-21 20:50:30,319] INFO django.server: "POST /api/chats/threads/79/messages/ HTTP/1.1" 201 127
+[2025-11-21 20:50:30,413] INFO django.server: "GET /api/chats/threads/?archived=0 HTTP/1.1" 200 117357
+[2025-11-21 20:50:34,533] INFO django.server: "POST /api/chats/threads/79/messages/ HTTP/1.1" 201 10241
+[2025-11-21 21:15:29,489] INFO django.utils.autoreload: /app/ingest/tasks.py changed, reloading.
+[2025-11-21 21:15:30,449] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-11-21 21:15:47,282] INFO django.utils.autoreload: /app/ingest/tasks.py changed, reloading.
+[2025-11-21 21:15:47,668] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-11-21 21:15:57,162] INFO django.utils.autoreload: /app/ingest/tasks.py changed, reloading.
+[2025-11-21 21:15:57,555] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-11-21 21:18:56,352] INFO django.server: "OPTIONS /api/chats/threads/79/messages/ HTTP/1.1" 200 0
+[2025-11-21 21:18:56,417] WARNING django.request: Unauthorized: /api/chats/threads/79/messages/
+[2025-11-21 21:18:56,418] WARNING django.server: "GET /api/chats/threads/79/messages/ HTTP/1.1" 401 172
+[2025-11-21 21:18:56,474] INFO django.server: "POST /api/accounts/refresh/ HTTP/1.1" 200 489
+[2025-11-21 21:18:56,493] INFO django.server: "GET /api/chats/threads/79/messages/ HTTP/1.1" 200 10371
+[2025-11-21 21:19:08,729] INFO django.server: "GET /api/chats/threads/79/messages/ HTTP/1.1" 200 10371

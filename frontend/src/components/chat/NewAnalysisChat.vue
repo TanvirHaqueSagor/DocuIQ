@@ -384,23 +384,33 @@ function normalizeCitations(data) {
   
   arr.forEach((entry, idx) => {
     if (!entry) return
-    const docId = entry.doc_id || entry.documentId || entry.document_id || entry.id || ''
-    // Use provided citation ID or fallback to index+1
-    const citationId = String(entry.citation_id || entry.citationId || entry.id || (idx + 1))
+    const citationId = String(entry.citation_id || entry.citationId || entry.id || `S${idx + 1}`)
     
     if (seen.has(citationId)) return
     seen.add(citationId)
     
     const page = typeof entry.page === 'number' && entry.page > 0 ? entry.page : undefined
+    const docId = entry.doc_id || entry.documentId || entry.document_id || entry.docId || ''
+    const sourceType = (entry.source_type || entry.sourceType || entry.kind || 'document').toLowerCase()
+    const rowId = entry.row_id || entry.rowId
+    const url = entry.url || entry.origin_url || buildDocumentUrl(docId, page)
     normalized.push({
+      id: citationId,
       citationId,
       docId,
-      docTitle: entry.doc_title || entry.title || entry.label || docId || 'Source',
+      docTitle: entry.doc_title || entry.title || entry.label || entry.subject || docId || 'Source',
       page,
       snippet: entry.snippet || entry.excerpt || '',
-      url: entry.url || buildDocumentUrl(docId, page),
-      sourceType: entry.source_type || entry.kind || '',
-      score: typeof entry.score === 'number' ? entry.score : null
+      url,
+      sourceType,
+      score: typeof entry.score === 'number' ? entry.score : null,
+      messageId: entry.message_id || entry.messageId,
+      threadId: entry.thread_id || entry.threadId,
+      ts: entry.ts,
+      table: entry.table,
+      rowId: rowId,
+      column: entry.column,
+      extra: entry.extra || {}
     })
   })
   return normalized
@@ -606,15 +616,16 @@ function resetChat() {
 }
 
 function handleCitation(payload) {
-  const docId = payload?.docId || payload?.documentId || payload?.document_id
-  const page = payload?.page
+  const citation = payload?.citation || payload
+  const docId = citation?.docId || citation?.documentId || citation?.document_id
+  const page = citation?.page
   const detail = {
     page,
-    title: payload?.docTitle || payload?.title || payload?.label,
+    title: citation?.docTitle || citation?.title || citation?.label,
     documentId: docId
   }
   window.dispatchEvent(new CustomEvent('open-citation', { detail }))
-  const url = payload?.url || buildDocumentUrl(docId, page)
+  const url = payload?.href || citation?.href || citation?.url || buildDocumentUrl(docId, page)
   if (url && url.startsWith('/')) {
     router.push(url)
     return

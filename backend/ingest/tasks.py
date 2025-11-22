@@ -9,6 +9,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.core.files.base import ContentFile
 from urllib.parse import urlsplit, unquote, quote
+import re
 from .models import IngestFile, IngestJob, IngestSource
 from .status import set_status
 import os, requests, os as _os, hashlib, random, io
@@ -181,9 +182,13 @@ def process_item(self, file_id: int, job_id: int = None):
     # EMBEDDING + INDEXING via AI engine
     set_status(item, 'EMBEDDING')
     try:
+        steps_meta = getattr(item, 'steps_json', {}) or {}
+        job_payload = job.payload if job and isinstance(job.payload, dict) else {}
+        doc_title = steps_meta.get('page_title') or steps_meta.get('title') or steps_meta.get('subject') or item.filename
         payload = {
             'document_id': str(item.id),
-            'title': item.filename,
+            'title': doc_title,
+            'doc_title': doc_title,
         }
         # Source type inference (prefer explicit sync mode/source kind)
         source_type = None
@@ -200,17 +205,63 @@ def process_item(self, file_id: int, job_id: int = None):
         if not source_type:
             source_type = 'document'
         payload['source_type'] = source_type
+        base_metadata = { 'source_type': source_type }
         # Origin URL (if imported from web/source)
         origin_url = None
         try:
             if job and isinstance(job.payload, dict):
-                origin_url = job.payload.get('url') or job.payload.get('start_url') or job.payload.get('source_url')
+                origin_url = job.payload.get('url') or job_payload.get('start_url') or job_payload.get('source_url')
             if not origin_url:
                 origin_url = (getattr(item, 'steps_json', {}) or {}).get('source_url')
         except Exception:
             origin_url = None
         if origin_url:
             payload['origin_url'] = origin_url
+            base_metadata.setdefault('url', origin_url)
+            base_metadata.setdefault('origin_url', origin_url)
+        # Location metadata captured upstream (email/chat/db/etc.)
+        def _meta_first(*keys):
+            for key in keys:
+                if isinstance(steps_meta, dict) and steps_meta.get(key) is not None:
+                    return steps_meta.get(key)
+                if job_payload.get(key) is not None:
+                    return job_payload.get(key)
+            return None
+
+        url_hint = _meta_first('url', 'view_url', 'source_url', 'origin_url')
+        if url_hint:
+            base_metadata.setdefault('url', url_hint)
+        message_id = _meta_first('message_id', 'messageId', 'id')
+        thread_id = _meta_first('thread_id', 'threadId', 'thread_ts')
+        ts = _meta_first('ts', 'timestamp')
+        table = _meta_first('table')
+        row_id = _meta_first('row_id', 'rowId', 'pk')
+        column = _meta_first('column', 'field')
+        if message_id:
+            base_metadata['message_id'] = message_id
+        if thread_id:
+            base_metadata['thread_id'] = thread_id
+        if ts:
+            base_metadata['ts'] = ts
+        if table:
+            base_metadata['table'] = table
+        if row_id:
+            base_metadata['row_id'] = row_id
+        if column:
+            base_metadata['column'] = column
+        extra = {}
+        for k in ('sender', 'from', 'workspace', 'channel', 'provider', 'file_id', 'fileId', 'author', 'heading', 'selector'):
+            v = _meta_first(k)
+            if v:
+                extra[k] = v
+        if steps_meta:
+            for k in ('page_title', 'subject', 'email'):
+                if steps_meta.get(k) and k not in extra:
+                    extra[k] = steps_meta.get(k)
+        if extra:
+            base_metadata['extra'] = extra
+        if base_metadata:
+            payload['metadata'] = base_metadata
         if pages_payload:
             payload['pages'] = pages_payload
         else:
@@ -327,6 +378,15 @@ def process_web_job(self, job_id: int):
             if '.' not in base:
                 base = (base or 'page') + '.html'
             logger.info("process_web_job fetched url=%s bytes=%s ct=%s", url, len(content or b''), ct)
+        page_title = None
+        try:
+            if content and isinstance(content, (bytes, bytearray)) and 'html' in (ct or '').lower():
+                txt = content.decode('utf-8', errors='ignore')
+                m = re.search(r'<title[^>]*>(.*?)</title>', txt, flags=re.IGNORECASE | re.DOTALL)
+                if m and m.group(1):
+                    page_title = ' '.join(m.group(1).split())
+        except Exception:
+            page_title = None
         sha = hashlib.sha256(content).hexdigest()
         # Reuse existing file for same URL if present; else fallback to checksum
         rec = rec or (IngestFile.objects
@@ -343,7 +403,7 @@ def process_web_job(self, job_id: int):
                 content_type=ct,
                 size=len(content),
                 checksum=sha,
-                steps_json={'source_url': url},
+                steps_json={'source_url': url, **({'page_title': page_title} if page_title else {})},
                 organization=j.organization
             )
             logger.info("process_web_job created file id=%s for url=%s", rec.id, url)
@@ -355,6 +415,8 @@ def process_web_job(self, job_id: int):
             rec.checksum = sha
             sj = dict(rec.steps_json or {})
             sj['source_url'] = url
+            if page_title:
+                sj['page_title'] = page_title
             rec.steps_json = sj
             update_fields = ['filename','content_type','size','checksum','steps_json']
             if j.organization and rec.organization_id != getattr(j.organization, 'id', None):
